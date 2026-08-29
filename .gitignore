@@ -1,0 +1,13 @@
+.state/trace.json
+.state/gate.json
+.state/gate.partial.json
+
+# Claude 临时文件
+.claude/
+.superpowers/
+.mcp.json
+
+node_modules/
+
+# gen-shared 从契约仓拷来的中间产物：真源在 shared 仓，不进本仓 git
+generated/

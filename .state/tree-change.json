@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "project": "saas-identity-platform-contract-test",
+  "proposed_at": "2026-08-29",
+  "summary": "M96 契约一致性验证模块登记（ADR-0015 contract-test 仓首次建树）",
+  "reason": "ADR-0015 — 新建第 6 角色仓，黑盒 HTTP 打 4 个后端（msw:5174 / nextjs:3000 / aspnetcore:5000 / springboot:8080），验「前端不可区分」。M96 是本仓保留命名空间（msw 已占 M99），不镜像 BASE 业务模块。同时废弃 init_project 生成的 M01 占位行（从未是真实功能，但按『行不删、号不回收』只改状态）。",
+  "changes": [
+    {
+      "action": "废弃",
+      "id": "M01.F01.I01",
+      "reason": "init_project generic 脚手架占位行，非真实功能"
+    },
+    {
+      "action": "废弃",
+      "id": "M01.F01",
+      "reason": "init_project generic 脚手架占位行，非真实功能"
+    },
+    {
+      "action": "废弃",
+      "id": "M01",
+      "reason": "init_project generic 脚手架占位行；本仓真实模块用保留命名空间 M96"
+    },
+    {
+      "action": "新增",
+      "id": "M96",
+      "name": "契约一致性验证",
+      "reason": "ADR-0015 保留命名空间：跨后端黑盒 HTTP 比对，不镜像 BASE 业务模块"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F01",
+      "name": "normalize 契约",
+      "reason": "把「同输出」从『逐字节相同』（不可达）翻译成『前端不可区分』（可达）"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F01.I01",
+      "name": "剔除非确定性字段",
+      "reason": "id/*_id/created_at/updated_at/token/jti 天生不同；剔除清单即『前端不许依赖』契约"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F01.I02",
+      "name": "日期归一化到 UTC Z",
+      "reason": "Jackson 出 +00:00、System.Text.Json 出 Z，OpenAPI 层面都合法"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F01.I03",
+      "name": "缺失与显式 null 等价",
+      "reason": "NON_ABSENT vs DefaultIgnoreCondition 的序列化差异"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F01.I04",
+      "name": "递归排序 object key 与数组",
+      "reason": "字段顺序与集合顺序不属于契约"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F02",
+      "name": "四方比对",
+      "reason": "同一请求打 N 个后端，status 全等 + schema 校验 + normalize 后全等"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F02.I01",
+      "name": "status 全等",
+      "reason": "前端的 catch 分支由状态码决定"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F02.I02",
+      "name": "normalize 后 body 全等",
+      "reason": "前端渲染由字段名/类型/必填决定"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F02.I03",
+      "name": "GET /me/tenants 四方比对",
+      "reason": "首个落地端点：只读、无写、4 个后端都实现（ADR-0015 §7 先跑通一个）"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F03",
+      "name": "目标声明与可达性",
+      "reason": "声明了就必须可达，不许静默跳过"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F03.I01",
+      "name": "目标端口声明",
+      "reason": "4 个后端端口按 conventions §6 显式字面量，非 env 兜底"
+    },
+    {
+      "action": "新增",
+      "id": "M96.F03.I02",
+      "name": "声明即必须可达",
+      "reason": "CONTRACT_TARGETS 里列了却连不上 = 红，不是 skip"
+    }
+  ],
+  "sync_files": [
+    "docs/functions/function-tree.md"
+  ],
+  "approved": true,
+  "base_sha": "d27f299b0d9a1a82"
+}

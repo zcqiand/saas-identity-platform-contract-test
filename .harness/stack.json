@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "suite_version": "0.6.0",
+  "project": "saas-identity-platform-contract-test",
+  "stack": "shared-typescript",
+  "gates": {
+    "L3": {
+      "name": "类型",
+      "cmd": ["npx", "--no", "tsc", "--noEmit"],
+      "fix": "补全类型"
+    },
+    "L4": {
+      "name": "测试",
+      "cmd": ["npx", "--no", "vitest", "run"],
+      "fix": "先让测试变绿。四方比对需 CONTRACT_TARGETS + 对应后端在跑"
+    }
+  },
+  "trace_cmd": ["npx", "--no", "vitest", "run"],
+  "trace_env": {
+    "TRACE_MAP": "1"
+  },
+  "source_dirs": [
+    "src"
+  ],
+  "test_dirs": [
+    "tests"
+  ]
+}

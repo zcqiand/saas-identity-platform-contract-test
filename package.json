@@ -1,0 +1,28 @@
+{
+  "name": "@saas/identity-platform-contract-test",
+  "version": "0.1.0",
+  "description": "SaaS Identity Platform — contract conformance suite. Black-box HTTP against every backend; asserts they are indistinguishable to the frontend (ADR-0015).",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen:shared": "tsx scripts/gen-shared.ts",
+    "build": "npm run gen:shared",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "contract": "vitest run tests/me-tenants.test.ts"
+  },
+  "dependencies": {
+    "axios": "^1.19.0",
+    "axios-cookiejar-support": "^5.0.3",
+    "tough-cookie": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

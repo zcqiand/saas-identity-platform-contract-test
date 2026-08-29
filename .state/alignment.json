@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "project": "saas-identity-platform-contract-test",
+  "functions": {
+    "modules": 2,
+    "features": 4,
+    "items": 10
+  },
+  "warnings_total": 17,
+  "warnings": {
+    "已上线但无设计映射": [
+      "M96.F01.I01",
+      "M96.F01.I02",
+      "M96.F01.I03",
+      "M96.F01.I04",
+      "M96.F02.I01",
+      "M96.F02.I02",
+      "M96.F03.I01",
+      "M96.F03.I02"
+    ],
+    "已上线但不在任何流程且非孤儿白名单": [
+      "M96.F01.I01",
+      "M96.F01.I02",
+      "M96.F01.I03",
+      "M96.F01.I04",
+      "M96.F02.I01",
+      "M96.F02.I02",
+      "M96.F03.I01",
+      "M96.F03.I02"
+    ],
+    "开发中但无需求文档引用": [
+      "M96.F02.I03"
+    ]
+  },
+  "unreachable_shipped": [],
+  "function_map": {
+    "M01.F01.I01": {
+      "name": "（init_project 占位）",
+      "status": "已废弃",
+      "type": "查询",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [],
+      "entry": []
+    },
+    "M96.F01.I01": {
+      "name": "剔除非确定性字段",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F01.I01 剔除非确定性字段 > ALWAYS_VOLATILE 覆盖两种命名风格",
+        "M96.F01.I01 剔除非确定性字段 > token 类字段总是剔除",
+        "M96.F01.I01 剔除非确定性字段 > 剔 ID 后 msw 的合成 ID 与真库 UUID 可比",
+        "M96.F01.I01 剔除非确定性字段 > 显式传 ID_KEYS 才剔 —— 比对含 msw（内存 fixture，不共库）时用",
+        "M96.F01.I01 剔除非确定性字段 > 默认不剔 ID —— 三个真后端共库，UUID 本来就该相等"
+      ],
+      "entry": []
+    },
+    "M96.F01.I02": {
+      "name": "日期归一化到 UTC Z",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F01.I02 日期归一化到 UTC Z > Jackson 与 System.Text.Json 的两种写法归一后相等",
+        "M96.F01.I02 日期归一化到 UTC Z > 不是日期的字符串原样保留",
+        "M96.F01.I02 日期归一化到 UTC Z > 把 +00:00 偏移改写成 Z",
+        "M96.F01.I02 日期归一化到 UTC Z > 把非零偏移换算到 UTC"
+      ],
+      "entry": []
+    },
+    "M96.F01.I03": {
+      "name": "缺失与显式 null 等价",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F01.I03 缺失与显式 null 等价 > 嵌套层里的 null 同样等价",
+        "M96.F01.I03 缺失与显式 null 等价 > 显式 null 与字段缺失归一后相等"
+      ],
+      "entry": []
+    },
+    "M96.F01.I04": {
+      "name": "递归排序 object key 与数组",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F01.I04 递归排序 object key 与数组 > 字段顺序不属于契约",
+        "M96.F01.I04 递归排序 object key 与数组 > 嵌套对象数组也按稳定键排",
+        "M96.F01.I04 递归排序 object key 与数组 > 数组顺序不属于契约"
+      ],
+      "entry": []
+    },
+    "M96.F02.I01": {
+      "name": "status 全等",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F02.I01 status 全等 > 单个目标不比对",
+        "M96.F02.I01 status 全等 > 状态码一致时无分歧",
+        "M96.F02.I01 status 全等 > 状态码分叉时点名是哪个后端"
+      ],
+      "entry": []
+    },
+    "M96.F02.I02": {
+      "name": "normalize 后 body 全等",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F02.I02 normalize 后 body 全等 > 只有字段顺序/日期格式不同 → 不算分歧",
+        "M96.F02.I02 normalize 后 body 全等 > 只比两个真后端时 ID 参与比对 —— 共库就该相等",
+        "M96.F02.I02 normalize 后 body 全等 > 含 msw 时剔 ID —— 它是内存 fixture，ID 不共库",
+        "M96.F02.I02 normalize 后 body 全等 > 字段值真不同 → 报分歧并指出第一处"
+      ],
+      "entry": []
+    },
+    "M96.F02.I03": {
+      "name": "`GET /me/tenants` 四方比对",
+      "status": "开发中",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [],
+      "entry": []
+    },
+    "M96.F03.I01": {
+      "name": "目标端口声明",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F03.I01 目标端口声明 > 只有 msw 是内存 fixture",
+        "M96.F03.I01 目标端口声明 > 四个目标端口与 conventions §6 一致"
+      ],
+      "entry": []
+    },
+    "M96.F03.I02": {
+      "name": "声明即必须可达",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F03.I02 声明即必须可达 > 声明了不认识的名字 → 抛错，不静默忽略",
+        "M96.F03.I02 声明即必须可达 > 声明了认识的目标就返回它们",
+        "M96.F03.I02 声明即必须可达 > 未声明目标时返回空 —— 只跑单元测试"
+      ],
+      "entry": []
+    }
+  }
+}
