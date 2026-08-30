@@ -74,6 +74,18 @@
 | M96.F02.I01 | status 全等 | 接口 | 前端的 catch 分支由状态码决定 | 已上线 |
 | M96.F02.I02 | normalize 后 body 全等 | 接口 | 前端渲染由字段名/类型/必填决定；只报第一处分叉 | 已上线 |
 | M96.F02.I03 | `GET /me/tenants` 四方比对 | 接口 | 首个落地端点：只读、无写、4 后端都实现。**尚未对活后端跑过** | 开发中 |
+| M96.F02.I04 | `GET /me` 四方比对 | 接口 | alice profile（id/email/memberships）；CurrentUser 单对象 | 开发中 |
+| M96.F02.I05 | `GET /me/menus` 四方比对 | 接口 | 按 appCode 分组的菜单树，map<string,EffectiveMenuNode[]> | 开发中 |
+| M96.F02.I06 | `GET /apps/{code}` 四方比对 | 接口 | 公开 AppPublicInfo；带 Bearer 探 | 开发中 |
+| M96.F02.I07 | `GET /tenants/{t}/roles` 四方比对 | 接口 | 角色列表，分页包装 `{items,page,pageSize,total}` | 开发中 |
+| M96.F02.I08 | `GET /tenants/{t}/roles/{r}` 四方比对 | 接口 | 单个 Role | 开发中 |
+| M96.F02.I09 | `GET /tenants/{t}/roles/{r}/menus` 四方比对 | 接口 | 角色绑定的菜单 ID 列表 | 开发中 |
+| M96.F02.I10 | `GET /tenants/{t}/users` 四方比对 | 接口 | 用户列表，分页包装 | 开发中 |
+| M96.F02.I11 | `GET /tenants/{t}/users/{u}` 四方比对 | 接口 | 单个 User | 开发中 |
+| M96.F02.I12 | `GET /tenants/{t}/audit-events` 四方比对 | 接口 | 审计事件列表，分页包装 | 开发中 |
+| M96.F02.I13 | `GET /tenants/{t}/audit-events/by-user/{u}` 四方比对 | 接口 | by-user 过滤的审计事件 | 开发中 |
+| M96.F02.I14 | `GET /tenants/{t}/audit-events/retention` 四方比对 | 接口 | 留存策略 `{retentionDays:int32}` | 开发中 |
+| M96.F02.I15 | `GET /tenants/{t}/api-keys` 四方比对 | 接口 | api-keys 列表，分页包装 | 开发中 |
 
 ### M96.F03 目标声明与可达性
 

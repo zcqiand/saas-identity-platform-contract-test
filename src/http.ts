@@ -77,3 +77,41 @@ export async function probeAll(targets: readonly Target[], path: string): Promis
   }
   return out;
 }
+
+/**
+ * M96.F02 探针——method-通用包装。第一批（Tier A 只读）只走 GET，留 method 字段
+ * 是为了 Phase 2 写端点不用改名。`method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE"`
+ * 后续在加写支持时一并实现分支。
+ */
+export type ProbeMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+
+export interface ProbeRequestOptions {
+  readonly method: ProbeMethod;
+  readonly path: string;
+  readonly token?: string;
+  readonly body?: unknown;
+}
+
+/** 单目标探针（GET 行为与 probeGet 一致；其他 method 留给 Phase 2 实现）。 */
+export async function probeRequest(target: Target, opts: ProbeRequestOptions): Promise<Probe> {
+  if (opts.method !== "GET") {
+    throw new Error(`probeRequest: method=${opts.method} 还未实现（Phase 2 写端点批次）`);
+  }
+  return probeGet(target, opts.path, opts.token ?? (await login(target)));
+}
+
+/** 对一组目标跑同一个请求（method-通用）。登录各自进行。 */
+export async function probeAllRequest(
+  targets: readonly Target[],
+  opts: Omit<ProbeRequestOptions, "token">,
+): Promise<Probe[]> {
+  if (opts.method !== "GET") {
+    throw new Error(`probeAllRequest: method=${opts.method} 还未实现（Phase 2 写端点批次）`);
+  }
+  const out: Probe[] = [];
+  for (const t of targets) {
+    const token = await login(t);
+    out.push(await probeGet(t, opts.path, token));
+  }
+  return out;
+}
