@@ -9,7 +9,15 @@
 //        （如 mock 仓测试名里说「M04.F03 对应 OAuth server mock」），不进 trace，
 //        不参与 L5 引用检查 —— 这正是 conventions §7「mock 不镜像业务模块」的
 //        测试侧落地。
+//   v5 — 完全放弃 onTaskUpdate，改用 onFinished(files: File[]) 走完整任务树。
+//        vitest 2.x 的 onTaskUpdate 下发的是 `[id, result, meta]` tuple（不是
+//        `{tasks: []}` 对象），且注释明确说「Usually reported after the task
+//        finishes」—— `describe.skipIf(!live)` 过滤掉的 inner test 永远收不到。
+//        onFinished(files) 的 `files: File[]` 里 `File extends Suite extends TaskBase`，
+//        每个 File 自带 `tasks: Task[]`，是 inert 测试的唯二可达路径（另一条是
+//        自己从子 worker 拉，对单仓没必要）。这次改彻底切断「收不到 inert」复发路径。
 import type { Reporter } from "vitest/reporters";
+import type { File } from "@vitest/runner";
 import { readFileSync } from "node:fs";
 
 interface TraceEntry {
@@ -76,16 +84,13 @@ export default class FnReporter implements Partial<Reporter> {
   }
 
   /** 用原型方法定义钩子（vitest 2.x 的 instanceof 检查不接受实例属性箭头函数）。 */
-  async onTaskUpdate(packs: any[]) {
+  async onFinished(files: File[], _errors?: unknown[], _coverage?: unknown) {
     if (process.env.TRACE_MAP !== "1") return;
-    for (const pack of packs) {
-      collectTests(pack.tasks ?? []).forEach((t) => this.addEntry(t));
+    if (!this.namespaces) this.namespaces = loadNamespaces();
+    this.entries = [];
+    for (const file of files ?? []) {
+      for (const t of collectTests(file.tasks ?? [])) this.addEntry(t);
     }
-    await this.flush();
-  }
-
-  async onFinished(_files?: unknown[]) {
-    if (process.env.TRACE_MAP !== "1") return;
     await this.flush();
   }
 
