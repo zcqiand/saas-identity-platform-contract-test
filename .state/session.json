@@ -1,13 +1,27 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-contract-test",
-  "current_task": "项目已初始化，等待第一个需求",
-  "done": ["脚手架生成，门禁全绿"],
-  "next": "跑 /req <需求原话> 落第一份需求文档，同时把 docs/functions/function-tree.md 填成真实功能清单",
-  "open_questions": [],
-  "dont": [
-    "不要改 .harness/stack.json 让门变松",
-    "不要给 skip 的测试挂功能 ID"
+  "current_task": "代码侧 I05/I15 fix 已落地 aspnetcore 4f06d05，待 4 后端环境跑真合同测试验绿",
+  "last_session_at": "2026-08-31",
+  "done": [
+    "诊断根因: TypeSpec `?` 在 OAS 3.1 emit 无 nullable union → NSwag 生成 non-nullable Guid/DateTimeOffset → 实现层 ?? Guid.Empty / ?? default emit sentinel → 4 后端 emit null 不齐 (M96.F01.I03 normalize 不收口)",
+    "gate.py 跑过: L0/L0.5/L3/L4/L5 全绿 (注意: L4 跑的是 describe.runIf(!live) 的 1 个 trivial 「未跑提示」test, 非 4 后端真合同比对 — 沙箱无 docker 无 4 后端, 真合同需 CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs)",
+    "fix 已落地 saas-identity-platform-aspnetcore 子仓 commit 4f06d05 + parent xr-code-suite commit eacae69 gitlink bump"
   ],
-  "last_gate_passed_at": null
+  "next": [
+    "用户在能起 4 后端的 dev/CI 跑真合同: `cd output/saas-identity-platform-contract-test && CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run`, 期望 70/2/24 → 72/0/24",
+    "绿后开 I05 springboot 实际端点探索 (序列 1→2→3 中的 2): 需要先定起点方法 — 从需求文档、OpenAPI spec 还是运行时反查?"
+  ],
+  "open_questions": [
+    "I05 springboot 实际端点之前提未明确定义 — 探索起点方法 (req/反查/OpenAPI) 待 user 拍板",
+    "I04/I05 行写 parentId + 1 字节 diff — 总表算 1 失败，但症状是 2。同一 root (NSwag nullable) 应一起绿，但要 user 验完确认"
+  ],
+  "dont": [
+    "改 .harness/stack.json 让 L4 跳过 4 后端要求 — 契约只认可实跑",
+    "改 normalize.ts 加 parentId/lastUsedAt 进 VOLATILE — 会丢最强信号 (其他 3 后端 null 是真行为)",
+    "aspnetcore gate L1 (dotnet format) src/Program.cs:136-144 红是 pre-existing (commit 6b9cd02), 不要顺手修"
+  ],
+  "last_gate_passed_at": null,
+  "active_branch": "master",
+  "ahead_of_origin": "0"
 }
