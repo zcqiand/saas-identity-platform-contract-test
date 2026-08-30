@@ -53,6 +53,7 @@ describe.skipIf(!live)("M96.F02.I05 GET /api/v1/me/menus 四方比对", () => {
   let probes: Awaited<ReturnType<typeof probeAll>>;
 
   beforeAll(async () => {
+    // OpenAPI: getMyMenus(): Record<appCode, EffectiveMenuNode[]> — 全部 app map
     probes = await probeAll(targets, "/api/v1/me/menus");
   }, 60_000);
 
