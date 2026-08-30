@@ -36,9 +36,13 @@ export function compareStatuses(probes: readonly Probe[]): Divergence[] {
 }
 
 /** M96.F02.I02 —— 前端渲染由字段名/类型/必填决定，normalize 后必须全等。 */
-export function compareBodies(probes: readonly Probe[], targets: readonly Target[]): Divergence[] {
+export function compareBodies(
+  probes: readonly Probe[],
+  targets: readonly Target[],
+  extraDrop: readonly string[] = [],
+): Divergence[] {
   if (probes.length < 2) return [];
-  const drop = dropKeys(targets);
+  const drop = [...dropKeys(targets), ...extraDrop];
   const oracle = probes.find((p) => p.target === ORACLE) ?? probes[0];
   const want = stable(oracle.body, { drop });
 
@@ -74,8 +78,12 @@ function firstDiff(want: string, got: string, oracleName: string, target: string
   return `长度不同: ${oracleName} ${a.length} 行 / ${target} ${b.length} 行`;
 }
 
-export function compareAll(probes: readonly Probe[], targets: readonly Target[]): Divergence[] {
-  return [...compareStatuses(probes), ...compareBodies(probes, targets)];
+export function compareAll(
+  probes: readonly Probe[],
+  targets: readonly Target[],
+  extraDrop: readonly string[] = [],
+): Divergence[] {
+  return [...compareStatuses(probes), ...compareBodies(probes, targets, extraDrop)];
 }
 
 export function formatDivergences(items: readonly Divergence[]): string {
