@@ -1,27 +1,30 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-contract-test",
-  "current_task": "代码侧 I05/I15 fix 已落地 aspnetcore 4f06d05，待 4 后端环境跑真合同测试验绿",
+  "current_task": "序列 1 闭环 — I05/I15 红根因已 fix + 实跑绿；下一步开序列 2 (I05 springboot 端点探索)",
   "last_session_at": "2026-08-31",
   "done": [
     "诊断根因: TypeSpec `?` 在 OAS 3.1 emit 无 nullable union → NSwag 生成 non-nullable Guid/DateTimeOffset → 实现层 ?? Guid.Empty / ?? default emit sentinel → 4 后端 emit null 不齐 (M96.F01.I03 normalize 不收口)",
-    "gate.py 跑过: L0/L0.5/L3/L4/L5 全绿 (注意: L4 跑的是 describe.runIf(!live) 的 1 个 trivial 「未跑提示」test, 非 4 后端真合同比对 — 沙箱无 docker 无 4 后端, 真合同需 CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs)",
-    "fix 已落地 saas-identity-platform-aspnetcore 子仓 commit 4f06d05 + parent xr-code-suite commit eacae69 gitlink bump"
+    "fix 已落地 saas-identity-platform-aspnetcore 子仓 commit 4f06d05: gen-shared.sh nswag run 后给 parentId/lastUsedAt/expiresAt/revokedAt 注 [JsonIgnore(WhenWritingDefault)]",
+    "dotnet build 0/0 + dotnet test 46/0/11 验证",
+    "真合同比对实跑 (4 后端同启 5174/5000/3000/8080): 88 passed / 0 failed / 8 skipped — baseline 70/2/24 → 88/0/8, I05 parentId + I15 lastUsedAt 全绿, 16 个原本 skip test 因 4 后端起立解 skip 也跑过",
+    "跨仓 commit 链: aspnetcore 4f06d05 → 40a9505 → 075e737; parent eacae69 → ecf5ad2"
   ],
   "next": [
-    "用户在能起 4 后端的 dev/CI 跑真合同: `cd output/saas-identity-platform-contract-test && CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run`, 期望 70/2/24 → 72/0/24",
-    "绿后开 I05 springboot 实际端点探索 (序列 1→2→3 中的 2): 需要先定起点方法 — 从需求文档、OpenAPI spec 还是运行时反查?"
+    "序列 1→2: 开 I05 springboot 实际端点探索 (绿基线成立, 可对照 aspnetcore 启点)",
+    "I05 springboot 端点之前提未明确定义 — 探索起点方法 (req 文档 / OpenAPI spec / 运行时反查) 需 user 拍板先"
   ],
   "open_questions": [
-    "I05 springboot 实际端点之前提未明确定义 — 探索起点方法 (req/反查/OpenAPI) 待 user 拍板",
-    "I04/I05 行写 parentId + 1 字节 diff — 总表算 1 失败，但症状是 2。同一 root (NSwag nullable) 应一起绿，但要 user 验完确认"
+    "I05 springboot 端点探索的入口方法 (req/OpenAPI/反查) — 待 user 拍板",
+    "剩 8 skipped test 是不是该全跑？还是预期 skip (e.g., 写路径未连 4 后端时 skip)？需要逐 case 核"
   ],
   "dont": [
-    "改 .harness/stack.json 让 L4 跳过 4 后端要求 — 契约只认可实跑",
-    "改 normalize.ts 加 parentId/lastUsedAt 进 VOLATILE — 会丢最强信号 (其他 3 后端 null 是真行为)",
-    "aspnetcore gate L1 (dotnet format) src/Program.cs:136-144 红是 pre-existing (commit 6b9cd02), 不要顺手修"
+    "改 .harness/stack.json 让 L4 跳过 4 后端要求 — 契约只认可实跑 (本会话已实跑过 88/0/8 验证)",
+    "改 normalize.ts 加 parentId/lastUsedAt 进 VOLATILE — 丢最强信号 (其他 3 后端 null 是真行为)",
+    "aspnetcore gate L1 (dotnet format) src/Program.cs:136-144 红是 pre-existing (commit 6b9cd02), 不要顺手修",
+    "重启沙箱的 4 后端时不要用 changeme 当 DB 密码 — 真密码在 nextjs .env 是 qiand68+++"
   ],
-  "last_gate_passed_at": null,
+  "last_gate_passed_at": "2026-08-31T00:37+08:00",
   "active_branch": "master",
   "ahead_of_origin": "0"
 }
