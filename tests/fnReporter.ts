@@ -16,15 +16,54 @@
 //        onFinished(files) 的 `files: File[]` 里 `File extends Suite extends TaskBase`，
 //        每个 File 自带 `tasks: Task[]`，是 inert 测试的唯二可达路径（另一条是
 //        自己从子 worker 拉，对单仓没必要）。这次改彻底切断「收不到 inert」复发路径。
+//   v6 — 写 mode + contract_targets 顶层字段，供 harness.load_trace 配合 require_live
+//        做 unit 模式硬防御。unit = describe.skipIf(!live) 全跳、trace 全 inert、矩阵空
+//        = 假绿；v6 让这一假绿暴露给 harness（ADR-0016）。
+//   v7 — A1.5: vitest describe.skipIf(!live) 仅信 env,但 vitest 2.x 在 beforeAll
+//        抛 ECONNREFUSED 时会把内层 it() 标 skip（不是 fail）,fnReporter 拿到全 inert
+//        但 env 有 CONTRACT_TARGETS → 仍写 mode="live" → A1 防御被绕过。
+//        修法: flush 前主动 fetch 4 后端 healthz 并行探测,4 个全活才写 mode="live"。
+//        这与 .github/workflows/ci.yml 的 healthcheck 串行探测是同一份真相。
 import type { Reporter } from "vitest/reporters";
 import type { File } from "@vitest/runner";
 import { readFileSync } from "node:fs";
+
+import { TARGETS } from "../src/targets.js";
 
 interface TraceEntry {
   test: string;
   fns: string[];
   inert: boolean;
 }
+
+interface TraceFile {
+  schema: 1;
+  mode: "live" | "unit";
+  contract_targets: string[];
+  tests: TraceEntry[];
+}
+
+// 模块顶层求值 env —— vitest 启动后稳定。
+// DECLARED_TARGETS 仅是「声明值」；flush 时 EFFECTIVE_* 由 probeLive() 异步探测决定。
+// 与 tests/*.test.ts 里 `describe.skipIf(!live)` 的 `targets.length >= 2` 判定一致，
+// 即便 4 后端未起,describe 仍会尝试跑 (beforeAll 抛错 → vitest 内层 skip) —— 这是
+// 为什么必须主动探测,不能信 env。
+const DECLARED_TARGETS = (process.env.CONTRACT_TARGETS ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+let EFFECTIVE_MODE: "live" | "unit" = DECLARED_TARGETS.length >= 2 ? "live" : "unit";
+let EFFECTIVE_TARGETS: string[] = [...DECLARED_TARGETS];
+
+// 与 .github/workflows/ci.yml 的 healthcheck 路径对齐 —— 真源是 ci.yml,
+// 这里镜像,改一处必须同步另一处 (后端自己改 healthz 路径会同时断两边)。
+const HEALTH_PATHS: Record<string, string> = {
+  msw: "/healthz",
+  aspnetcore: "/healthz",
+  springboot: "/actuator/health",
+  nextjs: "/api/healthz",
+};
+const DEFAULT_HEALTH = "/healthz";
 
 const TRACE_FILE = ".state/trace.json";
 const FUNCTION_ID_RE = /\bM\d{2}(?:\.F\d{2}(?:\.I\d{2})?)?\b/g;
@@ -69,6 +108,48 @@ function collectTests(
   return out;
 }
 
+/** A1.5 探活：并行 fetch 4 后端 healthcheck;任一挂 → mode=unit + 清空 contract_targets。 */
+async function probeLive(): Promise<void> {
+  if (DECLARED_TARGETS.length < 2) {
+    EFFECTIVE_MODE = "unit";
+    EFFECTIVE_TARGETS = [];
+    return;
+  }
+  const checks = await Promise.all(
+    DECLARED_TARGETS.map(async (name) => {
+      const target = TARGETS[name];
+      if (!target) return { name, ok: false, reason: "unknown target" };
+      const path = HEALTH_PATHS[name] ?? DEFAULT_HEALTH;
+      const url = `${target.baseUrl}${path}`;
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
+        return { name, ok: res.ok, reason: res.ok ? "" : `HTTP ${res.status}` };
+      } catch (cause) {
+        return {
+          name,
+          ok: false,
+          reason: cause instanceof Error ? cause.message.split("\n")[0] : String(cause),
+        };
+      }
+    }),
+  );
+  const failed = checks.filter((c) => !c.ok);
+  if (failed.length === 0) {
+    EFFECTIVE_MODE = "live";
+    EFFECTIVE_TARGETS = [...DECLARED_TARGETS];
+  } else {
+    EFFECTIVE_MODE = "unit";
+    EFFECTIVE_TARGETS = [];
+    // stderr 提示哪个后端挂;harness.load_trace 仍会 raise,但开发者立刻看到原因。
+    console.warn(
+      `[contract-test] live mode 失效: ${failed.length}/${checks.length} 个 backend healthcheck 失败`,
+    );
+    for (const f of failed) {
+      console.warn(`  - ${f.name}: ${f.reason}`);
+    }
+  }
+}
+
 export default class FnReporter implements Partial<Reporter> {
   private entries: TraceEntry[] = [];
   private namespaces: Set<string> | null = null;
@@ -100,12 +181,22 @@ export default class FnReporter implements Partial<Reporter> {
   }
 
   private async flush() {
+    // A1.5: 先探活再写 — DECLARED vs EFFECTIVE 分离就是为了这一步。
+    // 4 后端都连得上 → mode="live";否则 mode="unit" + 清空 contract_targets。
+    await probeLive();
+
     const fs = await import("node:fs");
     const path = await import("node:path");
     fs.mkdirSync(".state", { recursive: true });
+    const out: TraceFile = {
+      schema: 1,
+      mode: EFFECTIVE_MODE,
+      contract_targets: EFFECTIVE_TARGETS,
+      tests: this.entries,
+    };
     fs.writeFileSync(
       path.resolve(TRACE_FILE),
-      JSON.stringify({ schema: 1, tests: this.entries }, null, 2) + "\n",
+      JSON.stringify(out, null, 2) + "\n",
       "utf-8",
     );
   }

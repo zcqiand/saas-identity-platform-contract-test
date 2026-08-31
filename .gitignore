@@ -1,6 +1,8 @@
 .state/trace.json
 .state/gate.json
 .state/gate.partial.json
+.state/alignment.json
+.state/session.json
 
 # Claude 临时文件
 .claude/
