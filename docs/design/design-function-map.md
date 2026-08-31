@@ -30,6 +30,9 @@
 | M96.F02.I16 | — | `POST /api/v1/tenants/{t}/api-keys` | — | — | [REQ-2026-008 §2 AC-1](../requirements/REQ-2026-008-write-endpoint-coverage.md) | 已上线 |
 | M96.F02.I17 | — | `POST /api/v1/tenants/{t}/api-keys/{k}/revoke` | — | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I18 | — | `GET /api/v1/tenants/{t}/audit-events?action=` | `audit_events` (metadata.apiKeyId) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I19 | — | `POST /api/v1/tenants/{t}/users` | `users` (status 固定 active, 4 后端契约面) + `audit_events` (user_created) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I20 | — | `PUT /api/v1/tenants/{t}/roles/{r}/menus` | `role_menu_grants` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I21 | — | `DELETE /api/v1/tenants/{t}/api-keys/{k}` | `api_keys` (硬删；幂等返 204 / 404) | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F03.I01 | — | harness: `src/http.ts` POST/PATCH/PUT/DELETE + `src/unique.ts` + `src/teardown.ts` | — | — | REQ-2026-008 §3 T-1 | 已上线 |
 | M96.F03.I02 | — | harness: `src/targets.ts` `selectedTargets` + `TargetError` | — | — | ADR-0015 §Decision.4（声明即必须可达） | 已上线 |
 

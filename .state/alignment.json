@@ -4,7 +4,7 @@
   "functions": {
     "modules": 2,
     "features": 4,
-    "items": 25
+    "items": 28
   },
   "warnings_total": 0,
   "warnings": {},
@@ -133,132 +133,274 @@
     },
     "M96.F02.I03": {
       "name": "`GET /me/tenants` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I03 /api/v1/me/tenants 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 响应体是 TenantMembership 数组",
+        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 必填字段齐全（契约 required: id/userId/tenantId/roleIds/status/joinedAt）",
+        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I04": {
       "name": "`GET /me` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I04 GET /api/v1/me 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I04 GET /api/v1/me 四方比对 > 响应体是单对象 CurrentUser（不是数组）",
+        "M96.F02.I04 GET /api/v1/me 四方比对 > 必填字段齐全（契约 required: id/email/memberships）",
+        "M96.F02.I04 GET /api/v1/me 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I05": {
       "name": "`GET /me/menus` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 响应体是 map（对象），每个 value 都是菜单数组",
+        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 每个目标都返回 200",
+        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 菜单数组里必填字段齐全（EffectiveMenuNode.required: id/appId/code/name/type/sortOrder/children）"
+      ],
       "entry": []
     },
     "M96.F02.I06": {
       "name": "`GET /apps/{code}` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I06 /api/v1/apps/lab-management 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I06 /api/v1/apps/lab-management 四方比对 > 响应体是单对象 AppPublicInfo（不是数组）",
+        "M96.F02.I06 /api/v1/apps/lab-management 四方比对 > 必填字段齐全（契约 required: id/code/name/status）",
+        "M96.F02.I06 /api/v1/apps/lab-management 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I07": {
       "name": "`GET /tenants/{t}/roles` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > 响应体是分页包装 {items: Role[]}",
+        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > 每个 Role 必填字段齐全",
+        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I08": {
       "name": "`GET /tenants/{t}/roles/{r}` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > 响应体是单对象 Role",
+        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > 必填字段齐全（Role.required）",
+        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I09": {
       "name": "`GET /tenants/{t}/roles/{r}/menus` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > 响应体是单对象 RoleMenuGrant",
+        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > 必填字段齐全（RoleMenuGrant.required: roleId/tenantId/menuIds/updatedAt）",
+        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I10": {
       "name": "`GET /tenants/{t}/users` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I10 GET /tenants/{t}/users 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I10 GET /tenants/{t}/users 四方比对 > 响应体是分页包装 {items: User[]}",
+        "M96.F02.I10 GET /tenants/{t}/users 四方比对 > 每个 User 必填字段齐全",
+        "M96.F02.I10 GET /tenants/{t}/users 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I11": {
       "name": "`GET /tenants/{t}/users/{u}` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对 > 响应体是单对象 User",
+        "M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对 > 必填字段齐全（User.required）",
+        "M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I12": {
       "name": "`GET /tenants/{t}/audit-events` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I12 GET /tenants/{t}/audit-events 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I12 GET /tenants/{t}/audit-events 四方比对 > 响应体是分页包装 {items: AuditEvent[]}",
+        "M96.F02.I12 GET /tenants/{t}/audit-events 四方比对 > 每个 AuditEvent 必填字段齐全（id/tenantId/action/occurredAt）",
+        "M96.F02.I12 GET /tenants/{t}/audit-events 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I13": {
       "name": "`GET /tenants/{t}/audit-events/by-user/{u}` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I13 GET /tenants/{t}/audit-events/by-user/{u} 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I13 GET /tenants/{t}/audit-events/by-user/{u} 四方比对 > 响应体是分页包装 {items: AuditEvent[]}",
+        "M96.F02.I13 GET /tenants/{t}/audit-events/by-user/{u} 四方比对 > 每个 AuditEvent 必填字段齐全",
+        "M96.F02.I13 GET /tenants/{t}/audit-events/by-user/{u} 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I14": {
       "name": "`GET /tenants/{t}/audit-events/retention` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I14 GET /tenants/{t}/audit-events/retention 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I14 GET /tenants/{t}/audit-events/retention 四方比对 > 响应体是单对象 {retentionDays: number}",
+        "M96.F02.I14 GET /tenants/{t}/audit-events/retention 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I15": {
       "name": "`GET /tenants/{t}/api-keys` 四方比对",
-      "status": "开发中",
+      "status": "已上线",
       "type": "接口",
-      "requirements": [],
-      "flows": [],
-      "designs": [],
-      "tests": [],
+      "requirements": [
+        "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
+      ],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I15 /api/v1/tenants/00000000-0000-0000-0000-000000000001/api-keys 四方比对 > normalize 后所有目标全等（只看 envelope + items 的字段集，不比 data）",
+        "M96.F02.I15 /api/v1/tenants/00000000-0000-0000-0000-000000000001/api-keys 四方比对 > 响应体是分页包装 {items: ApiKey[]}",
+        "M96.F02.I15 /api/v1/tenants/00000000-0000-0000-0000-000000000001/api-keys 四方比对 > 每个 ApiKey 必填字段齐全（id/tenantId/name/prefix/status/scopes/createdAt）",
+        "M96.F02.I15 /api/v1/tenants/00000000-0000-0000-0000-000000000001/api-keys 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I16": {
@@ -322,6 +464,73 @@
         "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 msw api_key_created + api_key_revoked 各至少一条",
         "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 nextjs api_key_created + api_key_revoked 各至少一条",
         "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 springboot api_key_created + api_key_revoked 各至少一条"
+      ],
+      "entry": []
+    },
+    "M96.F02.I19": {
+      "name": "`POST /tenants/{t}/users` 四方比对",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 aspnetcore 创建返回 200/201 + user 字段齐全",
+        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 msw 创建返回 200/201 + user 字段齐全",
+        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 nextjs 创建返回 200/201 + user 字段齐全",
+        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 springboot 创建返回 200/201 + user 字段齐全",
+        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
+      ],
+      "entry": []
+    },
+    "M96.F02.I20": {
+      "name": "`PUT /tenants/{t}/roles/{r}/menus` 四方比对",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 aspnetcore 整批设置返回 200 + roleMenuGrant 字段齐全",
+        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 msw 整批设置返回 200 + roleMenuGrant 字段齐全",
+        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 nextjs 整批设置返回 200 + roleMenuGrant 字段齐全",
+        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 springboot 整批设置返回 200 + roleMenuGrant 字段齐全",
+        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
+      ],
+      "entry": []
+    },
+    "M96.F02.I21": {
+      "name": "`DELETE /tenants/{t}/api-keys/{k}` 四方比对",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
+      "tests": [
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 aspnetcore DELETE 物理删除返回 204",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 aspnetcore 前置：POST /api-keys 创一把 key",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 aspnetcore 重复 DELETE 期望 404（幂等性）",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 msw DELETE 物理删除返回 204",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 msw 前置：POST /api-keys 创一把 key",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 msw 重复 DELETE 期望 404（幂等性）",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 nextjs DELETE 物理删除返回 204",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 nextjs 前置：POST /api-keys 创一把 key",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 nextjs 重复 DELETE 期望 404（幂等性）",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 springboot DELETE 物理删除返回 204",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 springboot 前置：POST /api-keys 创一把 key",
+        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 springboot 重复 DELETE 期望 404（幂等性）"
       ],
       "entry": []
     },

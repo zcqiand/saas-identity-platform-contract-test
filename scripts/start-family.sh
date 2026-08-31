@@ -242,16 +242,16 @@ mode = d.get("mode")
 targets = d.get("contract_targets", [])
 non_inert = [t for t in d.get("tests", []) if not t.get("inert")]
 fns = {fid for t in non_inert for fid in t.get("fns", [])}
-expected = {f"M96.F02.I{n:02d}" for n in range(3, 16)}
+expected = {f"M96.F02.I{n:02d}" for n in range(3, 22)}
 miss = expected - fns
 if mode != "live":
     print(f"FAIL: trace mode={mode!r} 不是 live")
     sys.exit(1)
 if miss:
-    print(f"FAIL: 13 端点覆盖缺失: {sorted(miss)}")
+    print(f"FAIL: 19 端点覆盖缺失: {sorted(miss)}")
     sys.exit(1)
 print(f"  ✓ mode={mode!r} targets={targets}")
-print(f"  ✓ {len(non_inert)} non-inert tests, {len(fns)} 个 fn ID (含 I03-I15)")
+print(f"  ✓ {len(non_inert)} non-inert tests, {len(fns)} 个 fn ID (含 I03-I21)")
 PY
 )
 

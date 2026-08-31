@@ -89,6 +89,9 @@
 | M96.F02.I16 | `POST /tenants/{t}/api-keys` 四方比对 | 接口 | 创 key：201 + 必填字段 shape 比对；target.keyId 入 ctx 供 I17/I18 | 已上线 |
 | M96.F02.I17 | `POST /tenants/{t}/api-keys/{k}/revoke` 四方比对 | 接口 | 200 + revokedAt 必填；真后端 idempotent，msw 二次 404 | 已上线 |
 | M96.F02.I18 | 写端点副作用 — api_key_created/revoked 进 audit_events | 接口 | 250ms buffer 后 GET ?action=，按 metadata.apiKeyId 过滤找自己刚创的 key；shape 比对，actorUserId 不参与（msw=undefined vs real=alice） | 已上线 |
+| M96.F02.I19 | `POST /tenants/{t}/users` 四方比对 | 接口 | 创 user：200/201 + 必填字段 shape 比对；status 固定 `active`（4 后端契约面，msw 真后端全一致）；target.userId 入 ctx（cleanup 用 DELETE） | 已上线 |
+| M96.F02.I20 | `PUT /tenants/{t}/roles/{r}/menus` 四方比对 | 接口 | 整批替换 setRoleMenus：200 + roleId/tenantId/menuIds/updatedAt 必填；menuIds 长度按 TARGET_MENU_IDS | 已上线 |
+| M96.F02.I21 | `DELETE /tenants/{t}/api-keys/{k}` 四方比对 | 接口 | 物理删：204 + 幂等（重复删 → 404）；M05.F01.I05 跨后端覆盖；msw/springboot NoSuchElementException→404，aspnetcore KeyNotFoundException→404 | 已上线 |
 
 ### M96.F03 目标声明与可达性
 

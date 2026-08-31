@@ -50,6 +50,9 @@ flowchart TD
 | M96.F02.I16 | 写端点四方比对（POST /tenants/{t}/api-keys）。流程视角无法表达「同时打 4 端」，声明即直写在 `tests/tenant-api-keys-write.test.ts`，harness 自闭环。 |
 | M96.F02.I17 | 写端点四方比对（POST /tenants/{t}/api-keys/{k}/revoke）。与 I16 同处直写，harness 自闭环。 |
 | M96.F02.I18 | 写端点副作用验证（audit_events 出现 api_key_created/revoked）。副作用断言依赖 250ms buffer + `metadata.apiKeyId` 过滤，独立于任何业务流。 |
+| M96.F02.I19 | 写端点四方比对（POST /tenants/{t}/users，status 固定 active）。status:active 契约面不可在 OpenAPI 表达（CreateUserRequest 无 status 字段），harness 直写断言，跨切元能力。 |
+| M96.F02.I20 | 写端点四方比对（PUT /tenants/{t}/roles/{r}/menus，整批替换 setRoleMenus）。harness 直写，独立于任何业务流。 |
+| M96.F02.I21 | 写端点四方比对（DELETE /tenants/{t}/api-keys/{k}，硬删 + 幂等返 204 / 404）。与 I03 revoke 软删并存；幂等语义契约面不可在 OpenAPI 表达，harness 直写断言。 |
 | M96.F03.I01 | harness 目标端口声明（`src/targets.ts` `TARGETS`）。跨切元能力，端口是 conventions §6 显式字面量；套件既不消费也无业务流程「声明端口」一步。 |
 | M96.F03.I02 | harness 「声明即必须可达」不变量（`src/targets.ts` `selectedTargets` + `TargetError`）。跨切不变量的执行点，不挂流程。 |
 

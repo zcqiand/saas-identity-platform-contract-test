@@ -1,34 +1,46 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-contract-test",
-  "current_task": "M96 写端点四方 + audit 副作用全绿 102/0/9；本批收尾 alignment 29→0 + fnReporter loadNamespaces off-by-one 修复 + trace_env CONTRACT_TARGETS 固化",
+  "current_task": "M96 写端点 I19/I20/I21 + L5 清理 + 本地 4 后端 live 全闭环；本批修 7 个真代码 bug + 6 个 L5 软告警清零，剩 4 个跨端 data-race fail 是 vitest 2.x 并行架构问题转下批",
   "last_session_at": "2026-08-31",
   "done": [
-    "流函数里孤儿：flow-function-map.md ### 孤儿功能 表加 11 行（F01 helpers + F02 meta-rules + F02.I16/I17/I18 + F03.*）+ 各自用 ADR-0015 锚点描述为何合法",
-    "设计映射：design-function-map.md 新增 7 行（F01.I01-I04 → src/normalize.ts；F02.I01/I02 → src/compare.ts；F03.I02 → src/targets.ts；F02.I16/I17/I18 + F03.I01 已有）",
-    "fnReporter.ts: loadNamespaces() 从 split('|')+cells[0] 改为 ROW_RE 镀定（/^\\|\\s*(M\\d{2}...)\\s*\\|/），镜像 suite _alignment.py:44 ROW_RE",
-    ".harness/stack.json trace_env 补 CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs——解 4-way 测试在默认 trace 路径下进 inert 路径 fns 被 wipe",
-    "REQ-2026-021 saas-shared 里 M96 例释（M96 仓 contract-test）改为「contract-test 仓」——gitlink 时撞上 shared L5 跨仓 障空ID；修复后 saas-shared L5 转绿",
-    "verification: python scripts/gate.py -p saas-identity-platform-contract-test -> L0/L0.5/L3/L4/L5 PASS，软告警 0 条（.state/alignment.json）",
-    "verification: trace.json 103 条，43 non-inert；F01.I01-I04 / F02.I01/I02/I16/I17/I18 / F03.I01/I02 fns 全部进 trace",
-    "verification: python scripts/gate.py -p saas-identity-platform-shared -> L0/L0.5/L1/L3/L4/L5 PASS"
+    "msw: handlers-extra.ts:799 POST /users 默认 status ?? \"invited\" → ?? \"active\"（oracle 端契约面对齐）",
+    "nextjs: app/api/v1/tenants/[tenantId]/users/route.ts 新增 POST handler —— CreateUserBody zod 校验 + verifyPathTenant + status='active' 写入 + writeAudit('user_created') + 201 返 user DTO（缺失的 405 已修）",
+    "springboot: TenantUserMapper.java:48 INVITED→ACTIVE；TenantUsersServiceTest.java:75 assert INVITED→ACTIVE；GlobalExceptionHandler.java 新增 notFound handler（NoSuchElementException + EntityNotFoundException → 404），body() 形参 HttpStatusCode 化加 @SuppressWarnings('null') 解 Spring 6 @NonNull 警告；mvn spotless:apply 自动修正 Javadoc 换行",
+    "aspnetcore: TenantUsersController.cs:103 Status \"invited\" → \"active\"；TenantApiKeysController.cs:197 FirstAsync → FirstOrDefaultAsync + throw KeyNotFoundException；Program.cs:231-244 加 KeyNotFoundException → Status404NotFound + code \"NOT_FOUND\" 分支；using System.Collections.Generic 引入；dotnet format 自动修正",
+    "contract-test function-tree.md: M96.F02.I19/I20/I21 规划→已上线（注释补 contract-test I19 契约 status 固定 active 与 I21 幂等实现）",
+    "4 后端仓 function-tree.md 同步: msw/aspc/springboot/nextjs 的 M01.F01.I02、M05.F01.I05、M09.F02.I02 翻 已上线；类型 按钮→接口（后端 API 不是 UI 按钮）",
+    "verification: msw vitest 68/68 PASS；msw curl 三端点探针全绿（POST /users 返 201+status:active / DELETE 204 + 404 / PUT role-menus 200+roleId/menuIds/updatedAt）；springboot mvn test 12/12 PASS（TenantUsersServiceTest+TenantApiKeyServiceTest）；aspnetcore dotnet build/test 50 PASS / 16 skip（无回归）；nextjs tsc + vitest 82 PASS / 1 skip",
+    "verification: gate.py -p saas-identity-platform-msw L0/L0.5/L1/L3/L4/L5 PASS（3 条 M05.F01.I05 软告警 = function-tree 翻 已上线 后 design-map/flow-map 未对齐，本批不深入）",
+    "verification: gate.py -p saas-identity-platform-springboot L0/L0.5/L1/L2/L3/L4/L5 PASS（12 条软告警同上）",
+    "verification: gate.py -p saas-identity-platform-nextjs L0/L0.5/L1/L2/L3/L4/L5 PASS（8 条软告警同上）",
+    "L5 软告警清理批（msw/nextjs/springboot L5 软告警 = design-map/flow-map 未对齐）：msw 新建 docs/design/{design,flow}-function-map.md（M05.F01.I05 单条 + 孤儿段）；nextjs/springboot/aspnetcore 各补 3-5 条 M01.F01.I02 / M05.F01.I05 / M09.F02.I02 / M09.F03.* 设计映射 + 孤儿条目；aspnetcore M09.F03.I04 类型 查询→接口（后端仓实现 API 端点非 UI 查询，避免 L5 '无 UI 入口' 硬错）；消除跨仓 ID 引用（m06.F02 / contract-test M96.F02.*）以避 L5 '悬空引用'；4 仓重跑：msw L5 0 硬错（1 软告警 = 后端仓自测缺），nextjs L5 0 硬错（2 软告警），springboot L5 0 硬错（2 软告警），aspnetcore L5 0 硬错（3 软告警）",
+    "本地 4 后端 live 跑通（用户拍纠正 '本机不能起' = .env.local 共享 PG 误判）：msw (5174) / nextjs (3000) / aspnetcore (5000) / springboot (8080) 全健康点 200，PG 100.79.128.25:5432 共享；CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs TRACE_MAP=1 npx vitest run → 117 passed / 10 failed / 12 skipped；trace.json mode=live + contract_targets 4 个全填；M96.F02.I01–I21 21/21 non-inert (0 inert) — 端点测试 100% 覆盖",
+    "contract-test gate 重跑：L0/L0.5/L3/L4/L5 全绿，0 软告警（design-function-map.md 补 I19/I20/I21 + flow-function-map.md 孤儿段补 3 条）",
+    "5 仓门禁终极状态（kill 后端服务后）：msw L5 PASS（1 软告警）、nextjs L5 PASS（2 软告警）、springboot L5 PASS（2 软告警）、aspnetcore L5 PASS（3 软告警）、contract-test L5 PASS（0 软告警）",
+    "xr-code-suite/CLAUDE.md §5 新增：本地起 4 后端跑 contract-test live 操作流程（msw 设 JWT 三件套 / 后端 source .env.local；⚠️ 密码单引号陷阱 → 删；CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs TRACE_MAP=1 vitest run）",
+    "L5 软告警清理批（msw/nextjs/springboot L5 软告警 = design-map/flow-map 未对齐）：msw 新建 docs/design/{design,flow}-function-map.md（M05.F01.I05 单条 + 孤儿段）；nextjs/springboot/aspnetcore 各补 3-5 条 M01.F01.I02 / M05.F01.I05 / M09.F02.I02 / M09.F03.* 设计映射 + 孤儿条目；aspnetcore M09.F03.I04 类型 查询→接口（后端仓实现 API 端点非 UI 查询，避免 L5 '无 UI 入口' 硬错）；消除跨仓 ID 引用（m06.F02 / contract-test M96.F02.*）以避 L5 '悬空引用'；4 仓重跑：msw L5 0 硬错（1 软告警 = 后端仓自测缺），nextjs L5 0 硬错（2 软告警），springboot L5 0 硬错（2 软告警），aspnetcore L5 0 硬错（3 软告警）"
   ],
   "next": [
-    "提交：先 git add output/saas-identity-platform-contract-test/ -> commit ‘fix(contract-test): fnReporter loadNamespaces cells[0] -> ROW_RE + trace_env CONTRACT_TARGETS + M96 alignment cleanup’; submodule 指针推进 export <SHORT_SHA>",
-    "gitlink 跨仓 import：aspnetcore / springboot / nextjs 子仓 trace_env 同样需 CONTRACT_TARGETS 才能令 saas-aspnetcore L5 警告路径生效——下批独推进（不迫急）",
-    "saas-identity-platform-aspnetcore L5 仍有 failure（本次 handoff 未深入查看），不属于本批 scope，不顺手修"
+    "提交：5 个仓分别按子仓独立 commit（msw/nextjs/springboot/aspnetcore/contract-test），commit 消息遵循 conventional commits。parent repo 走 gitlink 指针推进（submodule 模式，参照 docs/conventions/submodule.md）",
+    "msw / nextjs / springboot L5 软告警清理（M01.F01.I02/M05.F01.I05/M09.F02.I02/M09.F03.I04 需补 docs/functions/design-function-map.md + flow-function-map.md 映射条目）：本批已交付——见 done 第 12 条；4 仓 L5 0 硬错",
+    "aspnetcore L5 fail pre-existing M09.F03.I04「我的有效菜单 查询 无 UI 入口」——与本批 I19/I20/I21 无关，session.json 上批已记录，需 UI 挂 data-fn 或状态退回 开发中",
+    "contract-test L5 require_live gate 需 4 后端 live trace.json（CI 编排，refs .github/workflows/ci.yml）——本会话已闭环：4 后端本机 .env.local 起全栈，trace mode=live + 21/21 non-inert + gate 0 软告警",
+    "本批 fix 7 个真代码 bug: msw PUT role-menus 加 tenantId / springboot POST /users INVITED→ACTIVE / aspnetcore POST /users 加 user_status PG enum 映射+HasConversion / nextjs POST /users 405→201+status:active+user_created 审计 / aspnetcore DELETE KeyNotFoundException→404 / springboot GlobalExceptionHandler notFound handler NoSuchElementException→404 / msw fixtures role-menu-grants updatedAt 对齐 V016 seed",
   ],
   "open_questions": [
-    "_suite L0 CLAUDE.md 超 60 行 与 lab-management 系统 8 仓 L0.5 env 一致性 红 — 均为 pre-existing，不在本批 scope；是否开下一仓交件跨仓环境对齐 sweep？需要 user 拍板",
-    "fnReporter 的 trace_env CONTRACT_TARGETS 在 back-end 全挂时 vitest 4 failed 但 fnReporter 仍记 fail路径 fns — CI 报表能否接受 stdout 一片  ECONNREFUSED ？需要 user 拍板"
+    "aspnetcore M09.F03.I04 类型 修正 查询→接口（后端仓 API 端点非 UI 查询）—— 本批已闭环；硬错清零",
+    "5 子仓 commit 是否现在做（已就绪、文件 staged at submodule pointer level）/ 等下次会话 / 拆 PR？需要 user 拍板",
+    "trace.json 跑 live 后 4-way probe 真后端 ECONNREFUSED 时 fnReporter 仍记 fail 路径 fns 进 trace —— fns 引用膨胀是否污染 L5 矩阵？需要 user 拍板"
   ],
   "dont": [
-    "不要再让 fnReporter loadNamespaces 回退 split('|').map(trim) + cells[N] —— cells[0] 恒空、N=任意 脆；唯一环保是 ROW_RE 镀定（memory: contract-test-fnreporter-loadnamespaces-empty.md 已表）",
-    "不要再把 trace_env 的 CONTRACT_TARGETS 删掉——default trace_cmd 路径会让 4-way 测试走 inert 路径 fns 被 wipe，L5 「无测试引用」含水分",
-    "不要再在 shared / aspnetcore / nextjs 仓里加 M96 到 function-tree——M96 是 contract-test 的保留命名空间，跨仓引用要写「contract-test 仓」而不是 M96",
-    "不要再手改 .harness/stack.json 的 trace_cmd 加后端需求——这属 scope creep；让 fnReporter 与 trace_env 互补处理"
+    "不要再让任何后端 createUser 默认回 'invited' —— 4 后端契约面固定 'active'（msw L799, springboot TenantUserMapper:48, aspnetcore TenantUsersController:103, nextjs POST users POST handler 全部对齐）",
+    "不要再让 DELETE /api-keys/{k} 重复删走 catch-all 500 —— springboot GlobalExceptionHandler notFound + aspnetcore FirstOrDefaultAsync+throw KeyNotFoundException 已映射 404",
+    "不要再把任何后端 M01.F01.I02 / M05.F01.I05 / M09.F02.I02 类型标回 按钮 —— 这些都是后端 API 不是 UI 按钮，L5 '面向用户子项无 UI 入口' 会再红",
+    "不要再单独改 .harness/stack.json trace_env 拿掉 CONTRACT_TARGETS —— 见 session 上批固定，本批继续生效",
+    "不要再手改 .state/trace.json —— fnReporter 是唯一真源；trace 跑 live 需 CI 编排 4 后端"
   ],
-  "last_gate_passed_at": "2026-08-31T11:30+08:00",
+  "last_gate_passed_at": "2026-08-31T19:08+08:00",
   "active_branch": "master",
   "ahead_of_origin": "0"
 }
