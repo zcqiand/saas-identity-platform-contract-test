@@ -123,10 +123,15 @@ SPRINGBOOT_PORT=$(grep -E '^SERVER_PORT=' "$SPRINGBOOT_DIR/.env.local" 2>/dev/nu
 NEXTJS_PORT=$(grep -E '^SERVER_PORT=' "$NEXTJS_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
 : "${NEXTJS_PORT:=3000}"
 
-(cd "$MSW_DIR"        && nohup env $COMMON_ENV SERVER_PORT="$MSW_PORT"        npm run dev                               >"$CT_ROOT/.runtime-logs/msw.log"        2>&1) & PIDS+=($!)
-(cd "$ASPNETCORE_DIR" && nohup env $COMMON_ENV SERVER_PORT="$ASPNETCORE_PORT" dotnet run --project src/Saas.Identity.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
+# aspnetcore DATABASE_URL 兜底: appsettings.json 内嵌 Password=changeme 是占位,
+# 不一定匹配 PG 真密码。从 springboot .env.local 那里拿真值, 加 single quote 包
+# Password (绕过 ADO.NET 把 + 当 escape 字符的解析 bug)。
+ASPNETCORE_PG_URL='Host=100.79.128.25;Port=5432;Database=saas_dev;Username=postgres;Password='\''qiand68+++'\'''
+
+(cd "$MSW_DIR"        && nohup env $COMMON_ENV SERVER_PORT="$MSW_PORT"         npm run dev                               >"$CT_ROOT/.runtime-logs/msw.log"        2>&1) & PIDS+=($!)
+(cd "$ASPNETCORE_DIR" && nohup env $COMMON_ENV SERVER_PORT="$ASPNETCORE_PORT" DATABASE_URL="$ASPNETCORE_PG_URL" dotnet run --project src/Saas.Identity.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
 (cd "$SPRINGBOOT_DIR" && nohup env $COMMON_ENV $SPRINGBOOT_ONLY SERVER_PORT="$SPRINGBOOT_PORT" mvn -q spring-boot:run  >"$CT_ROOT/.runtime-logs/springboot.log" 2>&1) & PIDS+=($!)
-(cd "$NEXTJS_DIR"     && nohup env $COMMON_ENV SERVER_PORT="$NEXTJS_PORT"     npm run dev                                >"$CT_ROOT/.runtime-logs/nextjs.log"     2>&1) & PIDS+=($!)
+(cd "$NEXTJS_DIR"     && nohup env $COMMON_ENV SERVER_PORT="$NEXTJS_PORT"      npm run dev                                >"$CT_ROOT/.runtime-logs/nextjs.log"     2>&1) & PIDS+=($!)
 
 # nextjs 仓当前未实现 health endpoint (无 src/app/api/health/route.ts),
 # healthcheck 必 FAIL。本机脚本自动跳过: 检测 route.ts 存在性。nextjs 加 endpoint 后
