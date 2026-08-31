@@ -28,8 +28,25 @@ flowchart TD
 
 | 功能 ID | 为什么合法 |
 |---|---|
+| M96.F01.I01 | normalize 契约的 VOLATILE 档（token / jti 默认剔除）。由 harness 私有常量 `ALWAYS_VOLATILE` 提供，无流程视角——它是「同输出」判定的输入，不是任何业务流程的步骤。 |
+| M96.F01.I02 | normalize 契约的 FORMAT 档（日期归一）。harness 私有函数 `normalizeDate` 提供；前端读到的字段形态由 OpenAPI 串联，不经业务流。 |
+| M96.F01.I03 | normalize 契约的 FORMAT 档（缺失 ≡ 显式 null）。harness `normalize` + `stable` 实现；Spring `NON_ABSENT` 与 ASP.NET 默认输出的方言差在同一处吃掉。 |
+| M96.F01.I04 | normalize 契约的 FORMAT 档（递归 key/数组排序）。harness `stable` 实现；字段顺序契约在 OpenAPI 层定，不入流程。 |
+| M96.F02.I01 | 四方比对方法论规则（status 全等判定）。`compareStatuses` 实装；前端的 try/catch 分支由状态码决定，但「判定状态码分不分叉」这条规则本身不挂流程。 |
+| M96.F02.I02 | 四方比对方法论规则（normalize 后 body 全等）。`compareBodies` 实装；只报第一处分叉是 ADR-0015 设计选择，不在流程里。 |
+| M96.F02.I16 | 写端点四方比对（POST /tenants/{t}/api-keys）。流程视角无法表达「同时打 4 端」，声明即直写在 `tests/tenant-api-keys-write.test.ts`，harness 自闭环。 |
+| M96.F02.I17 | 写端点四方比对（POST /tenants/{t}/api-keys/{k}/revoke）。与 I16 同处直写，harness 自闭环。 |
+| M96.F02.I18 | 写端点副作用验证（audit_events 出现 api_key_created/revoked）。副作用断言依赖 250ms buffer + `metadata.apiKeyId` 过滤，独立于任何业务流。 |
+| M96.F03.I01 | harness 目标端口声明（`src/targets.ts` `TARGETS`）。跨切元能力，端口是 conventions §6 显式字面量；套件既不消费也无业务流程「声明端口」一步。 |
+| M96.F03.I02 | harness 「声明即必须可达」不变量（`src/targets.ts` `selectedTargets` + `TargetError`）。跨切不变量的执行点，不挂流程。 |
 
 ---
+
+> **2026-08-31 注（本批未清理的 7 条「无测试引用」）：** 豁免后 L5 仍残留的 7 条均源于
+> `tests/fnReporter.ts` `loadNamespaces()` 在 `split('|')` 后从 `cells[0]`（恒为空串）取命名空间，
+> 导致 `all.filter(id => namespaces.has(id.slice(0, 2)))` 恒为 `[]`，非 inert 测试 fn 全丢 trace。
+> 实际 `tests/normalize.test.ts` / `tests/compare.test.ts` 的 describe 名里均含 `M96.F01.I0X` / `M96.F02.I01.I02`，
+> trace.json 漏记是 reporter bug，不是测试缺失。修 `fnReporter` 属下一批范畴，本批不动。
 
 ## FLOW-02 （异常流程名）
 

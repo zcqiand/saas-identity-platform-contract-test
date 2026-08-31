@@ -17,7 +17,8 @@
   },
   "trace_cmd": ["npx", "--no", "vitest", "run"],
   "trace_env": {
-    "TRACE_MAP": "1"
+    "TRACE_MAP": "1",
+    "CONTRACT_TARGETS": "msw,aspnetcore,springboot,nextjs"
   },
   "source_dirs": [
     "src"

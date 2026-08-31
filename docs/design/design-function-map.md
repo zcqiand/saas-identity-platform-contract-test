@@ -7,8 +7,18 @@
 ## 映射表
 
 | 功能子项 ID | 页面/组件 | 接口 | 数据表 | 权限码 | 设计稿 | 状态 |
-|---|---|---|---|---|---|---|
-| | | | | | | |
+| --- | --- | --- | --- | --- | --- | --- |
+| M96.F01.I01 | — | harness: `src/normalize.ts` `ALWAYS_VOLATILE` | — | — | [ADR-0015 §Decision.2 normalize 剔除清单](../../../../docs/adr/0015-contract-test-repo.md) | 已上线 |
+| M96.F01.I02 | — | harness: `src/normalize.ts` `normalizeDate` | — | — | ADR-0015 §Decision.2 | 已上线 |
+| M96.F01.I03 | — | harness: `src/normalize.ts` `normalize` + `stable`（null ≡ 缺失） | — | — | ADR-0015 §Decision.2 | 已上线 |
+| M96.F01.I04 | — | harness: `src/normalize.ts` `stable`（递归 key/数组排序） | — | — | ADR-0015 §Decision.2 | 已上线 |
+| M96.F02.I01 | — | harness: `src/compare.ts` `compareStatuses` | — | — | ADR-0015 §Decision.2（status 全等判定） | 已上线 |
+| M96.F02.I02 | — | harness: `src/compare.ts` `compareBodies` | — | — | ADR-0015 §Decision.2（normalize 后 body 全等） | 已上线 |
+| M96.F02.I16 | — | `POST /api/v1/tenants/{t}/api-keys` | — | — | [REQ-2026-008 §2 AC-1](../requirements/REQ-2026-008-write-endpoint-coverage.md) | 已上线 |
+| M96.F02.I17 | — | `POST /api/v1/tenants/{t}/api-keys/{k}/revoke` | — | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I18 | — | `GET /api/v1/tenants/{t}/audit-events?action=` | `audit_events` (metadata.apiKeyId) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F03.I01 | — | harness: `src/http.ts` POST/PATCH/PUT/DELETE + `src/unique.ts` + `src/teardown.ts` | — | — | REQ-2026-008 §3 T-1 | 已上线 |
+| M96.F03.I02 | — | harness: `src/targets.ts` `selectedTargets` + `TargetError` | — | — | ADR-0015 §Decision.4（声明即必须可达） | 已上线 |
 
 ## 约定
 

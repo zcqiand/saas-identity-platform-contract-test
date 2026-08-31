@@ -29,6 +29,14 @@ interface TraceEntry {
 const TRACE_FILE = ".state/trace.json";
 const FUNCTION_ID_RE = /\bM\d{2}(?:\.F\d{2}(?:\.I\d{2})?)?\b/g;
 
+// 镜像 suite scripts/checks/_alignment.py:44 的 ROW_RE 锚定策略（第一列是 ID）。
+// 只取 module 维度（slice(0, 2)），不需要捕获行尾余下 cell——fnReporter 只关心命名空间。
+//
+// 严禁换成 split('|').map(trim) + cells[N]：
+//   "| M96 | ..." split('|') → ["", " M96 ", ...]，cells[0] 必空。cells[N] 任何 N
+//   都脆——不同仓的 template ID 列位置可能变。锚定第一列才抗模板漂移。
+const ROW_RE = /^\|\s*(M\d{2}(?:\.F\d{2}(?:\.I\d{2})?)?)\s*\|/;
+
 /** 该仓允许的命名空间集合 = 本仓树里出现过的 top-level module。 */
 function loadNamespaces(): Set<string> {
   let text: string;
@@ -39,11 +47,8 @@ function loadNamespaces(): Set<string> {
   }
   const ns = new Set<string>();
   for (const line of text.split("\n")) {
-    if (!line.trimStart().startsWith("|")) continue;
-    const cells = line.split("|").map((c: string) => c.trim());
-    if (cells.length < 2) continue;
-    const m = FUNCTION_ID_RE.exec(cells[0]);
-    if (m && m[0]) ns.add(m[0].slice(0, 2));
+    const m = ROW_RE.exec(line);
+    if (m) ns.add(m[1].slice(0, 2));
   }
   return ns;
 }
