@@ -114,13 +114,15 @@ COMMON_ENV=$(grep -E '^(JWT_|SAAS_)' "$SPRINGBOOT_DIR/.env.local" | tr '\n' ' ')
 SPRINGBOOT_ONLY=$(grep -E '^(DATABASE_USER|DATABASE_PASSWORD|DATABASE_NAME|JDBC_URL)' "$SPRINGBOOT_DIR/.env.local" | tr '\n' ' ')
 
 # 各后端 SERVER_PORT 优先用各自 .env.local, 缺时 fallback .env.example, 最后硬编码兜底
-MSW_PORT=$(grep -E '^SERVER_PORT' "$MSW_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
+# 注意: grep 无匹配返回 1, pipefail 会让 pipeline 整体返回 1, set -e 触发退出。
+# 加 `|| true` 兜底, 缺 SERVER_PORT 时走 :="hardcode" 默认值。
+MSW_PORT=$(grep -E '^SERVER_PORT' "$MSW_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
 : "${MSW_PORT:=5174}"
-ASPNETCORE_PORT=$(grep -E '^SERVER_PORT' "$ASPNETCORE_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
+ASPNETCORE_PORT=$(grep -E '^SERVER_PORT' "$ASPNETCORE_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
 : "${ASPNETCORE_PORT:=5000}"
-SPRINGBOOT_PORT=$(grep -E '^SERVER_PORT' "$SPRINGBOOT_DIR/.env.local" 2>/dev/null | head -1 | cut -d= -f2)
+SPRINGBOOT_PORT=$(grep -E '^SERVER_PORT' "$SPRINGBOOT_DIR/.env.local" 2>/dev/null | head -1 | cut -d= -f2 || true)
 : "${SPRINGBOOT_PORT:=8080}"
-NEXTJS_PORT=$(grep -E '^SERVER_PORT' "$NEXTJS_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
+NEXTJS_PORT=$(grep -E '^SERVER_PORT' "$NEXTJS_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
 : "${NEXTJS_PORT:=3000}"
 
 # aspnetcore DATABASE_URL 兜底: appsettings.json 内嵌 Password=changeme 是占位,
