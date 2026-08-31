@@ -129,7 +129,9 @@ NEXTJS_PORT=$(grep -E '^SERVER_PORT=' "$NEXTJS_DIR/.env.example" 2>/dev/null | h
 ASPNETCORE_PG_URL='Host=100.79.128.25;Port=5432;Database=saas_dev;Username=postgres;Password='\''qiand68+++'\'''
 
 (cd "$MSW_DIR"        && nohup env $COMMON_ENV SERVER_PORT="$MSW_PORT"         npm run dev                               >"$CT_ROOT/.runtime-logs/msw.log"        2>&1) & PIDS+=($!)
-(cd "$ASPNETCORE_DIR" && nohup env $COMMON_ENV SERVER_PORT="$ASPNETCORE_PORT" DATABASE_URL="$ASPNETCORE_PG_URL" dotnet run --project src/Saas.Identity.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
+# aspnetcore: 同时设 ASPNETCORE_URLS 强制端口 — SERVER_PORT 单独不够 (ServerPortShim 在
+# ASPNETCORE_URLS 已设时 return null, 而 dotnet run 默认 launch profile = Production + ASPNETCORE_URLS=http://+:8080)。
+(cd "$ASPNETCORE_DIR" && nohup env $COMMON_ENV SERVER_PORT="$ASPNETCORE_PORT" ASPNETCORE_URLS="http://+:$ASPNETCORE_PORT" DATABASE_URL="$ASPNETCORE_PG_URL" dotnet run --project src/Saas.Identity.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
 (cd "$SPRINGBOOT_DIR" && nohup env $COMMON_ENV $SPRINGBOOT_ONLY SERVER_PORT="$SPRINGBOOT_PORT" mvn -q spring-boot:run  >"$CT_ROOT/.runtime-logs/springboot.log" 2>&1) & PIDS+=($!)
 (cd "$NEXTJS_DIR"     && nohup env $COMMON_ENV SERVER_PORT="$NEXTJS_PORT"      npm run dev                                >"$CT_ROOT/.runtime-logs/nextjs.log"     2>&1) & PIDS+=($!)
 
