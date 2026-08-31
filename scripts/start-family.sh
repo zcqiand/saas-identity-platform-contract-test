@@ -110,17 +110,17 @@ PIDS=()
 #                 直接传给 aspnetcore 会让 ADO.NET 解析失败 (Format of initialization string does not conform)。
 #                 所以 aspnetcore/msw/nextjs 用各自的 DB 连接源 (appsettings.json / 内嵌 / postgres.js),
 #                 **不传** SPRINGBOOT_ONLY。
-COMMON_ENV=$(grep -E '^(JWT_|SAAS_)=' "$SPRINGBOOT_DIR/.env.local" | tr '\n' ' ')
-SPRINGBOOT_ONLY=$(grep -E '^(DATABASE_USER|DATABASE_PASSWORD|DATABASE_NAME|JDBC_URL)=' "$SPRINGBOOT_DIR/.env.local" | tr '\n' ' ')
+COMMON_ENV=$(grep -E '^(JWT_|SAAS_)' "$SPRINGBOOT_DIR/.env.local" | tr '\n' ' ')
+SPRINGBOOT_ONLY=$(grep -E '^(DATABASE_USER|DATABASE_PASSWORD|DATABASE_NAME|JDBC_URL)' "$SPRINGBOOT_DIR/.env.local" | tr '\n' ' ')
 
 # 各后端 SERVER_PORT 优先用各自 .env.local, 缺时 fallback .env.example, 最后硬编码兜底
-MSW_PORT=$(grep -E '^SERVER_PORT=' "$MSW_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
+MSW_PORT=$(grep -E '^SERVER_PORT' "$MSW_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
 : "${MSW_PORT:=5174}"
-ASPNETCORE_PORT=$(grep -E '^SERVER_PORT=' "$ASPNETCORE_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
+ASPNETCORE_PORT=$(grep -E '^SERVER_PORT' "$ASPNETCORE_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
 : "${ASPNETCORE_PORT:=5000}"
-SPRINGBOOT_PORT=$(grep -E '^SERVER_PORT=' "$SPRINGBOOT_DIR/.env.local" 2>/dev/null | head -1 | cut -d= -f2)
+SPRINGBOOT_PORT=$(grep -E '^SERVER_PORT' "$SPRINGBOOT_DIR/.env.local" 2>/dev/null | head -1 | cut -d= -f2)
 : "${SPRINGBOOT_PORT:=8080}"
-NEXTJS_PORT=$(grep -E '^SERVER_PORT=' "$NEXTJS_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
+NEXTJS_PORT=$(grep -E '^SERVER_PORT' "$NEXTJS_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2)
 : "${NEXTJS_PORT:=3000}"
 
 # aspnetcore DATABASE_URL 兜底: appsettings.json 内嵌 Password=changeme 是占位,
