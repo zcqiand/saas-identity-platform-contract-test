@@ -73,19 +73,19 @@
 |---|---|---|---|---|
 | M96.F02.I01 | status 全等 | 接口 | 前端的 catch 分支由状态码决定 | 已上线 |
 | M96.F02.I02 | normalize 后 body 全等 | 接口 | 前端渲染由字段名/类型/必填决定；只报第一处分叉 | 已上线 |
-| M96.F02.I03 | `GET /me/tenants` 四方比对 | 接口 | 首个落地端点：只读、无写、4 后端都实现。**尚未对活后端跑过** | 开发中 |
-| M96.F02.I04 | `GET /me` 四方比对 | 接口 | alice profile（id/email/memberships）；CurrentUser 单对象 | 开发中 |
-| M96.F02.I05 | `GET /me/menus` 四方比对 | 接口 | 按 appCode 分组的菜单树，map<string,EffectiveMenuNode[]> | 开发中 |
-| M96.F02.I06 | `GET /apps/{code}` 四方比对 | 接口 | 公开 AppPublicInfo；带 Bearer 探 | 开发中 |
-| M96.F02.I07 | `GET /tenants/{t}/roles` 四方比对 | 接口 | 角色列表，分页包装 `{items,page,pageSize,total}` | 开发中 |
-| M96.F02.I08 | `GET /tenants/{t}/roles/{r}` 四方比对 | 接口 | 单个 Role | 开发中 |
-| M96.F02.I09 | `GET /tenants/{t}/roles/{r}/menus` 四方比对 | 接口 | 角色绑定的菜单 ID 列表 | 开发中 |
-| M96.F02.I10 | `GET /tenants/{t}/users` 四方比对 | 接口 | 用户列表，分页包装 | 开发中 |
-| M96.F02.I11 | `GET /tenants/{t}/users/{u}` 四方比对 | 接口 | 单个 User | 开发中 |
-| M96.F02.I12 | `GET /tenants/{t}/audit-events` 四方比对 | 接口 | 审计事件列表，分页包装 | 开发中 |
-| M96.F02.I13 | `GET /tenants/{t}/audit-events/by-user/{u}` 四方比对 | 接口 | by-user 过滤的审计事件 | 开发中 |
-| M96.F02.I14 | `GET /tenants/{t}/audit-events/retention` 四方比对 | 接口 | 留存策略 `{retentionDays:int32}` | 开发中 |
-| M96.F02.I15 | `GET /tenants/{t}/api-keys` 四方比对 | 接口 | api-keys 列表，分页包装 | 开发中 |
+| M96.F02.I03 | `GET /me/tenants` 四方比对 | 接口 | 首个落地端点：只读、无写、4 后端都实现。CI 实跑通过（trace 非 inert + gate exit 0） | 已上线 |
+| M96.F02.I04 | `GET /me` 四方比对 | 接口 | alice profile（id/email/memberships）；CurrentUser 单对象 | 已上线 |
+| M96.F02.I05 | `GET /me/menus` 四方比对 | 接口 | 按 appCode 分组的菜单树，map<string,EffectiveMenuNode[]> | 已上线 |
+| M96.F02.I06 | `GET /apps/{code}` 四方比对 | 接口 | 公开 AppPublicInfo；带 Bearer 探 | 已上线 |
+| M96.F02.I07 | `GET /tenants/{t}/roles` 四方比对 | 接口 | 角色列表，分页包装 `{items,page,pageSize,total}` | 已上线 |
+| M96.F02.I08 | `GET /tenants/{t}/roles/{r}` 四方比对 | 接口 | 单个 Role | 已上线 |
+| M96.F02.I09 | `GET /tenants/{t}/roles/{r}/menus` 四方比对 | 接口 | 角色绑定的菜单 ID 列表 | 已上线 |
+| M96.F02.I10 | `GET /tenants/{t}/users` 四方比对 | 接口 | 用户列表，分页包装 | 已上线 |
+| M96.F02.I11 | `GET /tenants/{t}/users/{u}` 四方比对 | 接口 | 单个 User | 已上线 |
+| M96.F02.I12 | `GET /tenants/{t}/audit-events` 四方比对 | 接口 | 审计事件列表，分页包装 | 已上线 |
+| M96.F02.I13 | `GET /tenants/{t}/audit-events/by-user/{u}` 四方比对 | 接口 | by-user 过滤的审计事件 | 已上线 |
+| M96.F02.I14 | `GET /tenants/{t}/audit-events/retention` 四方比对 | 接口 | 留存策略 `{retentionDays:int32}` | 已上线 |
+| M96.F02.I15 | `GET /tenants/{t}/api-keys` 四方比对 | 接口 | api-keys 列表，分页包装 | 已上线 |
 | M96.F02.I16 | `POST /tenants/{t}/api-keys` 四方比对 | 接口 | 创 key：201 + 必填字段 shape 比对；target.keyId 入 ctx 供 I17/I18 | 已上线 |
 | M96.F02.I17 | `POST /tenants/{t}/api-keys/{k}/revoke` 四方比对 | 接口 | 200 + revokedAt 必填；真后端 idempotent，msw 二次 404 | 已上线 |
 | M96.F02.I18 | 写端点副作用 — api_key_created/revoked 进 audit_events | 接口 | 250ms buffer 后 GET ?action=，按 metadata.apiKeyId 过滤找自己刚创的 key；shape 比对，actorUserId 不参与（msw=undefined vs real=alice） | 已上线 |

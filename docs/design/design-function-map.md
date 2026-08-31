@@ -14,6 +14,19 @@
 | M96.F01.I04 | — | harness: `src/normalize.ts` `stable`（递归 key/数组排序） | — | — | ADR-0015 §Decision.2 | 已上线 |
 | M96.F02.I01 | — | harness: `src/compare.ts` `compareStatuses` | — | — | ADR-0015 §Decision.2（status 全等判定） | 已上线 |
 | M96.F02.I02 | — | harness: `src/compare.ts` `compareBodies` | — | — | ADR-0015 §Decision.2（normalize 后 body 全等） | 已上线 |
+| M96.F02.I03 | — | `GET /api/v1/me/tenants` | `tenant_memberships` | — | [REQ-2026-009 §2 AC-1](../requirements/REQ-2026-009-read-endpoint-coverage.md) | 已上线 |
+| M96.F02.I04 | — | `GET /api/v1/me` | `users` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I05 | — | `GET /api/v1/me/menus` | `role_menu_grants` / `menus` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I06 | — | `GET /api/v1/apps/{code}` | `apps` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I07 | — | `GET /api/v1/tenants/{t}/roles` | `roles` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I08 | — | `GET /api/v1/tenants/{t}/roles/{r}` | `roles` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I09 | — | `GET /api/v1/tenants/{t}/roles/{r}/menus` | `role_menu_grants` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I10 | — | `GET /api/v1/tenants/{t}/users` | `users` / `tenant_memberships` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I11 | — | `GET /api/v1/tenants/{t}/users/{u}` | `users` / `tenant_memberships` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I12 | — | `GET /api/v1/tenants/{t}/audit-events` | `audit_events` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I13 | — | `GET /api/v1/tenants/{t}/audit-events/by-user/{u}` | `audit_events` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I14 | — | `GET /api/v1/tenants/{t}/audit-events/retention` | `audit_retention_policies` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I15 | — | `GET /api/v1/tenants/{t}/api-keys` | `api_keys` | — | REQ-2026-009 §2 AC-1 | 已上线 |
 | M96.F02.I16 | — | `POST /api/v1/tenants/{t}/api-keys` | — | — | [REQ-2026-008 §2 AC-1](../requirements/REQ-2026-008-write-endpoint-coverage.md) | 已上线 |
 | M96.F02.I17 | — | `POST /api/v1/tenants/{t}/api-keys/{k}/revoke` | — | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I18 | — | `GET /api/v1/tenants/{t}/audit-events?action=` | `audit_events` (metadata.apiKeyId) | — | REQ-2026-008 §2 AC-1 | 已上线 |
