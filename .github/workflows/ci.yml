@@ -1,0 +1,169 @@
+name: ci
+
+# saas-identity-platform-contract-test
+# 推送链:
+# - branch push(master/main) → 跑 contract-test（对齐门禁 L1-L5）
+# - tag push 不部署 —— 本仓是验证层，不是业务仓
+# 镜像名/路径用 ${{ github.event.repository.name }} 避免跨仓劫持。
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  contract-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    # 4 后端共一个 PG（V016 seed）。本地 CI 起一个 postgres:16,
+    # 3 真后端跑容器化迁移 + seed；msw 内存 fixture 不连 DB。
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: saas
+          POSTGRES_PASSWORD: saas
+          POSTGRES_DB: saas
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready -U saas
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://saas:saas@localhost:5432/saas?schema=public
+      TRACE_MAP: "1"
+      CONTRACT_TARGETS: msw,aspnetcore,springboot,nextjs
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          registry-url: https://registry.npmmirror.com/
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install contract-test deps
+        run: npm ci --registry=https://registry.npmmirror.com
+
+      # shared 仓作为 sibling 被 checkout（gen:shared 读 ../saas-identity-platform-shared/...）
+      # multi-repo-family.md §2 强制 sibling 引用，不以包依赖 import
+      - name: Checkout shared sibling
+        run: git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/saas-identity-platform-shared.git ../saas-identity-platform-shared
+
+      # 4 后端作为 sibling 被 checkout
+      - name: Checkout backend siblings
+        run: |
+          set -e
+          for repo in msw aspnetcore springboot nextjs; do
+            git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/saas-identity-platform-$repo.git ../saas-identity-platform-$repo
+          done
+
+      # 各仓依赖安装（前置，避免 healthcheck 阶段再 compile）
+      - name: msw install
+        working-directory: ../saas-identity-platform-msw
+        run: npm ci --registry=https://registry.npmmirror.com
+
+      - name: aspnetcore restore
+        working-directory: ../saas-identity-platform-aspnetcore
+        run: dotnet restore src/Saas.Identity.AspNetCore.csproj
+
+      - name: springboot install (offline-able)
+        working-directory: ../saas-identity-platform-springboot
+        run: mvn -q -DskipTests dependency:go-offline
+
+      - name: nextjs install
+        working-directory: ../saas-identity-platform-nextjs
+        run: npm ci --registry=https://registry.npmmirror.com
+
+      # nextjs 跑前需要从 shared OpenAPI 重新生成端点类型
+      - name: nextjs gen:shared
+        working-directory: ../saas-identity-platform-nextjs
+        run: npm run gen:shared
+
+      # 起 4 后端 + healthcheck + vitest（核心步骤）
+      # - 后台 nohup ... & 启 4 进程，PID 入 PIDS 数组
+      # - trap cleanup EXIT 确保 step exit 时清理所有子进程 + 兜底 pkill 孙子
+      # - healthcheck 串行 90s，任一 return 1 → set -e → step fail → trap 触发
+      # - npx --no vitest run 必须在所有 4 后端 healthcheck 通过后才跑
+      # 注：路径 `src/Saas.Identity.AspNetCore.csproj` 与 nextjs `gen:shared` 命令名
+      # 按实际仓当前 PR 微调——子仓改动时这里同步改，不要盲目照搬。
+      - name: Run 4 backends + healthcheck + vitest
+        working-directory: .
+        run: |
+          set -e
+          mkdir -p .runtime-logs
+          PIDS=()
+
+          (cd ../saas-identity-platform-msw && nohup npm run dev > .runtime-logs/msw.log 2>&1) & PIDS+=($!)
+          (cd ../saas-identity-platform-aspnetcore && nohup dotnet run --project src/Saas.Identity.AspNetCore.csproj > .runtime-logs/aspnetcore.log 2>&1) & PIDS+=($!)
+          (cd ../saas-identity-platform-springboot && nohup mvn -q spring-boot:run > .runtime-logs/springboot.log 2>&1) & PIDS+=($!)
+          (cd ../saas-identity-platform-nextjs && nohup npm run dev > .runtime-logs/nextjs.log 2>&1) & PIDS+=($!)
+
+          cleanup() {
+            echo "::group::cleanup: killing ${#PIDS[@]} children + grandchildren"
+            for p in "${PIDS[@]}"; do kill -TERM "$p" 2>/dev/null || true; done
+            pkill -f Saas.Identity.AspNetCore 2>/dev/null || true
+            pkill -f spring-boot:run          2>/dev/null || true
+            pkill -f next-server              2>/dev/null || true
+            pkill -f tsx                      2>/dev/null || true
+            echo "::endgroup::"
+          }
+          trap cleanup EXIT
+
+          healthcheck() {
+            local name=$1 url=$2
+            for i in $(seq 1 90); do
+              if curl -sf -o /dev/null --max-time 2 "$url"; then
+                echo "ok $name up after ${i}s"
+                return 0
+              fi
+              sleep 1
+            done
+            echo "::error::$name healthcheck failed at $url within 90s"
+            echo "::group::$name log tail-30"
+            tail -n 30 ".runtime-logs/$name.log" || true
+            echo "::endgroup::"
+            return 1
+          }
+
+          healthcheck msw        http://localhost:5174/healthz
+          healthcheck aspnetcore http://localhost:5000/healthz
+          healthcheck springboot http://localhost:8080/actuator/health
+          healthcheck nextjs     http://localhost:3000/api/healthz
+
+          npx --no vitest run
+
+      # 上传 .runtime-logs/ 供失败时排查（4 后端的 log 各 tail 100 已能定位）
+      - name: Upload backend logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-logs
+          path: .runtime-logs/
+          if-no-files-found: ignore
+
+      # L3 typecheck（独立 step，避免 vitest 失败的 stderr 干扰）
+      - name: L3 typecheck
+        run: npx --no tsc --noEmit
+
+      # L5 alignment + 全 gate
+      # suite 根目录跑 gate.py，自动定位合同仓
+      - name: L5 alignment + gate
+        working-directory: ..
+        run: |
+          python scripts/checks/_alignment.py -p saas-identity-platform-contract-test
+          python scripts/gate.py -p saas-identity-platform-contract-test
