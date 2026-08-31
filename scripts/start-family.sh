@@ -112,10 +112,15 @@ powershell -NoProfile -Command "
 sleep 2
 echo "  ✓ 端口 preflight 完成"
 
-# === 2. nextjs gen:shared (从 sibling shared 仓读 OpenAPI 生成端点类型) ===
+# === 2. 各后端 gen-shared (读 shared 仓 OpenAPI 生成自己的客户端代码) ===
 echo ""
-echo "=== [2/6] nextjs gen:shared ==="
+echo "=== [2/6] 各后端 gen-shared (nextjs + springboot) ==="
+# nextjs: npm run gen:shared — 读 ../saas-identity-platform-shared/generated/openapi/openapi.yaml
+# springboot: bash scripts/gen-shared.sh — TypeSpec codegen + flyway migrations
+# aspnetcore: NSwag 在 csproj build 时自动跑, 不需要单独 step
+# msw: handlers/handlers-array.ts 是 shared emit:handlers 生成, 不需要单独 step
 (cd "$NEXTJS_DIR" && npm run gen:shared 2>&1 | tail -3)
+(cd "$SPRINGBOOT_DIR" && bash scripts/gen-shared.sh 2>&1 | tail -5)
 
 # === 3. 后台起 4 后端 ===
 echo ""
