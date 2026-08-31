@@ -72,7 +72,12 @@ echo "  ✓ 5 sibling 仓齐全 + 7 工具齐"
 # 只杀匹配已知后端进程名的进程 (next-server / Saas.Identity.AspNetCore /
 # spring-boot:run / tsx), 不动用户其他 node 工作。
 # Windows 上必须用 taskkill (kill -TERM 在 Git Bash 下杀不掉 native 进程)。
-echo "  检查 4 端口残留进程..."
+#
+# 两轮清理:
+#   1. 杀 4 端口 LISTENING 进程 (通常的端口冲突)
+#   2. 杀匹配已知后端进程名的残留进程 (pre-LISTENING 阶段, 例如 mvn spring-boot:run
+#      在 JPA entity manager fail 时 exit 但 mvn wrapper 还在, 或 nextjs 在 turbopack warmup)
+echo "  [1/2] 检查 4 端口 LISTENING 残留进程..."
 for p in 5174 5000 8080 3000; do
   pids=$(netstat -ano 2>/dev/null | awk -v port=":$p$" '$2 ~ port"$" && $4 == "LISTENING" {print $5}' | sort -u)
   for pid in $pids; do
@@ -87,6 +92,23 @@ for p in 5174 5000 8080 3000; do
     fi
   done
 done
+sleep 1
+
+echo "  [2/2] 检查匹配后端进程名的残留进程 (pre-LISTENING 阶段)..."
+# spring-boot:run 启动时 mvn wrapper 是 java.exe — 杀所有匹配 SaaS.Identity / spring-boot / tsx / next dev 的 java/node 进程
+powershell -NoProfile -Command "
+  Get-Process -ErrorAction SilentlyContinue | Where-Object {
+    \$_.ProcessName -in @('java', 'node', 'dotnet', 'SaaS.Identity.Host') -and
+    ((\$_.CommandLine -like '*spring-boot*') -or
+     (\$_.CommandLine -like '*Saas.Identity.AspNetCore*') -or
+     (\$_.CommandLine -like '*msw*server.ts*') -or
+     (\$_.CommandLine -like '*next dev*'))
+  } | ForEach-Object {
+    Write-Host \"    \$(\$_.ProcessName) PID=\$(\$_.Id) \$(\$_.CommandLine.Substring(0, [Math]::Min(80, \$_.CommandLine.Length)))\"
+    Stop-Process -Id \$_.Id -Force -ErrorAction SilentlyContinue
+  }
+" 2>&1 | head -10
+
 sleep 2
 echo "  ✓ 端口 preflight 完成"
 
