@@ -61,12 +61,12 @@ let EFFECTIVE_TARGETS: string[] = [...DECLARED_TARGETS];
 //   msw        express MapGet("/healthz", ...)
 //   aspnetcore ASP.NET Core Minimal API MapGet("/health", ...) (标准约定)
 //   springboot Spring Boot Actuator /actuator/health
-//   nextjs     ⚠️ 当前未实现 health endpoint (留缺; probe 跳过 nextjs)
+//   nextjs     App Router src/app/api/health/route.ts → /api/health (Next.js 14+ 标准约定)
 const HEALTH_PATHS: Record<string, string> = {
   msw: "/healthz",
   aspnetcore: "/health",
   springboot: "/actuator/health",
-  // nextjs: 未实现, 不进 dict — probe 时不探, 跳过
+  nextjs: "/api/health",
 };
 const DEFAULT_HEALTH = "/healthz";
 

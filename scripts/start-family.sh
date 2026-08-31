@@ -206,7 +206,7 @@ healthcheck msw        "http://localhost:5174/healthz"
 healthcheck aspnetcore "http://localhost:5000/health"
 healthcheck springboot "http://localhost:8080/actuator/health"
 if [ "$NEXTJS_ACTIVE" = "true" ]; then
-  healthcheck nextjs     "http://localhost:3000/api/healthz"
+  healthcheck nextjs     "http://localhost:3000/api/health"
 fi
 
 # === 5. live vitest ===
