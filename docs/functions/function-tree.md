@@ -86,6 +86,9 @@
 | M96.F02.I13 | `GET /tenants/{t}/audit-events/by-user/{u}` 四方比对 | 接口 | by-user 过滤的审计事件 | 开发中 |
 | M96.F02.I14 | `GET /tenants/{t}/audit-events/retention` 四方比对 | 接口 | 留存策略 `{retentionDays:int32}` | 开发中 |
 | M96.F02.I15 | `GET /tenants/{t}/api-keys` 四方比对 | 接口 | api-keys 列表，分页包装 | 开发中 |
+| M96.F02.I16 | `POST /tenants/{t}/api-keys` 四方比对 | 接口 | 创 key：201 + 必填字段 shape 比对；target.keyId 入 ctx 供 I17/I18 | 已上线 |
+| M96.F02.I17 | `POST /tenants/{t}/api-keys/{k}/revoke` 四方比对 | 接口 | 200 + revokedAt 必填；真后端 idempotent，msw 二次 404 | 已上线 |
+| M96.F02.I18 | 写端点副作用 — api_key_created/revoked 进 audit_events | 接口 | 250ms buffer 后 GET ?action=，按 metadata.apiKeyId 过滤找自己刚创的 key；shape 比对，actorUserId 不参与（msw=undefined vs real=alice） | 已上线 |
 
 ### M96.F03 目标声明与可达性
 

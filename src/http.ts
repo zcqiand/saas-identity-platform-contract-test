@@ -92,12 +92,44 @@ export interface ProbeRequestOptions {
   readonly body?: unknown;
 }
 
-/** 单目标探针（GET 行为与 probeGet 一致；其他 method 留给 Phase 2 实现）。 */
-export async function probeRequest(target: Target, opts: ProbeRequestOptions): Promise<Probe> {
-  if (opts.method !== "GET") {
-    throw new Error(`probeRequest: method=${opts.method} 还未实现（Phase 2 写端点批次）`);
+async function probeWithToken(
+  target: Target,
+  method: ProbeMethod,
+  path: string,
+  token: string,
+  body: unknown,
+): Promise<Probe> {
+  const http = client(target);
+  const headers: Record<string, string> = { authorization: `Bearer ${token}` };
+  try {
+    let res;
+    switch (method) {
+      case "GET":
+        res = await http.get(path, { headers });
+        break;
+      case "DELETE":
+        res = await http.delete(path, { headers });
+        break;
+      case "POST":
+        res = await http.post(path, body, { headers });
+        break;
+      case "PATCH":
+        res = await http.patch(path, body, { headers });
+        break;
+      case "PUT":
+        res = await http.put(path, body, { headers });
+        break;
+    }
+    return { target: target.name, status: res.status, body: res.data };
+  } catch (cause) {
+    throw new UnreachableError(target.name, cause);
   }
-  return probeGet(target, opts.path, opts.token ?? (await login(target)));
+}
+
+/** 单目标探针（method-通用）。未传 token 时先 login。 */
+export async function probeRequest(target: Target, opts: ProbeRequestOptions): Promise<Probe> {
+  const token = opts.token ?? (await login(target));
+  return probeWithToken(target, opts.method, opts.path, token, opts.body);
 }
 
 /** 对一组目标跑同一个请求（method-通用）。登录各自进行。 */
@@ -105,13 +137,9 @@ export async function probeAllRequest(
   targets: readonly Target[],
   opts: Omit<ProbeRequestOptions, "token">,
 ): Promise<Probe[]> {
-  if (opts.method !== "GET") {
-    throw new Error(`probeAllRequest: method=${opts.method} 还未实现（Phase 2 写端点批次）`);
-  }
   const out: Probe[] = [];
   for (const t of targets) {
-    const token = await login(t);
-    out.push(await probeGet(t, opts.path, token));
+    out.push(await probeRequest(t, opts));
   }
   return out;
 }

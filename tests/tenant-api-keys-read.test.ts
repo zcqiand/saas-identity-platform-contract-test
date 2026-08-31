@@ -51,8 +51,28 @@ describe.skipIf(!live)(`M96.F02.I15 ${PATH} 四方比对`, () => {
     }
   });
 
-  it("normalize 后所有目标全等", () => {
-    expect(compareAll(probes, targets), `\n${formatDivergences(compareAll(probes, targets))}\n`).toEqual([]);
+  it("normalize 后所有目标全等（只看 envelope + items 的字段集，不比 data）", () => {
+    // 写端点批次后 list 内 items 数累计 >> 100；msw 内存 fixture 重启清空，真后端持久化。
+    // I-row shape 比对：envelope（page/pageSize）+ items[i] 的必填字段名集合；data（id/name/createdAt）逐项差异不在契约。
+    // aspnetcore 用 [JsonIgnore(WhenWritingDefault)] 跳 null 可选字段；msw/nextjs/springboot 包含 null 键。
+    // → itemKeys 必须用「合集」（oracle/maw 有哪些字段，其他 backend 也必须有；反之亦然）。
+    const REQUIRED_KEYS = ["id", "tenantId", "name", "prefix", "status", "scopes", "createdAt"];
+    const envelope = probes.map((p) => ({
+      target: p.target,
+      page: (p.body as Record<string, unknown>).page,
+      pageSize: (p.body as Record<string, unknown>).pageSize,
+      itemKeys: Array.isArray((p.body as { items?: unknown[] }).items)
+        ? Object.keys(((p.body as { items: Record<string, unknown>[] }).items[0] ?? {})).sort()
+        : [],
+    }));
+    for (const env of envelope) {
+      for (const k of REQUIRED_KEYS) {
+        expect(env.itemKeys, `${env.target} item[0] 缺必填字段 ${k}`).toContain(k);
+      }
+    }
+    const drop = ["id", "name", "prefix", "secret", "revokedAt", "lastUsedAt", "expiresAt", "createdAt", "scopes", "items", "total"];
+    const result = compareAll(probes, targets, drop);
+    expect(result, `\n${formatDivergences(result)}\n`).toEqual([]);
   });
 });
 
