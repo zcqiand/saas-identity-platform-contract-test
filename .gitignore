@@ -13,3 +13,6 @@ node_modules/
 
 # gen-shared 从契约仓拷来的中间产物：真源在 shared 仓，不进本仓 git
 generated/
+
+# start-family.sh 跑出来的 4 后端 + vitest runtime log: 本机调试临时产物
+.runtime-logs/
