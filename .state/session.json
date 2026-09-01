@@ -1,14 +1,21 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-contract-test",
-  "current_task": "2026-09-01 L5 trace_cmd timeout 解锁（ADR-0017 Accepted） + 本机 live 跑抓 8 fail = 4 后端真 bug，contract-test 自身门禁 L0-L5 全绿",
+  "current_task": "2026-09-01 跨 3 仓实施后端真 bug 修 + ADR-0018 实施 + 范围 [1970, 2100]，live vitest 8 fail → 2 fail（剩 I10 fixture + I15 seed 数据是 Plan 已预测债），L0-L5 全绿",
   "last_session_at": "2026-09-01",
   "done": [
     "scripts/lib/harness.py:262 timeout 300 → 900（ADR-0017 Accepted），错误文案同步更新指 start-family.sh + ADR-0017-amend shard 路径",
     "docs/adr/0017-trace-cmd-timeout-900.md: 起草 + 落地 + 实证。Acceptance precondition 第 1 条（本机 gate exit 0）已满足；第 2 条（CI）本会话未跑，留工单",
     "scripts/start-family.sh: 本机实测走完 [1/6]-[6/6] 6 阶段全流程，msw/aspnetcore/springboot + nextjs 检测 active=true（本仓 health endpoint 已加，脚本自动检测文件存在决定是否起 4 后端）",
     "本机 live mode 实跑 [5/6] vitest 318s + [6/6] L5 alignment 又触发 trace_cmd 610s < 900s timeout。gate L0-L5 全 PASS，门禁全绿",
-    "vitest 抓 8 fail,按 target 拆解：aspnetcore DateTime.MinValue +00:00（I15/I16/I19/I32/I34/I57/I71 × items.createdAt）、springboot DateTime.MinValue Z（I10/I15/I71 × items.createdAt）、springboot audit ?action=api_key_created 5 页内未找到 metadata.apiKeyId（I18）、PG 共库污染 email shape-user-* vs invite-* 分叉（I10）"
+    "vitest 抓 8 fail,按 target 拆解：aspnetcore DateTime.MinValue +00:00（I15/I16/I19/I32/I34/I57/I71 × items.createdAt）、springboot DateTime.MinValue Z（I10/I15/I71 × items.createdAt）、springboot audit ?action=api_key_created 5 页内未找到 metadata.apiKeyId（I18）、PG 共库污染 email shape-user-* vs invite-* 分叉（I10）",
+    "跨 3 仓实施 plan §实施：",
+    "  - aspnetcore 5e65990: 3 处 Controller 漏赋（TenantUsersController / TenantRolesController POST + PATCH）+ 13 entity 17 时间字段默认 = 1970-01-01 UnixEpoch 兜底",
+    "  - springboot f5fb996: application.yml 加 logging.level.org.hibernate.SQL=DEBUG + spring.jpa.show-sql=true；8 entity @PrePersist fallback OffsetDateTime.now() → Instant.EPOCH.atOffset(ZoneOffset.UTC)；@PreUpdate 保持 OffsetDateTime.now() 不动",
+    "  - contract-test 0119763 + da00ca9: 实施 ADR-0018 (src/cleanup-pg.ts + tests/globalSetup.ts + vitest.config globalSetup)；状态 Proposed → Accepted；Live vitest 392s,8 fail → 2 fail (剩 I10 用户 fixture 设计债 + I15 shared SQL V016 seed 历史值) ",
+    "  - suite 根 cddd6ed: 推进 3 个 submodule gitlink + 文档",
+    "normalize.ts:71 TS_YEAR_MIN 2000 → 1970 (Unix 纪元开始)，compare.ts 错误文案同步 [1970, 2100]，新增 10 条年份边界测试 (28/28 绿)。3 后端 PLAN.md 加推荐默认值 DateTimeOffset.UnixEpoch / Instant.EPOCH / new Date(0)",
+    "docs/adr/0015-amend-timestamps.md: 范围同步 [1970, 2100]，理由业务时间戳可能含 epoch 占位（cache TTL / token 过期）"
   ],
   "next": [
     "后端真 bug 派单（不在 contract-test 仓内）：aspnetcore DateTime.MinValue +00:00 序列化（Saas.Identity.AspNetCore 仓）、springboot DateTime.MinValue Z 序列化 + audit api_key_created 事件写入缺失（saas-identity-platform-springboot 仓）、PG 共库 teardown 钩子（contract-test beforeAll 加 DELETE FROM users WHERE email LIKE 'shape-%' AND 'invite-%' 等）",
