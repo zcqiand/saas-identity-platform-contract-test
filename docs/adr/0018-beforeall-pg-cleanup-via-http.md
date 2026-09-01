@@ -1,6 +1,6 @@
 # 0018. beforeAll 走 HTTP delete 清 PG 共库探针数据,不走直连 PG
 
-- 状态: Proposed
+- 状态: Accepted
 - 日期: 2026-09-01
 - 决策者: 项目所有者
 - 接续: [suite ADR-0015 (contract-test repo 定义)](../../../../docs/adr/0015-contract-test-repo.md) §「黑盒契约」
