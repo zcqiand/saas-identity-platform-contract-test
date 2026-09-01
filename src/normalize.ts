@@ -26,7 +26,40 @@ export const ALWAYS_VOLATILE: readonly string[] = [
 /** 主键类字段。**只在比对涉及 msw 时剔除** —— 三个真后端共库，ID 应当相等。 */
 export const ID_KEYS: readonly string[] = ["id", "userId", "tenantId", "user_id", "tenant_id"];
 
+/**
+ * ADR-0015-amend：时间戳字段名（驼峰 + 下划线两版）。
+ * 值**不**进 drop 列表（前端不许依赖具体值）；独立走 `assertTimestampShape` 验格式。
+ * 新加字段必须 append 到末尾，不能改既有顺序（按 lint 规则）。
+ */
+export const TIMESTAMP_KEYS: readonly string[] = [
+  "createdAt", "updatedAt", "created_at", "updated_at",
+  "deletedAt", "deleted_at", "lastLoginAt", "last_login_at",
+];
+
+/**
+ * ADR-0015-amend：合法时间戳形态 —— `Date.parse()` 能解析且年份 ∈ [2000, 2100]。
+ * 不锁死毫秒/Z vs 微秒/+00:00 等具体语法（OpenAPI `format: date-time` 允许任意精度小数秒，
+ * `Z` 和 `+00:00` 等价；msw 静态 seed 可能无小数秒）。前端不可区分这些形态，断言只挡
+ * 「明显荒谬」的值（DateTime.MinValue、epoch 数字、null、空串）。
+ */
+function isPlausibleTimestamp(value: string): boolean {
+  const ms = Date.parse(value);
+  if (Number.isNaN(ms)) return false;
+  const year = new Date(ms).getUTCFullYear();
+  return year >= TS_YEAR_MIN && year <= TS_YEAR_MAX;
+}
+
+/** 老 `normalize()` 用：宽松 ISO 8601（接受空格、TZ、秒精度），只用于「值归一」。 */
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/;
+
+/**
+ * ADR-0015-amend：时间戳年份合理性范围。
+ * 下界挡 DateTime.MinValue（年份 0001 串化为 `-292275055-05-16T23:00:00Z`，format 通过但值荒谬）；
+ * 上界挡远未来占位符（例如 9999-12-31）。
+ * 真实业务时间戳都落在 [2000, 2100]。
+ */
+const TS_YEAR_MIN = 2000;
+const TS_YEAR_MAX = 2100;
 
 /** M96.F01.I02 —— Jackson 出 `+00:00`、System.Text.Json 出 `Z`，OpenAPI 层面都合法。 */
 export function normalizeDate(value: string): string {
@@ -45,7 +78,9 @@ function sortKey(v: unknown): string {
 }
 
 export function normalize(value: unknown, options: NormalizeOptions = {}): unknown {
-  const drop = new Set<string>([...ALWAYS_VOLATILE, ...(options.drop ?? [])]);
+  // ADR-0015-amend：时间戳字段值进默认 drop —— 不比值（4 后端写完成时刻必差几秒到几毫秒）。
+  // 格式合法性独立走 assertTimestampShape 验证。drop 后 shape 必全等。
+  const drop = new Set<string>([...ALWAYS_VOLATILE, ...TIMESTAMP_KEYS, ...(options.drop ?? [])]);
   return walk(value, drop);
 }
 
@@ -73,6 +108,55 @@ function walk(value: unknown, drop: Set<string>): unknown {
   }
 
   return value;
+}
+
+/** 复合 assertion 失败原因。 */
+export interface TimestampShapeError {
+  readonly path: string;
+  readonly value: string;
+  readonly reason: "format" | "year_range";
+}
+
+/**
+ * ADR-0015-amend：每个 probe.body 里的 TIMESTAMP_KEYS 字段值必须：
+ *   1. 字符串形态匹配 `YYYY-MM-DDTHH:mm:ss.sssZ`
+ *   2. parse 后的年份 ∈ [2000, 2100]
+ * 任一不过 → 返回错误。**不**比较值，只比格式/合理性。
+ */
+export function assertTimestampShape(
+  body: unknown,
+  keys: readonly string[] = TIMESTAMP_KEYS,
+): TimestampShapeError[] {
+  const errors: TimestampShapeError[] = [];
+  walkShape(body, [], keys, errors);
+  return errors;
+}
+
+function walkShape(value: unknown, path: readonly string[], keys: readonly string[], errors: TimestampShapeError[]): void {
+  if (value === null || value === undefined) return;
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      walkShape(value[i], [...path, String(i)], keys, errors);
+    }
+    return;
+  }
+  if (isPlainObject(value)) {
+    for (const [k, v] of Object.entries(value)) {
+      if (keys.includes(k) && typeof v === "string") {
+        const ms = Date.parse(v);
+        if (Number.isNaN(ms)) {
+          errors.push({ path: [...path, k].join("."), value: v, reason: "format" });
+        } else {
+          const year = new Date(ms).getUTCFullYear();
+          if (year < TS_YEAR_MIN || year > TS_YEAR_MAX) {
+            errors.push({ path: [...path, k].join("."), value: v, reason: "year_range" });
+          }
+        }
+        continue;
+      }
+      walkShape(v, [...path, k], keys, errors);
+    }
+  }
 }
 
 /** 便于断言的稳定序列化。 */

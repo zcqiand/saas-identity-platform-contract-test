@@ -3,7 +3,7 @@
 // 不做 snapshot 逐字节比对：UUID / 时间戳 / token 天生不同，那个目标不可达（ADR-0015）。
 // 判定标准是「前端不可区分」：前端会因为什么走进不同分支，就比什么。
 
-import { ID_KEYS, normalize, stable } from "./normalize.js";
+import { ID_KEYS, normalize, stable, assertTimestampShape, type TimestampShapeError } from "./normalize.js";
 import { ORACLE, type Target, needsIdDrop } from "./targets.js";
 
 export interface Probe {
@@ -46,7 +46,7 @@ export function compareBodies(
   const oracle = probes.find((p) => p.target === ORACLE) ?? probes[0];
   const want = stable(oracle.body, { drop });
 
-  return probes
+  const divergences: Divergence[] = probes
     .filter((p) => p.target !== oracle.target)
     .flatMap((p) => {
       const got = stable(p.body, { drop });
@@ -59,6 +59,19 @@ export function compareBodies(
         },
       ];
     });
+
+  // ADR-0015-amend：normalize 全等之后，单独跑时间戳格式 + 年份范围断言。
+  // 任意 probe 的 TIMESTAMP_KEYS 字段值不合规 → 报 divergence（独立于 body shape 比对）。
+  for (const p of probes) {
+    for (const err of assertTimestampShape(p.body)) {
+      divergences.push({
+        kind: "body",
+        target: p.target,
+        detail: `${err.path}: 时间戳 ${err.reason === "format" ? "格式不合 ISO 8601 毫秒 UTC" : "年份超出 [2000,2100]"} (${err.value})`,
+      });
+    }
+  }
+  return divergences;
 }
 
 /** 只报第一处差异 —— 一次修一个，比甩 200 行 diff 有用。 */
