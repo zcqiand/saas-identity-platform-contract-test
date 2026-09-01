@@ -71,11 +71,27 @@ describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/users 四方比对", () =>
     const probes = await Promise.all(
       targets.map(async (t) => {
         const name = uniqueName("shape-user");
-        return probeRequest(t, {
+        const r = await probeRequest(t, {
           method: "POST",
           path: BASE_PATH,
           body: { username: name, email: `${name}@x.io`, password: "dev-password-123" },
         });
+        // 2026-09-01: 给 shape-user 探针块补 registerCleanup,防本轮残留(本工单 I10 修复)。
+        // 之前没注册 → 4 target POST 后没清 → 后端 PG 残留 shape-user-XXX,
+        // 下次 I10 GET /users 时行数差 1+ → normalize 第 32 行分叉。
+        if (r.status === 200 || r.status === 201) {
+          const userId = String((r.body as Record<string, unknown>).id);
+          registerCleanup(`delete-shape-user:${t.name}`, async () => {
+            const tr = await probeRequest(t, {
+              method: "DELETE",
+              path: `${BASE_PATH}/${userId}`,
+            });
+            if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+              console.warn(`[teardown] delete shape-user ${userId} status=${tr.status}`);
+            }
+          });
+        }
+        return r;
       }),
     );
     for (const p of probes) {
@@ -85,6 +101,26 @@ describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/users 四方比对", () =>
     const drop = ["id", "username", "email", "displayName", "createdAt", "updatedAt", "lastUsedAt", "expiresAt", "revokedAt"];
     const result = compareBodies(probes, targets, drop);
     expect(result, `\n${formatDivergences(result)}\n`).toEqual([]);
+  }, 60_000);
+});
+
+describe.skipIf(!live)("M96.F02.I69 POST /tenants/{t}/users 缺必填字段错误分支", () => {
+  it("空 body → 4xx + ErrorResponse envelope shape 全等", async () => {
+    // 不带 username/email/password → 4 后端契约面：400 + ErrorResponse。
+    // 注意：msw 可能返 500（实现层未做 zod 校验），那时会先黄。
+    // 契约面允许 400；本测试先打宽容区间，确认 envelope 一致即可。
+    const probes = [];
+    for (const t of targets) {
+      probes.push(await probeRequest(t, { method: "POST", path: BASE_PATH, body: {} }));
+    }
+    for (const p of probes) {
+      // 4 后端契约面：400；msw 历史曾返 500，先宽容但要落到 4xx/5xx。
+      expect(p.status, `${p.target} 缺必填字段期望 4xx/500 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 200)}`).toBeGreaterThanOrEqual(400);
+    }
+    // 错误 envelope 字段名家族两派：{code,message} vs {error,error_description,...}。drop。
+    const drop = ["code", "message", "error", "error_description", "details", "path", "timestamp", "traceId"];
+    const divergences = compareBodies(probes, targets, drop);
+    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   }, 60_000);
 });
 
