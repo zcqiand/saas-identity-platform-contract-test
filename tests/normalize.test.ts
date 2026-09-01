@@ -3,7 +3,15 @@
 // 这一层是整个仓的地基：normalize 写错，四方比对要么假绿要么假红。
 import { describe, expect, it } from "vitest";
 
-import { ALWAYS_VOLATILE, ID_KEYS, normalize, normalizeDate, stable } from "../src/normalize.js";
+import {
+  ALWAYS_VOLATILE,
+  ID_KEYS,
+  assertTimestampShape,
+  normalize,
+  normalizeDate,
+  stable,
+  TIMESTAMP_KEYS,
+} from "../src/normalize.js";
 
 describe("M96.F01.I02 日期归一化到 UTC Z", () => {
   it("把 +00:00 偏移改写成 Z", () => {
@@ -100,5 +108,62 @@ describe("M96.F01 normalize 不吞掉真实差异", () => {
     expect(stable({ joinedAt: "2026-08-29T10:00:00Z" })).not.toBe(
       stable({ joinedAt: "2026-08-30T10:00:00Z" }),
     );
+  });
+});
+
+describe("M96.F01 assertTimestampShape 年份边界（ADR-0015-amend，下界=1970-01-01）", () => {
+  it("下界：1970-01-01T00:00:00Z 合法（= UnixEpoch / EPOCH / new Date(0)）", () => {
+    expect(assertTimestampShape({ createdAt: "1970-01-01T00:00:00.000Z" })).toEqual([]);
+  });
+
+  it("下界 -1：1969-12-31T23:59:59Z 非法", () => {
+    const errs = assertTimestampShape({ createdAt: "1969-12-31T23:59:59.000Z" });
+    expect(errs.length).toBeGreaterThan(0);
+    expect(errs[0]?.reason).toBe("year_range");
+  });
+
+  it("上界：2100-12-31T23:59:59Z 合法", () => {
+    expect(assertTimestampShape({ updatedAt: "2100-12-31T23:59:59.000Z" })).toEqual([]);
+  });
+
+  it("上界 +1：2101-01-01T00:00:00Z 非法", () => {
+    const errs = assertTimestampShape({ updatedAt: "2101-01-01T00:00:00.000Z" });
+    expect(errs.length).toBeGreaterThan(0);
+    expect(errs[0]?.reason).toBe("year_range");
+  });
+
+  it("C# DateTimeOffset.MinValue（年份 0001）非法", () => {
+    const errs = assertTimestampShape({ createdAt: "0001-01-01T00:00:00+00:00" });
+    expect(errs.length).toBeGreaterThan(0);
+    expect(errs[0]?.reason).toBe("year_range");
+  });
+
+  it("Hibernate -infinity sentinel（年份 -292275055）非法（走 format 错，Date.parse NaN）", () => {
+    const errs = assertTimestampShape({ updatedAt: "-292275055-05-16T23:00:00.000Z" });
+    expect(errs.length).toBeGreaterThan(0);
+    // Date.parse 对负 5 位数年份 + 5 位月份返回 NaN，所以是 format 而非 year_range
+    expect(["format", "year_range"]).toContain(errs[0]?.reason);
+  });
+
+  it("业务时间戳（2026）合法", () => {
+    expect(assertTimestampShape({ createdAt: "2026-09-01T10:00:00.000Z" })).toEqual([]);
+  });
+
+  it("非 TIMESTAMP_KEYS 字段不参与年份断言", () => {
+    expect(assertTimestampShape({ randomField: "1969-12-31T23:59:59.000Z" })).toEqual([]);
+  });
+
+  it("数组里的 TIMESTAMP_KEYS 字段也走年份断言", () => {
+    const errs = assertTimestampShape({
+      items: [{ createdAt: "1969-12-31T23:59:59.000Z" }],
+    });
+    expect(errs.length).toBeGreaterThan(0);
+    expect(errs[0]?.path).toBe("items.0.createdAt");
+    expect(errs[0]?.reason).toBe("year_range");
+  });
+
+  it("TIMESTAMP_KEYS 暴露的下划线版（created_at）也覆盖", () => {
+    expect(TIMESTAMP_KEYS).toContain("created_at");
+    expect(assertTimestampShape({ created_at: "1970-01-01T00:00:00.000Z" })).toEqual([]);
   });
 });

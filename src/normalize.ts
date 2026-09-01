@@ -37,7 +37,11 @@ export const TIMESTAMP_KEYS: readonly string[] = [
 ];
 
 /**
- * ADR-0015-amend：合法时间戳形态 —— `Date.parse()` 能解析且年份 ∈ [2000, 2100]。
+ * ADR-0015-amend：合法时间戳形态 —— `Date.parse()` 能解析且年份 ∈ [1970, 2100]。
+ * 下界对齐 Unix 纪元开始（1970-01-01 00:00:00 UTC），与 3 后端实体的「合法默认值」对齐：
+ *   - C#: `DateTime.UnixEpoch` / `new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)`
+ *   - Java: `Instant.EPOCH` / `LocalDateTime.of(1970, 1, 1, 0, 0)`
+ *   - JS/TS: `new Date(0)` // 1970-01-01T00:00:00.000Z
  * 不锁死毫秒/Z vs 微秒/+00:00 等具体语法（OpenAPI `format: date-time` 允许任意精度小数秒，
  * `Z` 和 `+00:00` 等价；msw 静态 seed 可能无小数秒）。前端不可区分这些形态，断言只挡
  * 「明显荒谬」的值（DateTime.MinValue、epoch 数字、null、空串）。
@@ -54,11 +58,16 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\
 
 /**
  * ADR-0015-amend：时间戳年份合理性范围。
- * 下界挡 DateTime.MinValue（年份 0001 串化为 `-292275055-05-16T23:00:00Z`，format 通过但值荒谬）；
+ * 下界 = Unix 纪元开始（1970-01-01 00:00:00 UTC），与 3 后端实体的最小合法默认值对齐：
+ *   - C# DateTimeOffset / DateTime: `DateTime.UnixEpoch` / `new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)`
+ *   - Java Instant / LocalDateTime: `Instant.EPOCH` / `LocalDateTime.of(1970, 1, 1, 0, 0)`
+ *   - JS Date: `new Date(0)` // 1970-01-01T00:00:00.000Z
  * 上界挡远未来占位符（例如 9999-12-31）。
- * 真实业务时间戳都落在 [2000, 2100]。
+ * 历史沿革：早期版本 [2000, 2100] 是基于「2020s SaaS 业务时间合理范围」；2026-09-01 user
+ * 拍板改为 [1970, 2100]，理由 = 业务时间戳**可能**包含 epoch 占位（如 cache TTL、token 过期时间），
+ * [2000, 2100] 会让这些合法值被误判。
  */
-const TS_YEAR_MIN = 2000;
+const TS_YEAR_MIN = 1970;
 const TS_YEAR_MAX = 2100;
 
 /** M96.F01.I02 —— Jackson 出 `+00:00`、System.Text.Json 出 `Z`，OpenAPI 层面都合法。 */
@@ -120,7 +129,7 @@ export interface TimestampShapeError {
 /**
  * ADR-0015-amend：每个 probe.body 里的 TIMESTAMP_KEYS 字段值必须：
  *   1. 字符串形态匹配 `YYYY-MM-DDTHH:mm:ss.sssZ`
- *   2. parse 后的年份 ∈ [2000, 2100]
+ *   2. parse 后的年份 ∈ [1970, 2100]
  * 任一不过 → 返回错误。**不**比较值，只比格式/合理性。
  */
 export function assertTimestampShape(

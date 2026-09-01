@@ -67,7 +67,7 @@ export function compareBodies(
       divergences.push({
         kind: "body",
         target: p.target,
-        detail: `${err.path}: 时间戳 ${err.reason === "format" ? "格式不合 ISO 8601 毫秒 UTC" : "年份超出 [2000,2100]"} (${err.value})`,
+        detail: `${err.path}: 时间戳 ${err.reason === "format" ? "格式不合 ISO 8601 毫秒 UTC" : "年份超出 [1970,2100]"} (${err.value})`,
       });
     }
   }
