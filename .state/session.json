@@ -1,46 +1,39 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-contract-test",
-  "current_task": "M96 写端点 I19/I20/I21 + L5 清理 + 本地 4 后端 live 全闭环；本批修 7 个真代码 bug + 6 个 L5 软告警清零，剩 4 个跨端 data-race fail 是 vitest 2.x 并行架构问题转下批",
-  "last_session_at": "2026-08-31",
+  "current_task": "2026-09-01 L5 trace_cmd timeout 解锁（ADR-0017 Accepted） + 本机 live 跑抓 8 fail = 4 后端真 bug，contract-test 自身门禁 L0-L5 全绿",
+  "last_session_at": "2026-09-01",
   "done": [
-    "msw: handlers-extra.ts:799 POST /users 默认 status ?? \"invited\" → ?? \"active\"（oracle 端契约面对齐）",
-    "nextjs: app/api/v1/tenants/[tenantId]/users/route.ts 新增 POST handler —— CreateUserBody zod 校验 + verifyPathTenant + status='active' 写入 + writeAudit('user_created') + 201 返 user DTO（缺失的 405 已修）",
-    "springboot: TenantUserMapper.java:48 INVITED→ACTIVE；TenantUsersServiceTest.java:75 assert INVITED→ACTIVE；GlobalExceptionHandler.java 新增 notFound handler（NoSuchElementException + EntityNotFoundException → 404），body() 形参 HttpStatusCode 化加 @SuppressWarnings('null') 解 Spring 6 @NonNull 警告；mvn spotless:apply 自动修正 Javadoc 换行",
-    "aspnetcore: TenantUsersController.cs:103 Status \"invited\" → \"active\"；TenantApiKeysController.cs:197 FirstAsync → FirstOrDefaultAsync + throw KeyNotFoundException；Program.cs:231-244 加 KeyNotFoundException → Status404NotFound + code \"NOT_FOUND\" 分支；using System.Collections.Generic 引入；dotnet format 自动修正",
-    "contract-test function-tree.md: M96.F02.I19/I20/I21 规划→已上线（注释补 contract-test I19 契约 status 固定 active 与 I21 幂等实现）",
-    "4 后端仓 function-tree.md 同步: msw/aspc/springboot/nextjs 的 M01.F01.I02、M05.F01.I05、M09.F02.I02 翻 已上线；类型 按钮→接口（后端 API 不是 UI 按钮）",
-    "verification: msw vitest 68/68 PASS；msw curl 三端点探针全绿（POST /users 返 201+status:active / DELETE 204 + 404 / PUT role-menus 200+roleId/menuIds/updatedAt）；springboot mvn test 12/12 PASS（TenantUsersServiceTest+TenantApiKeyServiceTest）；aspnetcore dotnet build/test 50 PASS / 16 skip（无回归）；nextjs tsc + vitest 82 PASS / 1 skip",
-    "verification: gate.py -p saas-identity-platform-msw L0/L0.5/L1/L3/L4/L5 PASS（3 条 M05.F01.I05 软告警 = function-tree 翻 已上线 后 design-map/flow-map 未对齐，本批不深入）",
-    "verification: gate.py -p saas-identity-platform-springboot L0/L0.5/L1/L2/L3/L4/L5 PASS（12 条软告警同上）",
-    "verification: gate.py -p saas-identity-platform-nextjs L0/L0.5/L1/L2/L3/L4/L5 PASS（8 条软告警同上）",
-    "L5 软告警清理批（msw/nextjs/springboot L5 软告警 = design-map/flow-map 未对齐）：msw 新建 docs/design/{design,flow}-function-map.md（M05.F01.I05 单条 + 孤儿段）；nextjs/springboot/aspnetcore 各补 3-5 条 M01.F01.I02 / M05.F01.I05 / M09.F02.I02 / M09.F03.* 设计映射 + 孤儿条目；aspnetcore M09.F03.I04 类型 查询→接口（后端仓实现 API 端点非 UI 查询，避免 L5 '无 UI 入口' 硬错）；消除跨仓 ID 引用（m06.F02 / contract-test M96.F02.*）以避 L5 '悬空引用'；4 仓重跑：msw L5 0 硬错（1 软告警 = 后端仓自测缺），nextjs L5 0 硬错（2 软告警），springboot L5 0 硬错（2 软告警），aspnetcore L5 0 硬错（3 软告警）",
-    "本地 4 后端 live 跑通（用户拍纠正 '本机不能起' = .env.local 共享 PG 误判）：msw (5174) / nextjs (3000) / aspnetcore (5000) / springboot (8080) 全健康点 200，PG 100.79.128.25:5432 共享；CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs TRACE_MAP=1 npx vitest run → 117 passed / 10 failed / 12 skipped；trace.json mode=live + contract_targets 4 个全填；M96.F02.I01–I21 21/21 non-inert (0 inert) — 端点测试 100% 覆盖",
-    "contract-test gate 重跑：L0/L0.5/L3/L4/L5 全绿，0 软告警（design-function-map.md 补 I19/I20/I21 + flow-function-map.md 孤儿段补 3 条）",
-    "5 仓门禁终极状态（kill 后端服务后）：msw L5 PASS（1 软告警）、nextjs L5 PASS（2 软告警）、springboot L5 PASS（2 软告警）、aspnetcore L5 PASS（3 软告警）、contract-test L5 PASS（0 软告警）",
-    "xr-code-suite/CLAUDE.md §5 新增：本地起 4 后端跑 contract-test live 操作流程（msw 设 JWT 三件套 / 后端 source .env.local；⚠️ 密码单引号陷阱 → 删；CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs TRACE_MAP=1 vitest run）",
-    "L5 软告警清理批（msw/nextjs/springboot L5 软告警 = design-map/flow-map 未对齐）：msw 新建 docs/design/{design,flow}-function-map.md（M05.F01.I05 单条 + 孤儿段）；nextjs/springboot/aspnetcore 各补 3-5 条 M01.F01.I02 / M05.F01.I05 / M09.F02.I02 / M09.F03.* 设计映射 + 孤儿条目；aspnetcore M09.F03.I04 类型 查询→接口（后端仓实现 API 端点非 UI 查询，避免 L5 '无 UI 入口' 硬错）；消除跨仓 ID 引用（m06.F02 / contract-test M96.F02.*）以避 L5 '悬空引用'；4 仓重跑：msw L5 0 硬错（1 软告警 = 后端仓自测缺），nextjs L5 0 硬错（2 软告警），springboot L5 0 硬错（2 软告警），aspnetcore L5 0 硬错（3 软告警）"
+    "scripts/lib/harness.py:262 timeout 300 → 900（ADR-0017 Accepted），错误文案同步更新指 start-family.sh + ADR-0017-amend shard 路径",
+    "docs/adr/0017-trace-cmd-timeout-900.md: 起草 + 落地 + 实证。Acceptance precondition 第 1 条（本机 gate exit 0）已满足；第 2 条（CI）本会话未跑，留工单",
+    "scripts/start-family.sh: 本机实测走完 [1/6]-[6/6] 6 阶段全流程，msw/aspnetcore/springboot + nextjs 检测 active=true（本仓 health endpoint 已加，脚本自动检测文件存在决定是否起 4 后端）",
+    "本机 live mode 实跑 [5/6] vitest 318s + [6/6] L5 alignment 又触发 trace_cmd 610s < 900s timeout。gate L0-L5 全 PASS，门禁全绿",
+    "vitest 抓 8 fail,按 target 拆解：aspnetcore DateTime.MinValue +00:00（I15/I16/I19/I32/I34/I57/I71 × items.createdAt）、springboot DateTime.MinValue Z（I10/I15/I71 × items.createdAt）、springboot audit ?action=api_key_created 5 页内未找到 metadata.apiKeyId（I18）、PG 共库污染 email shape-user-* vs invite-* 分叉（I10）"
   ],
   "next": [
-    "提交：5 个仓分别按子仓独立 commit（msw/nextjs/springboot/aspnetcore/contract-test），commit 消息遵循 conventional commits。parent repo 走 gitlink 指针推进（submodule 模式，参照 docs/conventions/submodule.md）",
-    "msw / nextjs / springboot L5 软告警清理（M01.F01.I02/M05.F01.I05/M09.F02.I02/M09.F03.I04 需补 docs/functions/design-function-map.md + flow-function-map.md 映射条目）：本批已交付——见 done 第 12 条；4 仓 L5 0 硬错",
-    "aspnetcore L5 fail pre-existing M09.F03.I04「我的有效菜单 查询 无 UI 入口」——与本批 I19/I20/I21 无关，session.json 上批已记录，需 UI 挂 data-fn 或状态退回 开发中",
-    "contract-test L5 require_live gate 需 4 后端 live trace.json（CI 编排，refs .github/workflows/ci.yml）——本会话已闭环：4 后端本机 .env.local 起全栈，trace mode=live + 21/21 non-inert + gate 0 软告警",
-    "本批 fix 7 个真代码 bug: msw PUT role-menus 加 tenantId / springboot POST /users INVITED→ACTIVE / aspnetcore POST /users 加 user_status PG enum 映射+HasConversion / nextjs POST /users 405→201+status:active+user_created 审计 / aspnetcore DELETE KeyNotFoundException→404 / springboot GlobalExceptionHandler notFound handler NoSuchElementException→404 / msw fixtures role-menu-grants updatedAt 对齐 V016 seed",
+    "后端真 bug 派单（不在 contract-test 仓内）：aspnetcore DateTime.MinValue +00:00 序列化（Saas.Identity.AspNetCore 仓）、springboot DateTime.MinValue Z 序列化 + audit api_key_created 事件写入缺失（saas-identity-platform-springboot 仓）、PG 共库 teardown 钩子（contract-test beforeAll 加 DELETE FROM users WHERE email LIKE 'shape-%' AND 'invite-%' 等）",
+    "ADR-0017 Acceptance precondition 第 2 条：CI .github/workflows/ci.yml 跑一次，确认 runner < 900s（GitHub Actions ubuntu-latest 一般 400-600s 跑完 live）",
+    "ADR-0017 Acceptance precondition 第 3 条：`.runtime-logs/` 下 live run 耗时 < 600s 实际是 610s（`[6/6]` L5 alignment 二次 vitest），不算严格满足；如有需要可考虑把 `_alignment.py:169 refresh=False` 改成 `not args.matrix and not env_force_refresh` 之类，让 L5 alignment 复用 vitest 跑出的 trace.json 不再二次跑。**这条是性能优化非阻塞**",
+    "I60-I73 是否申请新 fn ID 仍挂账（L5 软告警「已上线但无设计映射 / 不在任何流程」14 项的根因；走 /tree-change 或补 design/flow 文档）",
+    "session.json 上一会话记的「本次新加 assertTimestampShape + TIMESTAMP_KEYS 出口需补到 L5 引用完整性扫描」—— 本会话复核 `_alignment.py:53` 扫 ` M\\d{2}(\\.F\\d{2}(\\.I\\d{2})?)?` 模式，不扫 export 名字；新增 export 不需要挂到 L5 引用。这条是历史误判，可移除"
   ],
   "open_questions": [
-    "aspnetcore M09.F03.I04 类型 修正 查询→接口（后端仓 API 端点非 UI 查询）—— 本批已闭环；硬错清零",
-    "5 子仓 commit 是否现在做（已就绪、文件 staged at submodule pointer level）/ 等下次会话 / 拆 PR？需要 user 拍板",
-    "trace.json 跑 live 后 4-way probe 真后端 ECONNREFUSED 时 fnReporter 仍记 fail 路径 fns 进 trace —— fns 引用膨胀是否污染 L5 矩阵？需要 user 拍板"
+    "msw I64 必填校验改完，I19/I34 msw 返 {} vs springboot 返真错误对象的分歧是 oracle 分歧还是 msw 实现分歧？需要人拍",
+    "springboot DateTime.MinValue bug 真根因定位（已经三轮修法无效，建议下次开 ADR/工单）",
+    "nextjs Drizzle defaultNow() 是否真在 INSERT 时填充？看 GET /api-keys 返 undefined 推测没填上，但需要 PG 日志确认。本会话 live 跑没真接 nextjs（health endpoint 走脚本 active 但 PORT 3000 还是未起来？待 CI 验）",
+    "I05 修复时改了 msw handler「无 grant app 不返 key」—— 但如果 4 后端对「alice 角色绑 27 lab 菜单」的语义解释不一致（msw 看 role-menu-grants，aspnetcore/springboot 看 PG role_menu_grants 表），未来同样会再次分裂。要么 ADR 明确要么单测覆盖",
+    "normalize.ts 的 TIMESTAMP_KEYS 默认 drop 是 ADR-0015-amend 的实施一部分，但 ADR 还是 Proposed。如果 ADR 被否，这条 drop 也要回滚",
+    "vitest 8 fail 在 L5 alignment 视角不计入 gate fail（trace.json 只看覆盖不看 fail），但这是 ADR-0015-amend 设计的本意（不当合约侧给 bug 背书）。下个会话要不要给 contract-test 仓加「fail_count > 0 即 L4 红」的硬约束？参照 ADR-0017 走 ADR 流程"
   ],
   "dont": [
-    "不要再让任何后端 createUser 默认回 'invited' —— 4 后端契约面固定 'active'（msw L799, springboot TenantUserMapper:48, aspnetcore TenantUsersController:103, nextjs POST users POST handler 全部对齐）",
-    "不要再让 DELETE /api-keys/{k} 重复删走 catch-all 500 —— springboot GlobalExceptionHandler notFound + aspnetcore FirstOrDefaultAsync+throw KeyNotFoundException 已映射 404",
-    "不要再把任何后端 M01.F01.I02 / M05.F01.I05 / M09.F02.I02 类型标回 按钮 —— 这些都是后端 API 不是 UI 按钮，L5 '面向用户子项无 UI 入口' 会再红",
-    "不要再单独改 .harness/stack.json trace_env 拿掉 CONTRACT_TARGETS —— 见 session 上批固定，本批继续生效",
-    "不要再手改 .state/trace.json —— fnReporter 是唯一真源；trace 跑 live 需 CI 编排 4 后端"
+    "不要再触动 function-tree.md：本会话全用现有 ID，新增 ID 必须走 /tree-change + 人批",
+    "不要再放宽 normalize 剔除清单的现有约定（id/*_id/tokens/jti 已剔，加 TIMESTAMP_KEYS 走 ADR 通过路径）",
+    "不要再依赖 @PrePersist 单点：本次实证 @PrePersist 在某些路径（PG 共享库、并发）下不触发；改用 Hibernate @CreationTimestamp 或 service 显式赋值，但本会话三轮修法都没根除",
+    "不要再让 PG 探针数据（shape-* / contract-test-key-* / rot-shape-*）无限累积——某次会话必须写 teardown 强删（next 列表已记）",
+    "不要再把 contract-test 当成 oracle 误用：msw 是 oracle，但「4 后端 contract 一致」不是「msw 实现正确」，msw 返 {} vs springboot 返真错误对象时分歧要打到 oracle 实现层而不是契约面",
+    "不要再手动改 harness.py timeout 给单个项目绕开：300→900 是 suite 级常量，所有项目共享；项目级绕开请走 /tree-change 改 stack.json 但需 ADR 同步"
   ],
-  "last_gate_passed_at": "2026-08-31T19:08+08:00",
+  "last_gate_passed_at": "2026-09-01T19:10+08:00",
   "active_branch": "master",
   "ahead_of_origin": "0"
 }
