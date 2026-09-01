@@ -15,11 +15,13 @@ interface UserRow {
   id?: string;
   username?: string;
   email?: string;
+  createdAt?: string;
 }
 
 interface ApiKeyRow {
   id?: string;
   name?: string;
+  createdAt?: string;
 }
 
 const USERS_PATH = pathWithParams("/api/v1/tenants/{tenantId}/users", {
@@ -48,6 +50,24 @@ const USER_MATCH = (u: UserRow) =>
 const API_KEY_MATCH = (k: ApiKeyRow) =>
   /^(contract-test-key-|rot-src|rot-shape|delete-test-key-|shape-)/.test(k.name ?? "");
 
+// 跨语言 MinValue / -infinity sentinel 兜底清理（springboot PLAN.md §本会话根因实证）：
+//   - C# DateTimeOffset.MinValue → "0001-01-01T00:00:00.0000000+00:00"
+//   - Java OffsetDateTime.MIN (PG -infinity 映射) → "-292275055-05-16T23:00:00.000Z"
+//   - JS Date min → "-271821-04-20T00:00:00.000Z"
+// 历次跑残留的 sentinel 行(本会话 SQL 日志实证 0 新写,但 PG 仍有历史行)
+// 也走 DELETE 清掉,避免下次 live 触发 assertTimestampShape 红。
+// 兼容 ISO 字符串不同格式(带毫秒 / 不带 / 不同 TZ 后缀)
+const SENTINEL_OR_NEG_YEAR = (iso: unknown): boolean => {
+  if (typeof iso !== "string") return false;
+  // 显式字符串 sentinel: "-infinity" / "-292275055-05-16..." / "0001-01-01..." / "-271821..."
+  if (iso === "-infinity") return true;
+  // 年份字段（YYYY-）在第 0..7 位
+  const m = iso.match(/^(-?\d{4,})-(\d{2})-(\d{2})/);
+  if (!m) return false;
+  const year = Number(m[1]);
+  return year < 1970; // 任何 < 1970 的年份（Unix 纪元之前）都是 sentinel
+};
+
 // DELETE 容差: 200 / 204 成功; 404 already-gone 视为成功(双层兜底也会触发);
 const DELETE_TOLERANT = (s: number) => s === 200 || s === 204 || s === 404;
 
@@ -66,8 +86,10 @@ async function cleanupUsers(target: Target): Promise<void> {
   }
   const items = ((list.body as { items?: UserRow[] }).items) ?? [];
   for (const u of items) {
-    if (!USER_MATCH(u)) continue;
     if (!u.id) continue;
+    // 探针 prefix OR sentinel 年份(< 1970) → 双条件删除
+    const matched = USER_MATCH(u) || SENTINEL_OR_NEG_YEAR(u.createdAt ?? "");
+    if (!matched) continue;
     const del = await probeRequest(target, {
       method: "DELETE",
       path: `${USERS_PATH}/${u.id}`,
@@ -96,8 +118,10 @@ async function cleanupApiKeys(target: Target): Promise<void> {
   }
   const items = ((list.body as { items?: ApiKeyRow[] }).items) ?? [];
   for (const k of items) {
-    if (!API_KEY_MATCH(k)) continue;
     if (!k.id) continue;
+    // 探针 prefix OR sentinel 年份(< 1970) → 双条件删除
+    const matched = API_KEY_MATCH(k) || SENTINEL_OR_NEG_YEAR(k.createdAt ?? "");
+    if (!matched) continue;
     const del = await probeRequest(target, {
       method: "DELETE",
       path: `${API_KEYS_PATH}/${k.id}`,
