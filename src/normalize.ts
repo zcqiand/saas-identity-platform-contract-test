@@ -82,6 +82,22 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
 }
 
 /** 数组排序键：对元素归一化后取稳定 JSON。集合顺序不属于契约。 */
+// session.json #1: msw fixture 同步 uniqueName tag（I10 设计层）。
+// contract-test 4 target uniqueName 调用每次生成不同 random tag，msw oracle
+// echo body tag 与后端真持久化 tag 必然不一致。normalize 时把 4 个已知测试
+// prefix 的 username/email 后 6 char 随机 tag 抹平为固定占位，prefix 仍可比对。
+const TEST_USER_PREFIXES = ["shape-", "invite-", "ct-u2-", "contract-test-user-"] as const;
+const RANDOM_TAG_RE = /(-[a-z0-9]{6})(?=[@.]|$)/;
+function maskRandomTag(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  for (const prefix of TEST_USER_PREFIXES) {
+    if (value.startsWith(prefix)) {
+      return value.replace(RANDOM_TAG_RE, "-XXXXXX");
+    }
+  }
+  return value;
+}
+
 function sortKey(v: unknown): string {
   return JSON.stringify(v);
 }
@@ -111,7 +127,11 @@ function walk(value: unknown, drop: Set<string>): unknown {
       // M96.F01.I03 —— 「字段缺失」与「显式 null」等价：两者都不进结果。
       // Spring 的 NON_ABSENT 省略 null，ASP.NET 默认输出 null，契约层面都合法。
       if (child === null || child === undefined) continue;
-      out[key] = walk(child, drop);
+      // session.json #1: username / email 是 contract-test 4 target uniqueName 随机 tag，
+      // 4 后端必然不一致；mask 抹平让 normalize 全等（只 mask 已知测试 prefix）。
+      const walked = walk(child, drop);
+      const isUserField = key === "username" || key === "email";
+      out[key] = isUserField ? maskRandomTag(walked) : walked;
     }
     return out;
   }
