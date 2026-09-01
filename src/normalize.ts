@@ -190,5 +190,11 @@ function walkShape(value: unknown, path: readonly string[], keys: readonly strin
 
 /** 便于断言的稳定序列化。 */
 export function stable(value: unknown, options: NormalizeOptions = {}): string {
-  return JSON.stringify(normalize(value, options), null, 2);
+  // 解析后重序列化,消除 4 后端 JSON 序列化器格式差异
+  // (msw 不带 trailing comma,后端带;Object key 顺序也可能不同)
+  return JSON.stringify(
+    JSON.parse(JSON.stringify(normalize(value, options))),
+    null,
+    2,
+  );
 }
