@@ -103,6 +103,52 @@ async function cleanupUsers(target: Target): Promise<void> {
   }
 }
 
+interface RoleRow {
+  id?: string;
+  code?: string;
+  name?: string;
+  createdAt?: string;
+}
+
+const ROLES_PATH = pathWithParams("/api/v1/tenants/{tenantId}/roles", {
+  tenantId: ALICE_PARAMS.tenantId,
+});
+
+// roles 探针 prefix(来自 tenant-roles-write 写测试 uniqueName("ct-role") / uniqueName("shape-role"))
+const ROLE_MATCH = (r: RoleRow) =>
+  /^(ct-role|shape-role|contract-test-role)/.test(r.code ?? "");
+
+async function cleanupRoles(target: Target): Promise<void> {
+  const token = await login(target);
+  const list = await probeRequest(target, {
+    method: "GET",
+    path: ROLES_PATH,
+    token,
+  });
+  if (list.status !== 200) {
+    console.warn(
+      `[cleanup-pg] ${target.name} GET ${ROLES_PATH} status=${list.status}`,
+    );
+    return;
+  }
+  const items = ((list.body as { items?: RoleRow[] }).items) ?? [];
+  for (const r of items) {
+    if (!r.id) continue;
+    const matched = ROLE_MATCH(r) || SENTINEL_OR_NEG_YEAR(r.createdAt ?? "");
+    if (!matched) continue;
+    const del = await probeRequest(target, {
+      method: "DELETE",
+      path: `${ROLES_PATH}/${r.id}`,
+      token,
+    });
+    if (!DELETE_TOLERANT(del.status)) {
+      console.warn(
+        `[cleanup-pg] ${target.name} delete role ${r.id} status=${del.status}`,
+      );
+    }
+  }
+}
+
 async function cleanupApiKeys(target: Target): Promise<void> {
   const token = await login(target);
   const list = await probeRequest(target, {
@@ -147,6 +193,11 @@ export async function cleanupAllProbeRows(): Promise<void> {
       await cleanupUsers(t);
     } catch (e) {
       console.warn(`[cleanup-pg] users ${t.name}`, e);
+    }
+    try {
+      await cleanupRoles(t);
+    } catch (e) {
+      console.warn(`[cleanup-pg] roles ${t.name}`, e);
     }
     try {
       await cleanupApiKeys(t);
