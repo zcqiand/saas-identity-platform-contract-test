@@ -157,7 +157,10 @@ NEXTJS_PORT=$(grep -E '^SERVER_PORT' "$NEXTJS_DIR/.env.example" 2>/dev/null | he
 # Password (绕过 ADO.NET 把 + 当 escape 字符的解析 bug)。
 ASPNETCORE_PG_URL='Host=100.79.128.25;Port=5432;Database=saas_dev;Username=postgres;Password='\''qiand68+++'\'''
 
-(cd "$MSW_DIR"        && nohup env $COMMON_ENV SERVER_PORT="$MSW_PORT"         npm run dev                               >"$CT_ROOT/.runtime-logs/msw.log"        2>&1) & PIDS+=($!)
+# msw: 2026-09-01 用 `npm start` 而不是 `npm run dev`,避免 tsx watch hot-reload
+# 时 process.env 丢失导致 JWT_SIGNING_KEY 缺失,signAccessToken 抛 500
+# (CLAUDE.md §5 列了 tsx-watch-丢失-env 的历史债)。
+(cd "$MSW_DIR"        && nohup env $COMMON_ENV SERVER_PORT="$MSW_PORT"         npm start                                >"$CT_ROOT/.runtime-logs/msw.log"        2>&1) & PIDS+=($!)
 # aspnetcore: 同时设 ASPNETCORE_URLS 强制端口 — SERVER_PORT 单独不够 (ServerPortShim 在
 # ASPNETCORE_URLS 已设时 return null, 而 dotnet run 默认 launch profile = Production + ASPNETCORE_URLS=http://+:8080)。
 (cd "$ASPNETCORE_DIR" && nohup env $COMMON_ENV SERVER_PORT="$ASPNETCORE_PORT" ASPNETCORE_URLS="http://+:$ASPNETCORE_PORT" DATABASE_URL="$ASPNETCORE_PG_URL" dotnet run --project src/Saas.Identity.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
