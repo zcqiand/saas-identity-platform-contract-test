@@ -20,7 +20,7 @@
 |---|---|---|---|
 | I03 之前是 ADR-0015 §7 指定的「第一个真端点」,要先单独升吗? | 否。用户拍板「一次性升 13 个」——A1 防御上完 + CI workflow 接通后,live 跑过一次 13 端点全绿则一起升。 | suite-operator | 2026-08-31 |
 | shape 比对里 actorUserId/roleIds 这种 volatile 字段怎么办? | 不进 `ALWAYS_VOLATILE`。msw 与真后端的差别走 I-row 必填字段断言 + `compareBodies` normalize 后的全等判定;只有「完全无法对齐」的字段才在 extraDrop 里临时剔除(同 REQ-008 I18 处理 actorUserId 的方式)。 | suite-operator | 2026-08-31 |
-| audit-events I12/I13 是分页包装,items 内容每次不同怎么比? | envelope (`page`, `pageSize`) 比对 + items 必填字段名集合断言;items 数据本身不参与 normalize 比对。已在 [tests/tenant-audit-read.test.ts:54-62](../design/../tests/tenant-audit-read.test.ts#L54) 通过 dynamicDrop 落实。 | suite-operator | 2026-08-31 |
+| audit-events I12/I13 是分页包装,items 内容每次不同怎么比? | envelope (`page`, `pageSize`) 比对 + items 必填字段名集合断言;items 数据本身不参与 normalize 比对。已在 [tests/tenant-audit-read.test.ts:54-62](../../tests/tenant-audit-read.test.ts#L54) 通过 dynamicDrop 落实。 | suite-operator | 2026-08-31 |
 | apps-public 是否要验匿名访问? | 不在本次范围。已知设计抉择:Bearer 路径覆盖契约面;无 Authorization 头由 family convention 公开路径保证,单独 describe 留待后续。 | suite-operator | 2026-08-31 |
 | 是否要写 ADR-0016 记录 require_live 决策? | 是。跨 3 文件协同 (fnReporter + harness + stack.json) 必须有 ADR 锚定,否则未来软化无依据。 | suite-operator | 2026-08-31 |
 

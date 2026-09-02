@@ -73,8 +73,8 @@ contract-test `assertTimestampShape` 已把年份下限从 2000 调至 **1970**�
 
 | 后端 | 推荐默认值 | 代码 |
 |---|---|---|
-| C# | `DateTimeOffset.UnixEpoch` 或 `new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)` | [aspnetcore PLAN.md](output/saas-identity-platform-aspnetcore/PLAN.md) |
-| Java | `Instant.EPOCH`（不要用 `LocalDateTime.of(1970, 1, 1, 0, 0)`，Jackson 不补 Z） | [springboot PLAN.md](output/saas-identity-platform-springboot/PLAN.md) |
+| C# | `DateTimeOffset.UnixEpoch` 或 `new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)` | [aspnetcore PLAN.md](../saas-identity-platform-aspnetcore/PLAN.md) |
+| Java | `Instant.EPOCH`（不要用 `LocalDateTime.of(1970, 1, 1, 0, 0)`，Jackson 不补 Z） | [springboot PLAN.md](../saas-identity-platform-springboot/PLAN.md) |
 | JS/TS | `new Date(0)` // = 1970-01-01T00:00:00.000Z | (nextjs 待补) |
 
 **意义**：实体字段兜底时不再返回 `MinValue`（年份 0001）或 Hibernate `-infinity` sentinel（年份 -292275055），而是返回 **1970-01-01**。contract-test 不再被误判为「明显荒谬」，entity 层 debug 也知道「1970 表示 fallback」。
