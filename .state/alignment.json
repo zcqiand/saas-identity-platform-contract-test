@@ -452,7 +452,6 @@
       "tests": [
         "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > M96.F02.I16 aspnetcore 创建返回 200/201 + apiKey 字段齐全",
         "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > M96.F02.I16 msw 创建返回 200/201 + apiKey 字段齐全",
-        "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > M96.F02.I16 nextjs 创建返回 200/201 + apiKey 字段齐全",
         "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > M96.F02.I16 springboot 创建返回 200/201 + apiKey 字段齐全",
         "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
       ],
@@ -474,7 +473,6 @@
       "tests": [
         "M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对 > M96.F02.I17 aspnetcore revoke 返回 200 + 字段齐全",
         "M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对 > M96.F02.I17 msw revoke 返回 200 + 字段齐全",
-        "M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对 > M96.F02.I17 nextjs revoke 返回 200 + 字段齐全",
         "M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对 > M96.F02.I17 springboot revoke 返回 200 + 字段齐全"
       ],
       "entry": []
@@ -495,7 +493,6 @@
       "tests": [
         "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 aspnetcore api_key_created + api_key_revoked 各至少一条",
         "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 msw api_key_created + api_key_revoked 各至少一条",
-        "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 nextjs api_key_created + api_key_revoked 各至少一条",
         "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 springboot api_key_created + api_key_revoked 各至少一条"
       ],
       "entry": []
@@ -514,7 +511,6 @@
       "tests": [
         "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 aspnetcore 创建返回 200/201 + user 字段齐全",
         "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 msw 创建返回 200/201 + user 字段齐全",
-        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 nextjs 创建返回 200/201 + user 字段齐全",
         "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 springboot 创建返回 200/201 + user 字段齐全",
         "M96.F02.I19 POST /tenants/{t}/users 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
       ],
@@ -534,7 +530,6 @@
       "tests": [
         "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 aspnetcore 整批设置返回 200 + roleMenuGrant 字段齐全",
         "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 msw 整批设置返回 200 + roleMenuGrant 字段齐全",
-        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 nextjs 整批设置返回 200 + roleMenuGrant 字段齐全",
         "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 springboot 整批设置返回 200 + roleMenuGrant 字段齐全",
         "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
       ],
@@ -558,9 +553,6 @@
         "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 msw DELETE 物理删除返回 204",
         "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 msw 前置：POST /api-keys 创一把 key",
         "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 msw 重复 DELETE 期望 404（幂等性）",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 nextjs DELETE 物理删除返回 204",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 nextjs 前置：POST /api-keys 创一把 key",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 nextjs 重复 DELETE 期望 404（幂等性）",
         "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 springboot DELETE 物理删除返回 204",
         "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 springboot 前置：POST /api-keys 创一把 key",
         "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 springboot 重复 DELETE 期望 404（幂等性）"
@@ -714,7 +706,6 @@
       "tests": [
         "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 aspnetcore 创 tenant 返回 200/201 + 字段齐全",
         "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 msw 创 tenant 返回 200/201 + 字段齐全",
-        "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 nextjs 创 tenant 返回 200/201 + 字段齐全",
         "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 springboot 创 tenant 返回 200/201 + 字段齐全",
         "M96.F02.I30 POST /admin/tenants 四方比对 > normalize 后成功响应字段一致（除唯一值/时间戳）"
       ],
@@ -734,7 +725,6 @@
       "tests": [
         "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 aspnetcore 取自己创的 tenant → 200 + 字段齐全",
         "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 msw 取自己创的 tenant → 200 + 字段齐全",
-        "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 nextjs 取自己创的 tenant → 200 + 字段齐全",
         "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 springboot 取自己创的 tenant → 200 + 字段齐全",
         "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > 不存在 id → 404 全等"
       ],
@@ -754,7 +744,6 @@
       "tests": [
         "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 aspnetcore 改 name → 200 + updatedAt 必填",
         "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 nextjs 改 name → 200 + updatedAt 必填",
         "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 springboot 改 name → 200 + updatedAt 必填"
       ],
       "entry": []
@@ -789,7 +778,6 @@
       "tests": [
         "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 aspnetcore 创建返回 200/201 + role 字段齐全",
         "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 msw 创建返回 200/201 + role 字段齐全",
-        "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 nextjs 创建返回 200/201 + role 字段齐全",
         "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 springboot 创建返回 200/201 + role 字段齐全",
         "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
       ],
@@ -809,7 +797,6 @@
       "tests": [
         "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 aspnetcore 改 name → 200 + updatedAt 必填",
         "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 nextjs 改 name → 200 + updatedAt 必填",
         "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 springboot 改 name → 200 + updatedAt 必填",
         "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > 不存在 id → 404 全等"
       ],
@@ -829,7 +816,6 @@
       "tests": [
         "M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对 > M96.F02.I36 aspnetcore 设 permissionIds → 200 + 响应回带",
         "M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对 > M96.F02.I36 msw 设 permissionIds → 200 + 响应回带",
-        "M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对 > M96.F02.I36 nextjs 设 permissionIds → 200 + 响应回带",
         "M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对 > M96.F02.I36 springboot 设 permissionIds → 200 + 响应回带"
       ],
       "entry": []
@@ -880,7 +866,6 @@
       "tests": [
         "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > M96.F02.I39 aspnetcore 改 displayName → 200 + updatedAt 必填",
         "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > M96.F02.I39 msw 改 displayName → 200 + updatedAt 必填",
-        "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > M96.F02.I39 nextjs 改 displayName → 200 + updatedAt 必填",
         "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > M96.F02.I39 springboot 改 displayName → 200 + updatedAt 必填",
         "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > 不存在 id → 404 全等"
       ],
@@ -900,7 +885,6 @@
       "tests": [
         "M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对 > M96.F02.I40 aspnetcore 设 roleIds → 200 + 响应回带",
         "M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对 > M96.F02.I40 msw 设 roleIds → 200 + 响应回带",
-        "M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对 > M96.F02.I40 nextjs 设 roleIds → 200 + 响应回带",
         "M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对 > M96.F02.I40 springboot 设 roleIds → 200 + 响应回带"
       ],
       "entry": []
@@ -919,7 +903,6 @@
       "tests": [
         "M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对 > M96.F02.I41 aspnetcore active → suspended → active 往返",
         "M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对 > M96.F02.I41 msw active → suspended → active 往返",
-        "M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对 > M96.F02.I41 nextjs active → suspended → active 往返",
         "M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对 > M96.F02.I41 springboot active → suspended → active 往返"
       ],
       "entry": []
@@ -938,7 +921,6 @@
       "tests": [
         "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I42 aspnetcore 邀请 → 200/201 + status=invited",
         "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I42 msw 邀请 → 200/201 + status=invited",
-        "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I42 nextjs 邀请 → 200/201 + status=invited",
         "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I42 springboot 邀请 → 200/201 + status=invited",
         "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I43 DELETE /tenants/{t}/users/{u} 四方比对 > I42 的邀请行删除 → 200/204 + 重复删 → 404（幂等）"
       ],
@@ -990,7 +972,6 @@
       "tests": [
         "M96.F02.I45 POST /admin/apps 四方比对 > M96.F02.I45 aspnetcore 创 app 返回 200/201 + 字段齐全",
         "M96.F02.I45 POST /admin/apps 四方比对 > M96.F02.I45 msw 创 app 返回 200/201 + 字段齐全",
-        "M96.F02.I45 POST /admin/apps 四方比对 > M96.F02.I45 nextjs 创 app 返回 200/201 + 字段齐全",
         "M96.F02.I45 POST /admin/apps 四方比对 > M96.F02.I45 springboot 创 app 返回 200/201 + 字段齐全",
         "M96.F02.I45 POST /admin/apps 四方比对 > normalize 后成功响应字段一致（除唯一值/时间戳）"
       ],
@@ -1010,7 +991,6 @@
       "tests": [
         "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > M96.F02.I46 aspnetcore 取自己创的 app → 200 + 字段齐全",
         "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > M96.F02.I46 msw 取自己创的 app → 200 + 字段齐全",
-        "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > M96.F02.I46 nextjs 取自己创的 app → 200 + 字段齐全",
         "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > M96.F02.I46 springboot 取自己创的 app → 200 + 字段齐全",
         "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > 不存在 id → 404 全等"
       ],
@@ -1030,7 +1010,6 @@
       "tests": [
         "M96.F02.I47 PATCH /admin/apps/{appId} 四方比对 > M96.F02.I47 aspnetcore 改 name → 200 + updatedAt 必填",
         "M96.F02.I47 PATCH /admin/apps/{appId} 四方比对 > M96.F02.I47 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I47 PATCH /admin/apps/{appId} 四方比对 > M96.F02.I47 nextjs 改 name → 200 + updatedAt 必填",
         "M96.F02.I47 PATCH /admin/apps/{appId} 四方比对 > M96.F02.I47 springboot 改 name → 200 + updatedAt 必填"
       ],
       "entry": []
@@ -1065,7 +1044,6 @@
       "tests": [
         "M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对 > M96.F02.I49 aspnetcore active → disabled → active 往返",
         "M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对 > M96.F02.I49 msw active → disabled → active 往返",
-        "M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对 > M96.F02.I49 nextjs active → disabled → active 往返",
         "M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对 > M96.F02.I49 springboot active → disabled → active 往返"
       ],
       "entry": []
@@ -1100,7 +1078,6 @@
       "tests": [
         "M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对 > M96.F02.I51 aspnetcore 创 menu（A/B 两个）→ 200/201 + 字段齐全",
         "M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对 > M96.F02.I51 msw 创 menu（A/B 两个）→ 200/201 + 字段齐全",
-        "M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对 > M96.F02.I51 nextjs 创 menu（A/B 两个）→ 200/201 + 字段齐全",
         "M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对 > M96.F02.I51 springboot 创 menu（A/B 两个）→ 200/201 + 字段齐全"
       ],
       "entry": []
@@ -1119,7 +1096,6 @@
       "tests": [
         "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I52 aspnetcore 取自建 menu → 200",
         "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I52 msw 取自建 menu → 200",
-        "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I52 nextjs 取自建 menu → 200",
         "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I52 springboot 取自建 menu → 200",
         "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > 不存在 id → 404 全等"
       ],
@@ -1139,7 +1115,6 @@
       "tests": [
         "M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I53 aspnetcore 改 name → 200 + updatedAt 必填",
         "M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I53 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I53 nextjs 改 name → 200 + updatedAt 必填",
         "M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I53 springboot 改 name → 200 + updatedAt 必填"
       ],
       "entry": []
@@ -1174,7 +1149,6 @@
       "tests": [
         "M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 aspnetcore A/B 换序 → 200 + Menu[]",
         "M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 msw A/B 换序 → 200 + Menu[]",
-        "M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 nextjs A/B 换序 → 200 + Menu[]",
         "M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 springboot A/B 换序 → 200 + Menu[]"
       ],
       "entry": []
@@ -1193,7 +1167,6 @@
       "tests": [
         "M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 aspnetcore B 挂到 A 下 → 200 + parentId 回带",
         "M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 msw B 挂到 A 下 → 200 + parentId 回带",
-        "M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 nextjs B 挂到 A 下 → 200 + parentId 回带",
         "M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 springboot B 挂到 A 下 → 200 + parentId 回带"
       ],
       "entry": []
@@ -1212,7 +1185,6 @@
       "tests": [
         "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > M96.F02.I57 aspnetcore rotate → 200/201 + 新 key + 新 secret",
         "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > M96.F02.I57 msw rotate → 200/201 + 新 key + 新 secret",
-        "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > M96.F02.I57 nextjs rotate → 200/201 + 新 key + 新 secret",
         "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > M96.F02.I57 springboot rotate → 200/201 + 新 key + 新 secret",
         "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > normalize 后 rotate 成功响应字段一致（除 volatile）"
       ],

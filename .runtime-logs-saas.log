@@ -1,0 +1,234 @@
+=== [1/6] 工具链 + sibling 仓 + 端口 ===
+  ✓ 5 sibling 仓齐全 + 7 工具齐
+  [1/2] 检查 4 端口 LISTENING 残留进程...
+    端口 :5100 被 4628 (node) 占用, taskkill /F
+    端口 :5101 被 34896 (node) 占用, taskkill /F
+  [2/2] 检查匹配后端进程名的残留进程 (pre-LISTENING 阶段)...
+  ✓ 端口 preflight 完成
+
+=== [2/6] 各后端 gen-shared (nextjs + springboot) ===
+🍻 orval v7.21.0 - A swagger client generator for typescript
+🎉 saas - Your OpenAPI spec has been converted into ready to use orval!
+[gen-shared] OK
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+[gen-shared] step 3/3 — DB: copy shared/sql/migrations/* → src/main/resources/db/migration/
+[gen-shared] OK
+
+=== [3/6] 后台起 4 后端 ===
+
+=== [4/6] healthcheck 4 后端 (90s 串行) ===
+  ✓ msw up after 5s
+  ✓ aspnetcore up after 1s
+  ✓ springboot up after 2s
+
+=== [5/6] live vitest ===
+  CONTRACT_TARGETS=msw,aspnetcore,springboot
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mD:/qiand-life/1-projects/xr-code-suite/output/saas-identity-platform-contract-test[39m
+
+ [32m✓[39m tests/admin-tenants.test.ts [2m([22m[2m17 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 23134[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I29 GET /admin/tenants 四方比对[2m > [22m列表 → 200 + 分页包装 shape（items 元素字段齐全） [33m1893[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I60 GET /admin/tenants 分页 defaults 契约面[2m > [22m不传 ?page/?pageSize → page=0, pageSize=20 全等 [33m3198[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I61 GET /admin/tenants 显式分页回显[2m > [22m?page=1&pageSize=2 → 回显一致（page=1, pageSize=2） [33m1577[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I30 POST /admin/tenants 四方比对[2m > [22mM96.F02.I30 aspnetcore 创 tenant 返回 200/201 + 字段齐全 [33m463[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I30 POST /admin/tenants 四方比对[2m > [22mM96.F02.I30 springboot 创 tenant 返回 200/201 + 字段齐全 [33m437[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I30 POST /admin/tenants 四方比对[2m > [22mnormalize 后成功响应字段一致（除唯一值/时间戳） [33m1777[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I31 GET /admin/tenants/{id} 四方比对[2m > [22mM96.F02.I31 springboot 取自己创的 tenant → 200 + 字段齐全 [33m2691[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I31 GET /admin/tenants/{id} 四方比对[2m > [22m不存在 id → 404 全等 [33m759[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I62 GET /admin/tenants/{id} 404 ErrorResponse envelope[2m > [22m404 envelope shape 全等（前端 catch 分支依赖） [33m929[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I32 PATCH /admin/tenants/{id} 四方比对[2m > [22mM96.F02.I32 aspnetcore 改 name → 200 + updatedAt 必填 [33m1096[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I32 PATCH /admin/tenants/{id} 四方比对[2m > [22mM96.F02.I32 springboot 改 name → 200 + updatedAt 必填 [33m853[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I33 DELETE /admin/tenants/{id} 四方比对[2m > [22mI30 的 tenant 删除 → 204 + 重复删 → 404（幂等） [33m4287[2mms[22m[39m
+ [32m✓[39m tests/admin-apps-write.test.ts [2m([22m[2m20 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 29392[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I44 GET /admin/apps 四方比对[2m > [22m列表 → 200 + 分页包装 shape [33m2359[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I63 GET /admin/apps 显式分页回显[2m > [22m?page=1&pageSize=2 → 回显一致（page=1, pageSize=2） [33m3098[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I45 POST /admin/apps 四方比对[2m > [22mM96.F02.I45 aspnetcore 创 app 返回 200/201 + 字段齐全 [33m793[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I45 POST /admin/apps 四方比对[2m > [22mM96.F02.I45 springboot 创 app 返回 200/201 + 字段齐全 [33m787[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I45 POST /admin/apps 四方比对[2m > [22mnormalize 后成功响应字段一致（除唯一值/时间戳） [33m1349[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I64 POST /admin/apps 缺必填字段错误分支[2m > [22m空 body → 4xx + ErrorResponse envelope shape 全等 [33m3634[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I46 GET /admin/apps/{appId} 四方比对[2m > [22mM96.F02.I46 aspnetcore 取自己创的 app → 200 + 字段齐全 [33m319[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I46 GET /admin/apps/{appId} 四方比对[2m > [22mM96.F02.I46 springboot 取自己创的 app → 200 + 字段齐全 [33m696[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I46 GET /admin/apps/{appId} 四方比对[2m > [22m不存在 id → 404 全等 [33m2096[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I65 GET /admin/apps/{appId} 404 ErrorResponse envelope[2m > [22m404 envelope shape 全等（前端 catch 分支依赖） [33m1131[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I47 PATCH /admin/apps/{appId} 四方比对[2m > [22mM96.F02.I47 aspnetcore 改 name → 200 + updatedAt 必填 [33m798[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I47 PATCH /admin/apps/{appId} 四方比对[2m > [22mM96.F02.I47 springboot 改 name → 200 + updatedAt 必填 [33m973[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对[2m > [22mM96.F02.I49 aspnetcore active → disabled → active 往返 [33m569[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对[2m > [22mM96.F02.I49 springboot active → disabled → active 往返 [33m1873[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I48 DELETE /admin/apps/{appId} 四方比对[2m > [22mI45 的 app 删除 → 204/200 + 重复删 → 404（幂等） [33m3567[2mms[22m[39m
+ [32m✓[39m tests/tenant-roles-write.test.ts [2m([22m[2m17 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 21782[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I34 POST /tenants/{t}/roles 四方比对[2m > [22mM96.F02.I34 springboot 创建返回 200/201 + role 字段齐全 [33m1047[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I34 POST /tenants/{t}/roles 四方比对[2m > [22mnormalize 后所有目标的成功响应字段一致（除 volatile） [33m699[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I67 POST /tenants/{t}/roles 缺必填字段错误分支[2m > [22m空 body → 4xx + ErrorResponse envelope shape 全等 [33m507[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对[2m > [22mM96.F02.I35 aspnetcore 改 name → 200 + updatedAt 必填 [33m854[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对[2m > [22mM96.F02.I35 springboot 改 name → 200 + updatedAt 必填 [33m1200[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对[2m > [22m不存在 id → 404 全等 [33m1115[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I68 PATCH /tenants/{t}/roles/{r} 404 ErrorResponse envelope[2m > [22m404 envelope shape 全等（前端 catch 分支依赖） [33m744[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对[2m > [22mM96.F02.I36 aspnetcore 设 permissionIds → 200 + 响应回带 [33m454[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对[2m > [22mM96.F02.I36 springboot 设 permissionIds → 200 + 响应回带 [33m781[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I37 DELETE /tenants/{t}/roles/{r} 四方比对[2m > [22mI34 的 role 删除 → 204/200 + 重复删 → 404（幂等） [33m2884[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I38 DELETE /tenants/{t}/roles/{r}/menus 四方比对[2m > [22m清空 → 204/200 + 幂等 → 还原 seed 授权 [33m8932[2mms[22m[39m
+ [32m✓[39m tests/tenant-users-write-2.test.ts [2m([22m[2m17 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 18359[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对[2m > [22mM96.F02.I39 aspnetcore 改 displayName → 200 + updatedAt 必填 [33m1266[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对[2m > [22mM96.F02.I39 springboot 改 displayName → 200 + updatedAt 必填 [33m1419[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对[2m > [22m不存在 id → 404 全等 [33m916[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I70 PATCH /tenants/{t}/users/{u} 404 ErrorResponse envelope[2m > [22m404 envelope shape 全等（前端 catch 分支依赖） [33m925[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对[2m > [22mM96.F02.I40 aspnetcore 设 roleIds → 200 + 响应回带 [33m1043[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对[2m > [22mM96.F02.I40 springboot 设 roleIds → 200 + 响应回带 [33m1949[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对[2m > [22mM96.F02.I41 aspnetcore active → suspended → active 往返 [33m1122[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对[2m > [22mM96.F02.I41 springboot active → suspended → active 往返 [33m1469[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对[2m > [22mM96.F02.I42 aspnetcore 邀请 → 200/201 + status=invited [33m609[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对[2m > [22mM96.F02.I42 springboot 邀请 → 200/201 + status=invited [33m1462[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对[2m > [22mM96.F02.I43 DELETE /tenants/{t}/users/{u} 四方比对[2m > [22mI42 的邀请行删除 → 200/204 + 重复删 → 404（幂等） [33m3131[2mms[22m[39m
+ [32m✓[39m tests/admin-app-menus-write.test.ts [2m([22m[2m20 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 31175[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I50 GET /admin/apps/{appId}/menus 四方比对[2m > [22mseed 菜单列表 → 200 + Menu[] shape [33m2621[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对[2m > [22mM96.F02.I51 aspnetcore 创 menu（A/B 两个）→ 200/201 + 字段齐全 [33m1214[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对[2m > [22mM96.F02.I51 springboot 创 menu（A/B 两个）→ 200/201 + 字段齐全 [33m2589[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对[2m > [22mM96.F02.I52 springboot 取自建 menu → 200 [33m829[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对[2m > [22m不存在 id → 404 全等 [33m2160[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I66 GET /admin/apps/{appId}/menus/{menuId} 404 ErrorResponse envelope[2m > [22m404 envelope shape 全等（前端 catch 分支依赖） [33m1045[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对[2m > [22mM96.F02.I53 aspnetcore 改 name → 200 + updatedAt 必填 [33m1094[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对[2m > [22mM96.F02.I53 springboot 改 name → 200 + updatedAt 必填 [33m1110[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对[2m > [22mM96.F02.I55 aspnetcore A/B 换序 → 200 + Menu[] [33m992[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对[2m > [22mM96.F02.I55 springboot A/B 换序 → 200 + Menu[] [33m847[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对[2m > [22mM96.F02.I56 aspnetcore B 挂到 A 下 → 200 + parentId 回带 [33m559[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对[2m > [22mM96.F02.I56 springboot B 挂到 A 下 → 200 + parentId 回带 [33m1560[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I54 DELETE /admin/apps/{appId}/menus/{menuId} 四方比对[2m > [22mI51 的 menu 对删除 → 204/200 + 重复删 → 404（幂等） [33m11299[2mms[22m[39m
+ [32m✓[39m tests/tenant-api-keys-write.test.ts [2m([22m[2m12 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 13302[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I16 POST /tenants/{t}/api-keys 四方比对[2m > [22mM96.F02.I16 springboot 创建返回 200/201 + apiKey 字段齐全 [33m1107[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I16 POST /tenants/{t}/api-keys 四方比对[2m > [22mnormalize 后所有目标的成功响应字段一致（除 volatile） [33m490[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对[2m > [22mM96.F02.I17 aspnetcore revoke 返回 200 + 字段齐全 [33m1407[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对[2m > [22mM96.F02.I17 springboot revoke 返回 200 + 字段齐全 [33m1195[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events[2m > [22mM96.F02.I18 aspnetcore api_key_created + api_key_revoked 各至少一条 [33m2249[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events[2m > [22mM96.F02.I18 springboot api_key_created + api_key_revoked 各至少一条 [33m3710[2mms[22m[39m
+ [32m✓[39m tests/tenant-audit-read.test.ts [2m([22m[2m14 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 8252[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I72 GET /tenants/{t}/audit-events ?action= 过滤[2m > [22m?action=login_success — 响应分页 envelope 全等 [33m2067[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I73 GET /tenants/{t}/audit-events ?actorUserId= 过滤[2m > [22m?actorUserId=<alice> — 响应分页 envelope 全等 [33m1345[2mms[22m[39m
+ [32m✓[39m tests/tenant-misc-write.test.ts [2m([22m[2m7 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 14635[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对[2m > [22mM96.F02.I57 aspnetcore rotate → 200/201 + 新 key + 新 secret [33m1150[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对[2m > [22mM96.F02.I57 springboot rotate → 200/201 + 新 key + 新 secret [33m1810[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对[2m > [22mnormalize 后 rotate 成功响应字段一致（除 volatile） [33m3125[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I58 POST /tenants/{t}/audit-events/export 四方比对[2m > [22m合法区间 + format → 200 + {downloadUrl} shape [33m455[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I59 PUT /tenants/{t}/audit-events/retention 四方比对[2m > [22m设 retentionDays → 回显 + 还原 seed 原值 [33m4264[2mms[22m[39m
+ [32m✓[39m tests/auth.test.ts [2m([22m[2m7 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 9467[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I22 POST /auth/login 四方比对[2m > [22m正确凭证 → 200 + LoginResponse 必填字段齐全 [33m1822[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I22 POST /auth/login 四方比对[2m > [22m错误密码 → 4xx 全等（normalize 后 body 全等） [33m1454[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I23 POST /auth/logout 四方比对[2m > [22mlogin 后 logout → 200/204 全等 [33m712[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I24 POST /auth/refresh 四方比对[2m > [22mlogin 的 refreshToken 换新 token 对 → 200 + TokenResponse 必填 [33m1800[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I24 POST /auth/refresh 四方比对[2m > [22m未知 refreshToken → 400 全等 [33m1035[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I25 POST /auth/oidc/callback 四方比对[2m > [22m缺 code → 4xx 全等（错误分支，不依赖真 IdP） [33m936[2mms[22m[39m
+ [32m✓[39m tests/tenant-users-write.test.ts [2m([22m[2m7 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 7746[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I19 POST /tenants/{t}/users 四方比对[2m > [22mM96.F02.I19 springboot 创建返回 200/201 + user 字段齐全 [33m849[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I19 POST /tenants/{t}/users 四方比对[2m > [22mnormalize 后所有目标的成功响应字段一致（除 volatile） [33m776[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I69 POST /tenants/{t}/users 缺必填字段错误分支[2m > [22m空 body → 4xx + ErrorResponse envelope shape 全等 [33m925[2mms[22m[39m
+ [32m✓[39m tests/tenant-role-menus-write.test.ts [2m([22m[2m7 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 6299[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对[2m > [22mM96.F02.I20 aspnetcore 整批设置返回 200 + roleMenuGrant 字段齐全 [33m1803[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对[2m > [22mM96.F02.I20 springboot 整批设置返回 200 + roleMenuGrant 字段齐全 [33m1831[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对[2m > [22mnormalize 后所有目标的成功响应字段一致（除 volatile） [33m1389[2mms[22m[39m
+ [32m✓[39m tests/normalize.test.ts [2m([22m[2m28 tests[22m[2m)[22m[90m 20[2mms[22m[39m
+ [32m✓[39m tests/tenant-roles-read.test.ts [2m([22m[2m13 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 4472[2mms[22m[39m
+ [31m❯[39m tests/oauth.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m3 failed[39m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 965[2mms[22m[39m
+[31m   [31m×[31m M96.F02.I26 POST /oauth/authorize 四方比对[2m > [22m合法 clientId → 200 {code,state}（code 剔除后全等）[90m 282[2mms[22m[31m[39m
+[31m     → aspnetcore authorize 期望 200 实得 400 body={"error":"INVALID_REQUEST","error_description":"INVALID_REDIRECT_URI: http://localhost:5201/callback not in app.redirect_uris"}: expected 400 to be 200 // Object.is equality[39m
+   [33m[2m✓[22m[39m M96.F02.I26 POST /oauth/authorize 四方比对[2m > [22m未知 clientId → 400 全等 [33m668[2mms[22m[39m
+[31m   [31m×[31m M96.F02.I27 POST /oauth/token 四方比对[2m > [22mI26 的 code 换 token 对 → 200 + TokenResponse 必填[90m 7[2mms[22m[31m[39m
+[31m     → aspnetcore I26 未拿到 code，I27 无法继续[39m
+[31m   [31m×[31m M96.F02.I27 POST /oauth/token 四方比对[2m > [22m已被消费的 code 重放 → 400 全等[90m 6[2mms[22m[31m[39m
+[31m     → aspnetcore I26 未拿到 code[39m
+ [32m✓[39m tests/tenant-users-read.test.ts [2m([22m[2m10 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 4123[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I71 GET /tenants/{t}/users ?status= 过滤[2m > [22m?status=active — 响应分页 envelope 全等（4 后端契约面） [33m1126[2mms[22m[39m
+[90mstderr[2m | tests/tenant-api-keys-delete.test.ts[2m > [22m[2m写端点 teardown — runCleanups + 防御性 revoke
+[22m[39m[teardown] final revoke aspnetcore 异常 status=500
+
+ [32m✓[39m tests/tenant-api-keys-delete.test.ts [2m([22m[2m11 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 5803[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对[2m > [22mM96.F02.I21 aspnetcore 前置：POST /api-keys 创一把 key [33m368[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对[2m > [22mM96.F02.I21 springboot 前置：POST /api-keys 创一把 key [33m840[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对[2m > [22mM96.F02.I21 aspnetcore DELETE 物理删除返回 204 [33m371[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对[2m > [22mM96.F02.I21 springboot DELETE 物理删除返回 204 [33m1335[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对[2m > [22mM96.F02.I21 aspnetcore 重复 DELETE 期望 404（幂等性） [33m819[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对[2m > [22mM96.F02.I21 springboot 重复 DELETE 期望 404（幂等性） [33m485[2mms[22m[39m
+ [32m✓[39m tests/me.test.ts [2m([22m[2m9 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 4043[2mms[22m[39m
+ [32m✓[39m tests/compare.test.ts [2m([22m[2m13 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m tests/tenant-api-keys-read.test.ts [2m([22m[2m5 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 1096[2mms[22m[39m
+ [32m✓[39m tests/me-switch.test.ts [2m([22m[2m3 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 2055[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I28 POST /me/tenants/{t}/switch 四方比对[2m > [22malice 切到所属 tenant → 200 + SwitchTenantResponse 必填 [33m1140[2mms[22m[39m
+   [33m[2m✓[22m[39m M96.F02.I28 POST /me/tenants/{t}/switch 四方比对[2m > [22m切到不存在的 tenant → 404 全等 [33m914[2mms[22m[39m
+ [32m✓[39m tests/apps-public.test.ts [2m([22m[2m5 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 1242[2mms[22m[39m
+ [32m✓[39m tests/me-tenants.test.ts [2m([22m[2m5 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 1107[2mms[22m[39m
+ [32m✓[39m tests/path.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 3 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/oauth.test.ts[2m > [22mM96.F02.I26 POST /oauth/authorize 四方比对[2m > [22m合法 clientId → 200 {code,state}（code 剔除后全等）
+[31m[1mAssertionError[22m: aspnetcore authorize 期望 200 实得 400 body={"error":"INVALID_REQUEST","error_description":"INVALID_REDIRECT_URI: http://localhost:5201/callback not in app.redirect_uris"}: expected 400 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 400[39m
+
+[36m [2m❯[22m tests/oauth.test.ts:[2m48:9[22m[39m
+    [90m 46| [39m        r[33m.[39mstatus[33m,[39m
+    [90m 47| [39m        [32m`[39m[36m${[39mt[33m.[39mname[36m}[39m[32m authorize 期望 200 实得 [39m[36m${[39mr[33m.[39mstatus[36m}[39m[32m body=[39m[36m${[39m[33mJSON[39m[33m.[39m[34mstr[39m…
+    [90m 48| [39m      )[33m.[39m[34mtoBe[39m([34m200[39m)[33m;[39m
+    [90m   | [39m        [31m^[39m
+    [90m 49| [39m      [35mconst[39m body [33m=[39m r[33m.[39mbody [35mas[39m { code[33m?[39m[33m:[39m string[33m;[39m state[33m?[39m[33m:[39m string }[33m;[39m
+    [90m 50| [39m      [34mexpect[39m(body[33m.[39mcode[33m,[39m [32m`[39m[36m${[39mt[33m.[39mname[36m}[39m[32m authorize 响应缺 code`[39m)[33m.[39m[34mtoBeDefined[39m…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/oauth.test.ts[2m > [22mM96.F02.I27 POST /oauth/token 四方比对[2m > [22mI26 的 code 换 token 对 → 200 + TokenResponse 必填
+[31m[1mError[22m: aspnetcore I26 未拿到 code，I27 无法继续[39m
+[36m [2m❯[22m tests/oauth.test.ts:[2m84:24[22m[39m
+    [90m 82| [39m    [35mfor[39m ([35mconst[39m t [35mof[39m targets) {
+    [90m 83| [39m      [35mconst[39m code [33m=[39m authCodes[33m.[39m[35mget[39m(t[33m.[39mname)[33m;[39m
+    [90m 84| [39m      [35mif[39m ([33m![39mcode) [35mthrow[39m [35mnew[39m [33mError[39m([32m`[39m[36m${[39mt[33m.[39mname[36m}[39m[32m I26 未拿到 code，I27 无法[39m…
+    [90m   | [39m                       [31m^[39m
+    [90m 85| [39m      [35mconst[39m r [33m=[39m [35mawait[39m [34mprobeRequest[39m(t[33m,[39m {
+    [90m 86| [39m        method[33m:[39m [32m"POST"[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/oauth.test.ts[2m > [22mM96.F02.I27 POST /oauth/token 四方比对[2m > [22m已被消费的 code 重放 → 400 全等
+[31m[1mError[22m: aspnetcore I26 未拿到 code[39m
+[36m [2m❯[22m tests/oauth.test.ts:[2m115:24[22m[39m
+    [90m113| [39m    [35mfor[39m ([35mconst[39m t [35mof[39m targets) {
+    [90m114| [39m      [35mconst[39m code [33m=[39m authCodes[33m.[39m[35mget[39m(t[33m.[39mname)[33m;[39m
+    [90m115| [39m      [35mif[39m ([33m![39mcode) [35mthrow[39m [35mnew[39m [33mError[39m([32m`[39m[36m${[39mt[33m.[39mname[36m}[39m[32m I26 未拿到 code`[39m)[33m;[39m
+    [90m   | [39m                       [31m^[39m
+    [90m116| [39m      probes[33m.[39m[34mpush[39m(
+    [90m117| [39m        [35mawait[39m [34mprobeRequest[39m(t[33m,[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m22 passed[39m[22m[90m (23)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m235 passed[39m[22m[2m | [22m[33m21 skipped[39m[90m (259)[39m
+[2m   Start at [22m 22:48:13
+[2m   Duration [22m 240.70s[2m (transform 816ms, setup 0ms, collect 3.03s, tests 208.48s, environment 4ms, prepare 2.05s)[22m
+
+  vitest exit: 1 (non-zero = 发现契约分叉, 看 [6/6] trace.json 详情)
+
+=== [6/6] trace.json shape + L5 alignment + gate ===
+  ✓ mode='live' targets=['msw', 'aspnetcore', 'springboot']
+  ✓ 224 non-inert tests, 81 个 fn ID (含 I03-I21)
+  [WARN] 已上线但无设计映射: M96.F02.I60, M96.F02.I61, M96.F02.I62, M96.F02.I63, M96.F02.I64, M96.F02.I65 …共 14 项
+  [WARN] 已上线但不在任何流程且非孤儿白名单: M96.F02.I60, M96.F02.I61, M96.F02.I62, M96.F02.I63, M96.F02.I64, M96.F02.I65 …共 14 项
+  86 个功能条目，引用完整。软告警 28 条（见 .state/alignment.json）
+### saas-identity-platform-contract-test  (stack=shared-typescript)
+[PASS] L0 结构完整性  (0.22s)
+[PASS] L0.5 env 一致性  (0.09s)
+[PASS] L2 SSOT 覆盖  (0.08s)
+[PASS] L3 类型  (4.38s)
+[PASS] L4 测试  (9.41s)
+[PASS] L5 引用完整性  (0.09s)
+86 个功能条目，引用完整。软告警 28 条（见 .state/alignment.json）
+  [WARN] 已上线但无设计映射: M96.F02.I60, M96.F02.I61, M96.F02.I62, M96.F02.I63, M96.F02.I64, M96.F02.I65 …共 14 项
+  [WARN] 已上线但不在任何流程且非孤儿白名单: M96.F02.I60, M96.F02.I61, M96.F02.I62, M96.F02.I63, M96.F02.I64, M96.F02.I65 …共 14 项
+门禁全绿。
+
+
+=== 全部通过。Ctrl+C 或 exit 触发 cleanup。===
+
+=== cleanup: kill 4 children + grandchildren ===

@@ -48,7 +48,7 @@
     "不要再手动改 harness.py timeout 给单个项目绕开：300→900 是 suite 级常量，所有项目共享；项目级绕开请走 /tree-change 改 stack.json 但需 ADR 同步",
     "不要再回到 [1970, 2100] 范围之前的 [2000, 2100]：ADR-0015-amend 范围已同步到 1970，回归意味着 1970-01-01 epoch 占位会被误判为荒谬"
   ],
-  "last_gate_passed_at": "2026-09-02T04:48+08:00",
+  "last_gate_passed_at": "2026-09-02T22:58:07",
   "active_branch": "master",
   "ahead_of_origin": "0"
 }
