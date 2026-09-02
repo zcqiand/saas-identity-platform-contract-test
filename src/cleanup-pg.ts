@@ -187,8 +187,31 @@ async function cleanupApiKeys(target: Target): Promise<void> {
  * unit 模式（无 CONTRACT_TARGETS）由调用方 (tests/globalSetup.ts) early-return。
  */
 export async function cleanupAllProbeRows(): Promise<void> {
-  const targets = selectedTargets().filter((t) => !t.inMemory); // 跳过 msw（users/api-keys 走 PG）
+  // 2026-09-02 I07/I10：cleanup 三类探针行（users/roles/api-keys）对 msw 一视同仁 ——
+  // 它是内存态，任何一轮 run 的 teardown 失败（或手工 curl 探针）残留行会活到
+  // 后续所有 run（进程不重启不清零），列表比对立即分叉。msw 有 DELETE 端点，
+  // 按同一 prefix/sentinel 匹配清内存行。3 真后端共库，残留同样会撞唯一约束/漂移 total。
+  const targets = selectedTargets();
   for (const t of targets) {
+    if (t.inMemory) {
+      // msw 无 PG sentinel 行，只跑 users/roles/api-keys 的 prefix 匹配删除
+      try {
+        await cleanupUsers(t);
+      } catch (e) {
+        console.warn(`[cleanup-pg] users ${t.name}(inMemory)`, e);
+      }
+      try {
+        await cleanupRoles(t);
+      } catch (e) {
+        console.warn(`[cleanup-pg] roles ${t.name}(inMemory)`, e);
+      }
+      try {
+        await cleanupApiKeys(t);
+      } catch (e) {
+        console.warn(`[cleanup-pg] api-keys ${t.name}(inMemory)`, e);
+      }
+      continue;
+    }
     try {
       await cleanupUsers(t);
     } catch (e) {
@@ -203,17 +226,6 @@ export async function cleanupAllProbeRows(): Promise<void> {
       await cleanupApiKeys(t);
     } catch (e) {
       console.warn(`[cleanup-pg] api-keys ${t.name}`, e);
-    }
-  }
-  // 2026-09-02 I07：roles cleanup 也要覆盖 msw —— 它是内存态，任何一轮 run 的
-  // teardown 失败（如 36-fail 的 r1）残留行会活到后续所有 run（进程不重启不清零），
-  // roles 列表比对立即分叉。msw 有 DELETE 端点，按同一 ROLE_MATCH 清内存行。
-  const msw = selectedTargets().find((t) => t.inMemory);
-  if (msw) {
-    try {
-      await cleanupRoles(msw);
-    } catch (e) {
-      console.warn(`[cleanup-pg] roles ${msw.name}(inMemory)`, e);
     }
   }
 }
