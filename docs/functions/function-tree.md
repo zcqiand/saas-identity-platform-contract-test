@@ -92,6 +92,58 @@
 | M96.F02.I19 | `POST /tenants/{t}/users` 四方比对 | 接口 | 创 user：200/201 + 必填字段 shape 比对；status 固定 `active`（4 后端契约面，msw 真后端全一致）；target.userId 入 ctx（cleanup 用 DELETE） | 已上线 |
 | M96.F02.I20 | `PUT /tenants/{t}/roles/{r}/menus` 四方比对 | 接口 | 整批替换 setRoleMenus：200 + roleId/tenantId/menuIds/updatedAt 必填；menuIds 长度按 TARGET_MENU_IDS | 已上线 |
 | M96.F02.I21 | `DELETE /tenants/{t}/api-keys/{k}` 四方比对 | 接口 | 物理删：204 + 幂等（重复删 → 404）；M05.F01.I05 跨后端覆盖；msw/springboot NoSuchElementException→404，aspnetcore KeyNotFoundException→404 | 已上线 |
+| M96.F02.I22 | `POST /auth/login` 四方比对 | 接口 | 正确凭证 200 shape 比对（token 剔除）+ 错误密码 4xx 全等；M03.F01.I01 跨后端覆盖 | 已上线 |
+| M96.F02.I23 | `POST /auth/logout` 四方比对 | 接口 | 带有效 session 200/204 全等；M03.F03.I05 跨后端覆盖 | 已上线 |
+| M96.F02.I24 | `POST /auth/refresh` 四方比对 | 接口 | login 的 refreshToken 各自换新对，token 剔除后 shape 比对；M03.F02.I04 跨后端覆盖；前置 msw 补确定性 handler | 已上线 |
+| M96.F02.I25 | `POST /auth/oidc/callback` 四方比对 | 接口 | 只比错误分支（无 code/错误 4xx），不依赖真 IdP；M03.F02.I03 跨后端覆盖 | 已上线 |
+| M96.F02.I26 | `POST /oauth/authorize` 四方比对 | 接口 | 合法 client_id + alice session → {code,state} shape（code 一次性，normalize 剔除）；错 client_id 4xx 全等；M04.F02.I07 跨后端覆盖 | 已上线 |
+| M96.F02.I27 | `POST /oauth/token` 四方比对 | 接口 | authorize 的 code 换 token，token 剔除后 shape 比对；M04.F02.I08 跨后端覆盖 | 已上线 |
+| M96.F02.I28 | `POST /me/tenants/{t}/switch` 四方比对 | 接口 | alice 切到自己所属 tenant → 200 shape；切不存在 tenant → 4xx 全等；M00.F02.I03 跨后端覆盖；前置 msw 补确定性 handler | 已上线 |
+| M96.F02.I29 | `GET /admin/tenants` 四方比对 | 接口 | 平台 admin 租户列表，只读分页包装 shape；dev 模式 authenticated 即可打 admin/** | 已上线 |
+| M96.F02.I30 | `POST /admin/tenants` 四方比对 | 接口 | 唯一化前缀 `ct-<ts>-` 创 tenant，201 + 必填 shape；id 入 ctx 供 I31/I32/I33 | 已上线 |
+| M96.F02.I31 | `GET /admin/tenants/{id}` 四方比对 | 接口 | 用 I30 创的 tenant 逐后端 GET（id 各自持有）；不存在 id → 404 全等 | 已上线 |
+| M96.F02.I32 | `PATCH /admin/tenants/{id}` 四方比对 | 接口 | 改 name → 200 + updatedAt 必填 shape 比对 | 已上线 |
+| M96.F02.I33 | `DELETE /admin/tenants/{id}` 四方比对 | 接口 | 物理删 204 + 幂等（重复删 → 404）；teardown 兜底 | 已上线 |
+| M96.F02.I34 | `POST /tenants/{t}/roles` 四方比对 | 接口 | 创 role：唯一化 code 防共库 UNIQUE；200/201 + 必填 shape；id 入 ctx 供 I35–I37；M02.F01.I02 跨后端覆盖 | 已上线 |
+| M96.F02.I35 | `PATCH /tenants/{t}/roles/{r}` 四方比对 | 接口 | 改 name → 200 + updatedAt；不存在 id → 404 全等；M02.F01.I04 跨后端覆盖 | 已上线 |
+| M96.F02.I36 | `PUT /tenants/{t}/roles/{r}/permissions` 四方比对 | 接口 | 设 permissionIds → 200 + 响应回带（集合语义，顺序不比）；M02.F02.I01 跨后端覆盖 | 已上线 |
+| M96.F02.I37 | `DELETE /tenants/{t}/roles/{r}` 四方比对 | 接口 | 物理删 200/204 + 幂等（重复删 → 404）；M02.F01.I05 跨后端覆盖 | 已上线 |
+| M96.F02.I38 | `DELETE /tenants/{t}/roles/{r}/menus` 四方比对 | 接口 | 清空 seed 共享 role（acme admin）授权：先 GET 记原状、断言后 PUT 还原（I20 同模式）；M09.F02.I03 跨后端覆盖 | 已上线 |
+| M96.F02.I39 | `PATCH /tenants/{t}/users/{u}` 四方比对 | 接口 | 改 displayName → 200 + updatedAt；不存在 id → 404 全等；M01.F01.I04 跨后端覆盖 | 已上线 |
+| M96.F02.I40 | `PUT /tenants/{t}/users/{u}/roles` 四方比对 | 接口 | 设 roleIds（seed acmeMember）→ 200 + GET 复核（authoritative 在 memberships）；M01.F02.I01 跨后端覆盖 | 已上线 |
+| M96.F02.I41 | `PATCH /tenants/{t}/users/{u}/status` 四方比对 | 接口 | active → suspended → active 往返，终态还原 active；M01.F02.I03 跨后端覆盖 | 已上线 |
+| M96.F02.I42 | `POST /tenants/{t}/users/invitations` 四方比对 | 接口 | 邀请 email → 200/201 + status=invited；id 供 I43 删除；M01.F02.I02 跨后端覆盖 | 已上线 |
+| M96.F02.I43 | `DELETE /tenants/{t}/users/{u}` 四方比对 | 接口 | 删 I42 邀请行 → 200/204 + 幂等（重复 → 404）；M01.F01.I05 跨后端覆盖 | 已上线 |
+| M96.F02.I44 | `GET /admin/apps` 四方比对 | 接口 | 平台 app 列表分页 shape（msw 不共库 → drop items/total）；M07.F01.I01 跨后端覆盖 | 已上线 |
+| M96.F02.I45 | `POST /admin/apps` 四方比对 | 接口 | 创 app（code/name/clientId/redirectUris 必填）→ 200/201；id 入 ctx 供 I46–I49；M07.F01.I02 跨后端覆盖 | 已上线 |
+| M96.F02.I46 | `GET /admin/apps/{appId}` 四方比对 | 接口 | 取自建 app → 200；不存在 id → 404 全等；M07.F01.I03 跨后端覆盖 | 已上线 |
+| M96.F02.I47 | `PATCH /admin/apps/{appId}` 四方比对 | 接口 | 改 name → 200 + updatedAt；M07.F01.I04 跨后端覆盖 | 已上线 |
+| M96.F02.I48 | `DELETE /admin/apps/{appId}` 四方比对 | 接口 | 物理删 200/204 + 幂等（重复 → 404）；M07.F01.I05 跨后端覆盖 | 已上线 |
+| M96.F02.I49 | `PATCH /admin/apps/{appId}/status` 四方比对 | 接口 | active → disabled → active 往返（排在 I48 前：status 往返需行还在）；M07.F02.I06 跨后端覆盖 | 已上线 |
+| M96.F02.I50 | `GET /admin/apps/{appId}/menus` 四方比对 | 接口 | seed lab-mgmt 菜单扁平数组 Menu[] shape；M08.F01.I01 跨后端覆盖 | 已上线 |
+| M96.F02.I51 | `POST /admin/apps/{appId}/menus` 四方比对 | 接口 | 创 menu A/B 对（reorder/parent 用）→ 200/201 + 字段；不碰 seed 行（role grant 引用）；M08.F01.I02 跨后端覆盖 | 已上线 |
+| M96.F02.I52 | `GET /admin/apps/{appId}/menus/{menuId}` 四方比对 | 接口 | 取自建 menu → 200 + id 回带；不存在 id → 404 全等；M08.F01.I03 跨后端覆盖 | 已上线 |
+| M96.F02.I53 | `PATCH /admin/apps/{appId}/menus/{menuId}` 四方比对 | 接口 | 改 name → 200；M08.F01.I04 跨后端覆盖 | 已上线 |
+| M96.F02.I54 | `DELETE /admin/apps/{appId}/menus/{menuId}` 四方比对 | 接口 | 删自建 menu 对 → 200/204 + 幂等（重复 → 404）；M08.F01.I05 跨后端覆盖 | 已上线 |
+| M96.F02.I55 | `PUT /admin/apps/{appId}/menus/{menuId}/reorder` 四方比对 | 接口 | A/B 换序 → 200 + Menu[]（同 parent 同级语义，排在 I56 parent 前）；M08.F02.I06 跨后端覆盖 | 已上线 |
+| M96.F02.I56 | `PATCH /admin/apps/{appId}/menus/{menuId}/parent` 四方比对 | 接口 | B 挂 A 下 → 200 + parentId 回带，断言后还原顶级；M08.F02.I07 跨后端覆盖 | 已上线 |
+| M96.F02.I57 | `POST /tenants/{t}/api-keys/{k}/rotate` 四方比对 | 接口 | 先创再 rotate：新 prefix/secret/status=active（≠旧值）；新旧行 teardown 物理 DELETE；M05.F01.I04 跨后端覆盖 | 已上线 |
+| M96.F02.I58 | `POST /tenants/{t}/audit-events/export` 四方比对 | 接口 | {from,to,format} → 200 + {downloadUrl} shape（URL 本身 drop）；M06.F01.I03 跨后端覆盖 | 已上线 |
+| M96.F02.I59 | `PUT /tenants/{t}/audit-events/retention` 四方比对 | 接口 | 设 42 → 回显，断言后还原 seed 原值（共享状态）；M06.F02.I02 跨后端覆盖 | 已上线 |
+| M96.F02.I60 | `GET /admin/tenants` 分页 defaults 契约面 | 接口 | 不传 ?page/?pageSize → page=0/pageSize=20 全等（0-indexed 收口）；2026-09-01 从 I29 拆出独立锚点 | 已上线 |
+| M96.F02.I61 | `GET /admin/tenants` 显式分页回显 | 接口 | ?page=1&pageSize=2 → 回显一致 + items ≤ pageSize；从 I29 拆出 | 已上线 |
+| M96.F02.I62 | `GET /admin/tenants/{id}` 404 ErrorResponse envelope | 接口 | drop code/message 等 5 key 后骨架全等（前端 catch 分支依赖）；从 I31 拆出 | 已上线 |
+| M96.F02.I63 | `GET /admin/apps` 显式分页回显 | 接口 | ?page=1&pageSize=2 → 回显一致；从 I44 拆出；live 已暴露 aspnetcore page=1 漂移待修 | 已上线 |
+| M96.F02.I64 | `POST /admin/apps` 缺必填字段错误分支 | 接口 | 空 body → 4xx + envelope shape 全等；从 I45 拆出；live 已暴露 msw 返 201 的 oracle 缺陷待修 | 已上线 |
+| M96.F02.I65 | `GET /admin/apps/{appId}` 404 ErrorResponse envelope | 接口 | 404 envelope shape 全等；从 I46 拆出 | 已上线 |
+| M96.F02.I66 | `GET /admin/apps/{appId}/menus/{menuId}` 404 ErrorResponse envelope | 接口 | 404 envelope shape 全等；从 I52 拆出 | 已上线 |
+| M96.F02.I67 | `POST /tenants/{t}/roles` 缺必填字段错误分支 | 接口 | 空 body → 4xx + envelope shape 全等；从 I34 拆出；live 已暴露 springboot body 分歧待修 | 已上线 |
+| M96.F02.I68 | `PATCH /tenants/{t}/roles/{r}` 404 ErrorResponse envelope | 接口 | 404 envelope shape 全等；从 I35 拆出；live 已暴露 aspnetcore 500 待修 | 已上线 |
+| M96.F02.I69 | `POST /tenants/{t}/users` 缺必填字段错误分支 | 接口 | 空 body → 4xx + envelope shape 全等；从 I19 拆出；live 已暴露 springboot body 分歧待修 | 已上线 |
+| M96.F02.I70 | `PATCH /tenants/{t}/users/{u}` 404 ErrorResponse envelope | 接口 | 404 envelope shape 全等；从 I39 拆出；live 已暴露 aspnetcore 500 待修 | 已上线 |
+| M96.F02.I71 | `GET /tenants/{t}/users` ?status= 过滤 | 接口 | 合法枚举 ?status=active → 200 + envelope 全等（不比 items）；从 I10 拆出；live 已暴露 springboot 400 待修 | 已上线 |
+| M96.F02.I72 | `GET /tenants/{t}/audit-events` ?action= 过滤 | 接口 | 合法枚举 ?action=login_success → 200 + envelope 全等；从 I12 拆出 | 已上线 |
+| M96.F02.I73 | `GET /tenants/{t}/audit-events` ?actorUserId= 过滤 | 接口 | 合法 UUID ?actorUserId → 200 + envelope 全等；从 I12 拆出 | 已上线 |
 
 ### M96.F03 目标声明与可达性
 

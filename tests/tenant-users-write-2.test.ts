@@ -224,7 +224,7 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
     console.info(
       "[contract-test] users 写端点第二组比对未运行。启用：\n" +
         "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run tests/tenant-users-write-2.test.ts\n" +
-        "  前置：4 个后端分别跑在 5174 / 5000 / 8080 / 3000",
+        "  前置：4 个后端分别跑在 5100 / 5104 / 5105 / 5101",
     );
   });
 });

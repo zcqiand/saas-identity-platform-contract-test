@@ -7,8 +7,8 @@
 // 注意 I14 的响应是单字段对象，形状断言与分页/列表都不同。
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { compareAll, formatDivergences } from "../src/compare.js";
-import { probeAll } from "../src/http.js";
+import { compareAll, compareBodies, formatDivergences } from "../src/compare.js";
+import { probeAll, probeRequest } from "../src/http.js";
 import { pathWithParams } from "../src/path.js";
 import { ALICE_PARAMS } from "../src/seed.js";
 import { type Target, selectedTargets } from "../src/targets.js";
@@ -61,6 +61,62 @@ describe.skipIf(!live)("M96.F02.I12 GET /tenants/{t}/audit-events 四方比对",
       `\n${formatDivergences(compareAll(probes, targets, dynamicDrop))}\n`,
     ).toEqual([]);
   });
+});
+
+describe.skipIf(!live)("M96.F02.I72 GET /tenants/{t}/audit-events ?action= 过滤", () => {
+  it("?action=login_success — 响应分页 envelope 全等", async () => {
+    // SSOT listAuditEvents ?action=AuditAction —— 契约面是接受合法枚举值不报错。
+    // 比 envelope：page/pageSize/total/items 长度（msw vs 真后端 filter 实现可能不同）。
+    const PATH = pathWithParams("/api/v1/tenants/{tenantId}/audit-events", {
+      tenantId: ALICE_PARAMS.tenantId,
+    });
+    const filterPath = `${PATH}?action=login_success`;
+    const probes = [];
+    for (const t of targets) {
+      const r = await probeRequest(t, { method: "GET", path: filterPath });
+      expect(r.status, `${t.name} ?action=login_success 期望 200 实得 ${r.status}`).toBe(200);
+      const body = r.body as Record<string, unknown> & { items?: unknown[] };
+      expect(Array.isArray(body.items), `${t.name} filtered items 必须是数组`).toBe(true);
+      for (const key of ["page", "pageSize", "total"]) {
+        expect(body[key], `${t.name} filtered 响应分页缺 ${key}`).toBeDefined();
+      }
+      probes.push(r);
+    }
+    // envelope 一致：drop items + total + 事件字段（msw 不实现 filter vs 真后端真过滤）
+    const drop = [
+      "items", "total",
+      "id", "tenantId", "actorUserId", "action", "targetUserId", "metadata", "occurredAt",
+    ];
+    const divergences = compareBodies(probes, targets, drop);
+    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+  }, 60_000);
+});
+
+describe.skipIf(!live)("M96.F02.I73 GET /tenants/{t}/audit-events ?actorUserId= 过滤", () => {
+  it("?actorUserId=<alice> — 响应分页 envelope 全等", async () => {
+    // SSOT listAuditEvents ?actorUserId=UUID —— 契约面是接受合法 UUID 不报错。
+    const PATH = pathWithParams("/api/v1/tenants/{tenantId}/audit-events", {
+      tenantId: ALICE_PARAMS.tenantId,
+    });
+    const filterPath = `${PATH}?actorUserId=${ALICE_PARAMS.userId}`;
+    const probes = [];
+    for (const t of targets) {
+      const r = await probeRequest(t, { method: "GET", path: filterPath });
+      expect(r.status, `${t.name} ?actorUserId 期望 200 实得 ${r.status}`).toBe(200);
+      const body = r.body as Record<string, unknown> & { items?: unknown[] };
+      expect(Array.isArray(body.items), `${t.name} filtered items 必须是数组`).toBe(true);
+      for (const key of ["page", "pageSize", "total"]) {
+        expect(body[key], `${t.name} filtered 响应分页缺 ${key}`).toBeDefined();
+      }
+      probes.push(r);
+    }
+    const drop = [
+      "items", "total",
+      "id", "tenantId", "actorUserId", "action", "targetUserId", "metadata", "occurredAt",
+    ];
+    const divergences = compareBodies(probes, targets, drop);
+    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+  }, 60_000);
 });
 
 describe.skipIf(!live)("M96.F02.I13 GET /tenants/{t}/audit-events/by-user/{u} 四方比对", () => {
@@ -141,7 +197,7 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
     console.info(
       "[contract-test] 四方比对未运行。启用：\n" +
         "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run\n" +
-        "  前置：4 个后端分别跑在 5174 / 5000 / 8080 / 3000",
+        "  前置：4 个后端分别跑在 5100 / 5104 / 5105 / 5101",
     );
   });
 });

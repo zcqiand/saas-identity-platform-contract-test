@@ -1,29 +1,93 @@
 {
   "schema": 1,
   "approved": true,
-  "base_sha": "dbb701d50ffc66ac",
-  "summary": "contract-test 本地 function-tree 补登：M96.F02.I19/I20/I21 (写端点第二期 3 个四方比对：POST users / PUT role-menus / DELETE api-keys)",
+  "base_sha": "9e9be929971bc169",
+  "summary": "M96.F02 跨端一致性补强第二批落锚：上批 14 个错误分支/查询参数变体 it() 原挂在语义略偏的现有 I## describe 下（如 I19 是 POST users happy path，缺必填错误分支挂它名不副实），现申请 I60-I73 每 it 一 ID 正名；测试代码逻辑不动，只改 describe 挂靠 ID + function-tree 落行",
   "changes": [
     {
-      "id": "M96.F02.I19",
+      "id": "M96.F02.I60",
       "action": "新增",
-      "name": "POST /tenants/{t}/users 四方比对",
-      "reason": "写端点第二期：tests/tenant-users-write.test.ts 已写；live 模式下对齐 4 后端 createUser 响应 shape（status 200/201 + 必填字段）；M01.F01.I02 (createUser) 跨后端覆盖"
+      "name": "`GET /admin/tenants` 分页 defaults 契约面（page=0, pageSize=20）四方全等",
+      "reason": "上批新增 it() 原挂 I29 describe（I29=只读分页 shape，本项是分页默认值 0-indexed 契约）— 前端分页组件依赖默认值语义；live 已暴露 aspnetcore /admin/apps 同类漂移（page=1）"
     },
     {
-      "id": "M96.F02.I20",
+      "id": "M96.F02.I61",
       "action": "新增",
-      "name": "PUT /tenants/{t}/roles/{r}/menus 四方比对",
-      "reason": "写端点第二期：tests/tenant-role-menus-write.test.ts 已写；live 模式下对齐 4 后端 setRoleMenus 响应 shape（status 200 + roleId/tenantId/menuIds/updatedAt）；M09.F02.I01 (setRoleMenus) 跨后端覆盖"
+      "name": "`GET /admin/tenants` 显式 ?page=1&pageSize=2 回显一致",
+      "reason": "原挂 I29；显式传参与默认值是两个契约分支，回显 page/pageSize/total 字段前端直接渲染"
     },
     {
-      "id": "M96.F02.I21",
+      "id": "M96.F02.I62",
       "action": "新增",
-      "name": "DELETE /tenants/{t}/api-keys/{k} 四方比对",
-      "reason": "写端点第二期：tests/tenant-api-keys-delete.test.ts 已写；live 模式下对齐 4 后端 DELETE 物理删响应（status 204）+ 幂等性（重复删 → 404）；M05.F01.I05 (DELETE 物理删) 跨后端覆盖"
+      "name": "`GET /admin/tenants/{id}` 404 ErrorResponse envelope shape 全等",
+      "reason": "原挂 I31（I31=正常 GET + 404 status）；envelope shape（drop code/message 等 5 key 后剩余字段）是前端 catch 分支依赖，独立于 status 码比对"
+    },
+    {
+      "id": "M96.F02.I63",
+      "action": "新增",
+      "name": "`GET /admin/apps` 显式 ?page=1&pageSize=2 回显一致",
+      "reason": "原挂 I44；live 已暴露 aspnetcore page 回显 1 vs 家族 0 的真实漂移（live-full6 fail #1），需独立 ID 追踪该分歧修复"
+    },
+    {
+      "id": "M96.F02.I64",
+      "action": "新增",
+      "name": "`POST /admin/apps` 缺必填字段 → 4xx + ErrorResponse envelope shape 全等",
+      "reason": "原挂 I45（I45=创 app happy path）；live 已暴露 msw 缺 zod 校验返 201 的 oracle 缺陷（fail #2），错误分支必须独立锚点追踪"
+    },
+    {
+      "id": "M96.F02.I65",
+      "action": "新增",
+      "name": "`GET /admin/apps/{appId}` 404 ErrorResponse envelope shape 全等",
+      "reason": "原挂 I46（I46=取自建 app 200 + 404 status）；envelope shape 独立比对"
+    },
+    {
+      "id": "M96.F02.I66",
+      "action": "新增",
+      "name": "`GET /admin/apps/{appId}/menus/{menuId}` 404 ErrorResponse envelope shape 全等",
+      "reason": "原挂 I52；同上 envelope shape 独立锚点"
+    },
+    {
+      "id": "M96.F02.I67",
+      "action": "新增",
+      "name": "`POST /tenants/{t}/roles` 缺必填字段 → 4xx + ErrorResponse envelope shape 全等",
+      "reason": "原挂 I34（I34=创 role happy path）；live 已暴露 springboot 错误 body {} 分歧（fail #7），需独立 ID"
+    },
+    {
+      "id": "M96.F02.I68",
+      "action": "新增",
+      "name": "`PATCH /tenants/{t}/roles/{r}` 404 ErrorResponse envelope shape 全等",
+      "reason": "原挂 I35；live 已暴露 aspnetcore 500 非 404（fail #8/#9），需独立 ID 追踪修复"
+    },
+    {
+      "id": "M96.F02.I69",
+      "action": "新增",
+      "name": "`POST /tenants/{t}/users` 缺必填字段 → 4xx + ErrorResponse envelope shape 全等",
+      "reason": "原挂 I19（I19=创 user happy path，status 固定 active）；live 已暴露 springboot 错误 body 分歧（fail #15）"
+    },
+    {
+      "id": "M96.F02.I70",
+      "action": "新增",
+      "name": "`PATCH /tenants/{t}/users/{u}` 404 ErrorResponse envelope shape 全等",
+      "reason": "原挂 I39；live 已暴露 aspnetcore 500 非 404（fail #12/#13）"
+    },
+    {
+      "id": "M96.F02.I71",
+      "action": "新增",
+      "name": "`GET /tenants/{t}/users?status=` 过滤 — 分页 envelope 全等",
+      "reason": "原挂 I10（I10=无参列表）；live 已暴露 springboot ?status= 返 400（fail #11），过滤参数是独立契约分支"
+    },
+    {
+      "id": "M96.F02.I72",
+      "action": "新增",
+      "name": "`GET /tenants/{t}/audit?action=` 过滤四方全等",
+      "reason": "原挂 I12；审计查询按动作类型过滤是独立使用面"
+    },
+    {
+      "id": "M96.F02.I73",
+      "action": "新增",
+      "name": "`GET /tenants/{t}/audit?actorUserId=` 过滤四方全等",
+      "reason": "原挂 I12；审计查询按操作人过滤是独立使用面"
     }
   ],
-  "sync_files": [
-    "docs/functions/function-tree.md"
-  ]
+  "sync_files": []
 }

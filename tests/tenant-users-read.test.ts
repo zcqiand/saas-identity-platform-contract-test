@@ -7,8 +7,8 @@
 // alice 是 acme 用户；列列表时 acme 应该至少有 alice/bob/carol 三条（V016 seed）。
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { compareAll, formatDivergences } from "../src/compare.js";
-import { probeAll } from "../src/http.js";
+import { compareAll, compareBodies, formatDivergences } from "../src/compare.js";
+import { probeAll, probeRequest } from "../src/http.js";
 import { pathWithParams } from "../src/path.js";
 import { ALICE_PARAMS } from "../src/seed.js";
 import { type Target, selectedTargets } from "../src/targets.js";
@@ -67,6 +67,36 @@ describe.skipIf(!live)("M96.F02.I10 GET /tenants/{t}/users 四方比对", () => 
   });
 });
 
+describe.skipIf(!live)("M96.F02.I71 GET /tenants/{t}/users ?status= 过滤", () => {
+  it("?status=active — 响应分页 envelope 全等（4 后端契约面）", async () => {
+    // SSOT listUsers ?status=UserStatus —— 4 后端都必须接受合法枚举值。
+    // 真后端实现 filter；msw 内存 fixture 可能返全集（no filter）。
+    // 契约面是「接受 status query 不报错 + envelope 一致」,不比 items 内容。
+    const PATH = pathWithParams("/api/v1/tenants/{tenantId}/users", {
+      tenantId: ALICE_PARAMS.tenantId,
+    });
+    const filterPath = `${PATH}?status=active`;
+    const probes = [];
+    for (const t of targets) {
+      const r = await probeRequest(t, { method: "GET", path: filterPath });
+      expect(r.status, `${t.name} ?status=active 期望 200 实得 ${r.status}`).toBe(200);
+      const body = r.body as Record<string, unknown> & { items?: unknown[] };
+      expect(Array.isArray(body.items), `${t.name} filtered items 必须是数组`).toBe(true);
+      for (const key of ["page", "pageSize", "total"]) {
+        expect(body[key], `${t.name} filtered 响应分页缺 ${key}`).toBeDefined();
+      }
+      probes.push(r);
+    }
+    // 4 后端 envelope 一致：drop items + 全部用户字段 + total（msw 不实现 filter vs 真后端真过滤）
+    const drop = [
+      "items", "total",
+      "id", "username", "email", "displayName", "status", "createdAt", "updatedAt", "roleIds",
+    ];
+    const divergences = compareBodies(probes, targets, drop);
+    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+  }, 60_000);
+});
+
 describe.skipIf(!live)("M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对", () => {
   const PATH = pathWithParams("/api/v1/tenants/{tenantId}/users/{userId}", {
     tenantId: ALICE_PARAMS.tenantId,
@@ -114,7 +144,7 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
     console.info(
       "[contract-test] 四方比对未运行。启用：\n" +
         "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run\n" +
-        "  前置：4 个后端分别跑在 5174 / 5000 / 8080 / 3000",
+        "  前置：4 个后端分别跑在 5100 / 5104 / 5105 / 5101",
     );
   });
 });

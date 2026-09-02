@@ -53,6 +53,44 @@ flowchart TD
 | M96.F02.I19 | 写端点四方比对（POST /tenants/{t}/users，status 固定 active）。status:active 契约面不可在 OpenAPI 表达（CreateUserRequest 无 status 字段），harness 直写断言，跨切元能力。 |
 | M96.F02.I20 | 写端点四方比对（PUT /tenants/{t}/roles/{r}/menus，整批替换 setRoleMenus）。harness 直写，独立于任何业务流。 |
 | M96.F02.I21 | 写端点四方比对（DELETE /tenants/{t}/api-keys/{k}，硬删 + 幂等返 204 / 404）。与 I03 revoke 软删并存；幂等语义契约面不可在 OpenAPI 表达，harness 直写断言。 |
+| M96.F02.I22 | auth 端点四方比对（POST /auth/login）。认证面比对无业务流程承载，「同时打 4 端」直写在 `tests/auth.test.ts`，harness 自闭环。 |
+| M96.F02.I23 | auth 端点四方比对（POST /auth/logout）。同上，harness 自闭环。 |
+| M96.F02.I24 | auth 端点四方比对（POST /auth/refresh，rotate 语义）。token 剔除后 shape 比对，harness 自闭环。 |
+| M96.F02.I25 | auth 端点四方比对（POST /auth/oidc/callback 错误分支）。不依赖真 IdP 的错误分支全等，harness 自闭环。 |
+| M96.F02.I26 | OAuth 端点四方比对（POST /oauth/authorize）。code 一次性随机值 drop 后比对，harness 自闭环。 |
+| M96.F02.I27 | OAuth 端点四方比对（POST /oauth/token）。token 剔除 shape 比对 + code 重放 400，harness 自闭环。 |
+| M96.F02.I28 | me 端点四方比对（POST /me/tenants/{t}/switch）。切租户签发新 token，harness 自闭环。 |
+| M96.F02.I29 | admin 读端点四方比对（GET /admin/tenants）。分页 shape，harness 自闭环。 |
+| M96.F02.I30 | admin 写端点四方比对（POST /admin/tenants）。唯一化 code 防共库撞唯一约束，harness 自闭环。 |
+| M96.F02.I31 | admin 读端点四方比对（GET /admin/tenants/{id}）。含不存在 id → 404 全等，harness 自闭环。 |
+| M96.F02.I32 | admin 写端点四方比对（PATCH /admin/tenants/{id}）。updatedAt 必填断言，harness 自闭环。 |
+| M96.F02.I33 | admin 写端点四方比对（DELETE /admin/tenants/{id}）。硬删 + 幂等，harness 自闭环。 |
+| M96.F02.I34 | roles 写端点四方比对（POST /tenants/{t}/roles）。唯一化 code；teardown DELETE 兜底，harness 自闭环。 |
+| M96.F02.I35 | roles 写端点四方比对（PATCH /tenants/{t}/roles/{r}）。含 404 全等分支，harness 自闭环。 |
+| M96.F02.I36 | roles 写端点四方比对（PUT /tenants/{t}/roles/{r}/permissions）。permissionIds 集合语义，harness 自闭环。 |
+| M96.F02.I37 | roles 写端点四方比对（DELETE /tenants/{t}/roles/{r}）。硬删 + 幂等，harness 自闭环。 |
+| M96.F02.I38 | role-menus 写端点四方比对（DELETE /tenants/{t}/roles/{r}/menus 清空）。seed 共享 role 先记原状后还原（I20 同模式），harness 自闭环。 |
+| M96.F02.I39 | users 写端点四方比对（PATCH /tenants/{t}/users/{u}）。自建行改 displayName，harness 自闭环。 |
+| M96.F02.I40 | users 写端点四方比对（PUT /tenants/{t}/users/{u}/roles）。authoritative 在 memberships，GET 复核，harness 自闭环。 |
+| M96.F02.I41 | users 写端点四方比对（PATCH /tenants/{t}/users/{u}/status）。active↔suspended 往还原，harness 自闭环。 |
+| M96.F02.I42 | users 写端点四方比对（POST /tenants/{t}/users/invitations）。status=invited 契约面（与 I19 的 active 分工），harness 自闭环。 |
+| M96.F02.I43 | users 写端点四方比对（DELETE /tenants/{t}/users/{u}）。删 I42 邀请行 + 幂等，harness 自闭环。 |
+| M96.F02.I44 | admin-apps 读端点四方比对（GET /admin/apps）。分页 shape，msw 不共库 drop items/total，harness 自闭环。 |
+| M96.F02.I45 | admin-apps 写端点四方比对（POST /admin/apps）。唯一化 code，harness 自闭环。 |
+| M96.F02.I46 | admin-apps 读端点四方比对（GET /admin/apps/{appId}）。含 404 全等，harness 自闭环。 |
+| M96.F02.I47 | admin-apps 写端点四方比对（PATCH /admin/apps/{appId}）。updatedAt 必填，harness 自闭环。 |
+| M96.F02.I48 | admin-apps 写端点四方比对（DELETE /admin/apps/{appId}）。硬删 + 幂等，harness 自闭环。 |
+| M96.F02.I49 | admin-apps 写端点四方比对（PATCH /admin/apps/{appId}/status）。active↔disabled 往还原，harness 自闭环。 |
+| M96.F02.I50 | admin-menus 读端点四方比对（GET /admin/apps/{appId}/menus）。seed 扁平数组 shape，harness 自闭环。 |
+| M96.F02.I51 | admin-menus 写端点四方比对（POST /admin/apps/{appId}/menus）。自建 A/B 对不碰 seed 行，harness 自闭环。 |
+| M96.F02.I52 | admin-menus 读端点四方比对（GET /admin/apps/{appId}/menus/{menuId}）。含 404 全等，harness 自闭环。 |
+| M96.F02.I53 | admin-menus 写端点四方比对（PATCH /admin/apps/{appId}/menus/{menuId}）。harness 自闭环。 |
+| M96.F02.I54 | admin-menus 写端点四方比对（DELETE /admin/apps/{appId}/menus/{menuId}）。硬删 + 幂等，harness 自闭环。 |
+| M96.F02.I55 | admin-menus 结构维护四方比对（PUT …/menus/{menuId}/reorder）。A/B 换序 Menu[] 响应，harness 自闭环。 |
+| M96.F02.I56 | admin-menus 结构维护四方比对（PATCH …/menus/{menuId}/parent）。parentId 回带 + 还原顶级，harness 自闭环。 |
+| M96.F02.I57 | api-keys 写端点四方比对（POST …/api-keys/{k}/rotate）。新 prefix/secret ≠ 旧值断言，harness 自闭环。 |
+| M96.F02.I58 | audit 写端点四方比对（POST …/audit-events/export）。downloadUrl 含随机成分 drop 后 shape，harness 自闭环。 |
+| M96.F02.I59 | audit 写端点四方比对（PUT …/audit-events/retention）。共享状态先读原值后还原，harness 自闭环。 |
 | M96.F03.I01 | harness 目标端口声明（`src/targets.ts` `TARGETS`）。跨切元能力，端口是 conventions §6 显式字面量；套件既不消费也无业务流程「声明端口」一步。 |
 | M96.F03.I02 | harness 「声明即必须可达」不变量（`src/targets.ts` `selectedTargets` + `TargetError`）。跨切不变量的执行点，不挂流程。 |
 

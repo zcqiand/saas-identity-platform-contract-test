@@ -14,6 +14,11 @@
       "name": "测试",
       "cmd": ["npx", "--no", "vitest", "run"],
       "fix": "先让测试变绿。四方比对需 CONTRACT_TARGETS + 对应后端在跑"
+    },
+    "L2": {
+      "name": "SSOT 覆盖",
+      "cmd": ["node", "scripts/check_ssot_coverage.mjs"],
+      "fix": "shared SSOT 有端点但 contract-test 没测试 = 红。在 tests/ 加 *.test.ts 把它接进来"
     }
   },
   "trace_cmd": ["npx", "--no", "vitest", "run"],

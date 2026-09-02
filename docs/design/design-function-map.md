@@ -33,6 +33,44 @@
 | M96.F02.I19 | — | `POST /api/v1/tenants/{t}/users` | `users` (status 固定 active, 4 后端契约面) + `audit_events` (user_created) | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I20 | — | `PUT /api/v1/tenants/{t}/roles/{r}/menus` | `role_menu_grants` | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I21 | — | `DELETE /api/v1/tenants/{t}/api-keys/{k}` | `api_keys` (硬删；幂等返 204 / 404) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I22 | — | `POST /api/v1/auth/login` | `users` (session 验证) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I23 | — | `POST /api/v1/auth/logout` | saas session 撤销 | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I24 | — | `POST /api/v1/auth/refresh` | refresh token rotate 存储 | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I25 | — | `POST /api/v1/auth/oidc/callback` | `oauth_codes` (错误分支) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I26 | — | `POST /api/v1/oauth/authorize` | `oauth_codes` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I27 | — | `POST /api/v1/oauth/token` | `oauth_codes` / refresh token | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I28 | — | `POST /api/v1/me/tenants/{t}/switch` | `tenant_memberships` 校验 + 签发 | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I29 | — | `GET /api/v1/admin/tenants` | `tenants` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I30 | — | `POST /api/v1/admin/tenants` | `tenants` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I31 | — | `GET /api/v1/admin/tenants/{id}` | `tenants` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I32 | — | `PATCH /api/v1/admin/tenants/{id}` | `tenants` (updatedAt) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I33 | — | `DELETE /api/v1/admin/tenants/{id}` | `tenants` (硬删；幂等 204 / 404) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I34 | — | `POST /api/v1/tenants/{t}/roles` | `roles` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I35 | — | `PATCH /api/v1/tenants/{t}/roles/{r}` | `roles` (updatedAt) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I36 | — | `PUT /api/v1/tenants/{t}/roles/{r}/permissions` | `roles.permissionIds` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I37 | — | `DELETE /api/v1/tenants/{t}/roles/{r}` | `roles` (硬删；幂等 404) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I38 | — | `DELETE /api/v1/tenants/{t}/roles/{r}/menus` | `role_menu_grants` (清空；测后还原) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I39 | — | `PATCH /api/v1/tenants/{t}/users/{u}` | `users` (updatedAt) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I40 | — | `PUT /api/v1/tenants/{t}/users/{u}/roles` | `tenant_memberships` (authoritative) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I41 | — | `PATCH /api/v1/tenants/{t}/users/{u}/status` | `users.status` (往返还原) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I42 | — | `POST /api/v1/tenants/{t}/users/invitations` | `users` (status=invited) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I43 | — | `DELETE /api/v1/tenants/{t}/users/{u}` | `users` (硬删；幂等 404) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I44 | — | `GET /api/v1/admin/apps` | `apps` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I45 | — | `POST /api/v1/admin/apps` | `apps` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I46 | — | `GET /api/v1/admin/apps/{appId}` | `apps` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I47 | — | `PATCH /api/v1/admin/apps/{appId}` | `apps` (updatedAt) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I48 | — | `DELETE /api/v1/admin/apps/{appId}` | `apps` (硬删；幂等 404) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I49 | — | `PATCH /api/v1/admin/apps/{appId}/status` | `apps.status` (往返还原) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I50 | — | `GET /api/v1/admin/apps/{appId}/menus` | `menus` (扁平) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I51 | — | `POST /api/v1/admin/apps/{appId}/menus` | `menus` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I52 | — | `GET /api/v1/admin/apps/{appId}/menus/{menuId}` | `menus` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I53 | — | `PATCH /api/v1/admin/apps/{appId}/menus/{menuId}` | `menus` (updatedAt) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I54 | — | `DELETE /api/v1/admin/apps/{appId}/menus/{menuId}` | `menus` (硬删；幂等 404) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I55 | — | `PUT /api/v1/admin/apps/{appId}/menus/{menuId}/reorder` | `menus.sortOrder` | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I56 | — | `PATCH /api/v1/admin/apps/{appId}/menus/{menuId}/parent` | `menus.parentId` (测后还原顶级) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I57 | — | `POST /api/v1/tenants/{t}/api-keys/{k}/rotate` | `api_keys` (旧 revoke + 新行) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I58 | — | `POST /api/v1/tenants/{t}/audit-events/export` | `audit_events` (读区间) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I59 | — | `PUT /api/v1/tenants/{t}/audit-events/retention` | `audit_retention_policies` (测后还原) | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F03.I01 | — | harness: `src/http.ts` POST/PATCH/PUT/DELETE + `src/unique.ts` + `src/teardown.ts` | — | — | REQ-2026-008 §3 T-1 | 已上线 |
 | M96.F03.I02 | — | harness: `src/targets.ts` `selectedTargets` + `TargetError` | — | — | ADR-0015 §Decision.4（声明即必须可达） | 已上线 |
 

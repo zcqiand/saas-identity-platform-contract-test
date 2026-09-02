@@ -1,9 +1,17 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-contract-test",
-  "current_task": "2026-09-01 跨 3 仓实施后端真 bug 修 + ADR-0018 实施 + 范围 [1970, 2100]，live vitest 8 fail → 2 fail（剩 I10 fixture + I15 seed 数据是 Plan 已预测债），L0-L5 全绿",
-  "last_session_at": "2026-09-01",
+  "current_task": "2026-09-02 M96 audit 收敛第二步（用户拍板反向对齐）：msw invite 不再写 user_created、nextjs login 不再写 login_failed —— 4 后端收敛到最小公共集（login_success + user_created(POST /users) + api_key_*）；cleanup-pg users/api-keys 也覆盖 msw；live 4-way 266/0 全绿，msw 75 / nextjs 82 tests 绿，3 仓 gate 绿",
+  "last_session_at": "2026-09-02",
   "done": [
+    "2026-09-02 上午验证：live 全套 0 fail（live-verify-0902.log，224s）——上轮遗留 I10/I15 挂账已被 9-01 晚最后几个 commit 修掉；I18 audit ticket 同样不复存在（三候选根因均不成立）",
+    "2026-09-02 audit 覆盖对齐（用户拍板路线 a：msw 为 oracle，真后端补写）：",
+    "  - springboot 94f8804: AuthService login_success + TenantUsersService user_created + 拆 AuditWriter apiKeyId guard + REQUIRES_NEW→REQUIRED（FK 违约修复：REQUIRES_NEW 新事务看不到外层未提交 user 行 → audit_events_target_fk → rollback-only 污染外层 → POST /users 500）+ spotbugs-exclude FixSentinelTimestamps",
+    "  - aspnetcore 6 files: AuthController/TenantUsersController 构造器注入 IAuditWriter + AuditSideEffectTests（Moq verify，绕开 InMemory Metadata 限制）+ NoopAuditWriter",
+    "  - msw 8d7ee16: user_created 两处补 metadata={userId} 对齐真后端",
+    "  - contract-test 678fe8a: cleanup-pg roles 覆盖 msw（I07 残留行修复——r1 36-fail run 的 msw shape-role 未被 teardown 删，内存态活到后续所有 run）",
+    "live 迭代：r1 36 fail（aspnetcore env 单引号密码断连窗口）→ r2 6 fail（springboot FK 违约）→ r3 1 fail（I07 msw 残留）→ r4 0 fail",
+    "本机坑：aspnetcore .env.local 密码带单引号 Password='...'，source 后单引号成字面字符 → Npgsql 28P01；需 bash 转义处理或改 env 写法",
     "scripts/lib/harness.py:262 timeout 300 → 900（ADR-0017 Accepted），错误文案同步更新指 start-family.sh + ADR-0017-amend shard 路径",
     "docs/adr/0017-trace-cmd-timeout-900.md: 起草 + 落地 + 实证。Acceptance precondition 第 1 条（本机 gate exit 0）已满足；第 2 条（CI）本会话未跑，留工单",
     "scripts/start-family.sh: 本机实测走完 [1/6]-[6/6] 6 阶段全流程，msw/aspnetcore/springboot + nextjs 检测 active=true（本仓 health endpoint 已加，脚本自动检测文件存在决定是否起 4 后端）",
@@ -13,34 +21,34 @@
     "  - aspnetcore 5e65990: 3 处 Controller 漏赋（TenantUsersController / TenantRolesController POST + PATCH）+ 13 entity 17 时间字段默认 = 1970-01-01 UnixEpoch 兜底",
     "  - springboot f5fb996: application.yml 加 logging.level.org.hibernate.SQL=DEBUG + spring.jpa.show-sql=true；8 entity @PrePersist fallback OffsetDateTime.now() → Instant.EPOCH.atOffset(ZoneOffset.UTC)；@PreUpdate 保持 OffsetDateTime.now() 不动",
     "  - contract-test 0119763 + da00ca9: 实施 ADR-0018 (src/cleanup-pg.ts + tests/globalSetup.ts + vitest.config globalSetup)；状态 Proposed → Accepted；Live vitest 392s,8 fail → 2 fail (剩 I10 用户 fixture 设计债 + I15 shared SQL V016 seed 历史值) ",
-    "  - suite 根 cddd6ed: 推进 3 个 submodule gitlink + 文档",
-    "normalize.ts:71 TS_YEAR_MIN 2000 → 1970 (Unix 纪元开始)，compare.ts 错误文案同步 [1970, 2100]，新增 10 条年份边界测试 (28/28 绿)。3 后端 PLAN.md 加推荐默认值 DateTimeOffset.UnixEpoch / Instant.EPOCH / new Date(0)",
-    "docs/adr/0015-amend-timestamps.md: 范围同步 [1970, 2100]，理由业务时间戳可能含 epoch 占位（cache TTL / token 过期）"
+    "  - suite 根 cddd6ed: 推进 3 个 submodule gitlink + 文档"
   ],
   "next": [
-    "后端真 bug 派单（不在 contract-test 仓内）：aspnetcore DateTime.MinValue +00:00 序列化（Saas.Identity.AspNetCore 仓）、springboot DateTime.MinValue Z 序列化 + audit api_key_created 事件写入缺失（saas-identity-platform-springboot 仓）、PG 共库 teardown 钩子（contract-test beforeAll 加 DELETE FROM users WHERE email LIKE 'shape-%' AND 'invite-%' 等）",
-    "ADR-0017 Acceptance precondition 第 2 条：CI .github/workflows/ci.yml 跑一次，确认 runner < 900s（GitHub Actions ubuntu-latest 一般 400-600s 跑完 live）",
-    "ADR-0017 Acceptance precondition 第 3 条：`.runtime-logs/` 下 live run 耗时 < 600s 实际是 610s（`[6/6]` L5 alignment 二次 vitest），不算严格满足；如有需要可考虑把 `_alignment.py:169 refresh=False` 改成 `not args.matrix and not env_force_refresh` 之类，让 L5 alignment 复用 vitest 跑出的 trace.json 不再二次跑。**这条是性能优化非阻塞**",
-    "I60-I73 是否申请新 fn ID 仍挂账（L5 软告警「已上线但无设计映射 / 不在任何流程」14 项的根因；走 /tree-change 或补 design/flow 文档）",
-    "session.json 上一会话记的「本次新加 assertTimestampShape + TIMESTAMP_KEYS 出口需补到 L5 引用完整性扫描」—— 本会话复核 `_alignment.py:53` 扫 ` M\\d{2}(\\.F\\d{2}(\\.I\\d{2})?)?` 模式，不扫 export 名字；新增 export 不需要挂到 L5 引用。这条是历史误判，可移除"
+    "ADR-0017 Acceptance precondition 第 2 条：CI 跑一次确认 < 900s",
+    "I60-I73 软告警：走 /tree-change 或补 design/flow 文档",
+    "ADR-0017 Acceptance precondition 第 2 条：CI 跑一次确认 < 900s",
+    "I60-I73 软告警：走 /tree-change 或补 design/flow 文档",
+    "open_questions 里等人拍板的：fail_count>0 是否 L4 硬约束（走 ADR）、ADR-0015-amend 还是 Proposed"
   ],
   "open_questions": [
-    "msw I64 必填校验改完，I19/I34 msw 返 {} vs springboot 返真错误对象的分歧是 oracle 分歧还是 msw 实现分歧？需要人拍",
-    "springboot DateTime.MinValue bug 真根因定位（已经三轮修法无效，建议下次开 ADR/工单）",
-    "nextjs Drizzle defaultNow() 是否真在 INSERT 时填充？看 GET /api-keys 返 undefined 推测没填上，但需要 PG 日志确认。本会话 live 跑没真接 nextjs（health endpoint 走脚本 active 但 PORT 3000 还是未起来？待 CI 验）",
+    "audit actorUserId 语义：user_created 的 actor 在 springboot=service 层 null、aspnetcore=CallerUserId()（有 JWT 时非 null）、msw=undefined——normalize 后比对豁免了它，但语义上 4 后端应统一（谁触发的写操作）",
+    "msw I64 必填校验 oracle 行为是否正确（I19/I34 msw 返 {} vs 真错误对象，现全绿但需人拍语义）",
+    "msw I64 必填校验：I19/I34 msw 返 {} vs springboot 返真错误对象的分歧是 oracle 分歧还是 msw 实现分歧？本会话实证全绿（I19/I34 ASP.NET 修后），msw 与 springboot 已一致。需要人拍 oracle 行为是否正确",
+    "springboot DateTime.MinValue bug 本会话加 SQL 日志 + 改 8 个 @PrePersist fallback 为 Instant.EPOCH，但根因（共享连接批 flush / -infinity sentinel）未定位。下次会话跑 live 看 SQL 日志决定 A/B/C 路径",
+    "nextjs Drizzle defaultNow() 是否真在 INSERT 时填充？看 GET /api-keys 返 undefined 推测没填上，但本会话 live 跑没真接 nextjs（脚本检测文件不存在 → 自动跳过），需要 PG 日志或 CI 验",
     "I05 修复时改了 msw handler「无 grant app 不返 key」—— 但如果 4 后端对「alice 角色绑 27 lab 菜单」的语义解释不一致（msw 看 role-menu-grants，aspnetcore/springboot 看 PG role_menu_grants 表），未来同样会再次分裂。要么 ADR 明确要么单测覆盖",
-    "normalize.ts 的 TIMESTAMP_KEYS 默认 drop 是 ADR-0015-amend 的实施一部分，但 ADR 还是 Proposed。如果 ADR 被否，这条 drop 也要回滚",
-    "vitest 8 fail 在 L5 alignment 视角不计入 gate fail（trace.json 只看覆盖不看 fail），但这是 ADR-0015-amend 设计的本意（不当合约侧给 bug 背书）。下个会话要不要给 contract-test 仓加「fail_count > 0 即 L4 红」的硬约束？参照 ADR-0017 走 ADR 流程"
+    "normalize.ts 的 TIMESTAMP_KEYS 默认 drop 是 ADR-0015-amend 的实施一部分，但 ADR 还是 Proposed。如果 ADR 被否，这条 drop 也要回滚"
   ],
   "dont": [
     "不要再触动 function-tree.md：本会话全用现有 ID，新增 ID 必须走 /tree-change + 人批",
     "不要再放宽 normalize 剔除清单的现有约定（id/*_id/tokens/jti 已剔，加 TIMESTAMP_KEYS 走 ADR 通过路径）",
-    "不要再依赖 @PrePersist 单点：本次实证 @PrePersist 在某些路径（PG 共享库、并发）下不触发；改用 Hibernate @CreationTimestamp 或 service 显式赋值，但本会话三轮修法都没根除",
-    "不要再让 PG 探针数据（shape-* / contract-test-key-* / rot-shape-*）无限累积——某次会话必须写 teardown 强删（next 列表已记）",
+    "不要再依赖 @PrePersist 单点：本会话实证 @PrePersist 在某些路径（PG 共享库、并发）下不触发；fallback 已改 Instant.EPOCH，但真根因（-infinity sentinel）下次会话 SQL 日志定位",
+    "不要再让 PG 探针数据（shape-* / contract-test-key-* / rot-shape-*）无限累积——本会话 cleanup-pg.ts (globalSetup) 已落，acme tenant users / api_keys 残留 ≤ 本次 it() 数 × 1",
     "不要再把 contract-test 当成 oracle 误用：msw 是 oracle，但「4 后端 contract 一致」不是「msw 实现正确」，msw 返 {} vs springboot 返真错误对象时分歧要打到 oracle 实现层而不是契约面",
-    "不要再手动改 harness.py timeout 给单个项目绕开：300→900 是 suite 级常量，所有项目共享；项目级绕开请走 /tree-change 改 stack.json 但需 ADR 同步"
+    "不要再手动改 harness.py timeout 给单个项目绕开：300→900 是 suite 级常量，所有项目共享；项目级绕开请走 /tree-change 改 stack.json 但需 ADR 同步",
+    "不要再回到 [1970, 2100] 范围之前的 [2000, 2100]：ADR-0015-amend 范围已同步到 1970，回归意味着 1970-01-01 epoch 占位会被误判为荒谬"
   ],
-  "last_gate_passed_at": "2026-09-01T19:10+08:00",
+  "last_gate_passed_at": "2026-09-02T04:48+08:00",
   "active_branch": "master",
   "ahead_of_origin": "0"
 }

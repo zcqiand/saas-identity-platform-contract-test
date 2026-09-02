@@ -70,10 +70,10 @@ describe("M96.F02.I02 normalize 后 body 全等", () => {
 
 describe("M96.F03.I01 目标端口声明", () => {
   it("四个目标端口与 conventions §6 一致", () => {
-    expect(TARGETS.msw.baseUrl).toContain(":5174");
-    expect(TARGETS.nextjs.baseUrl).toContain(":3000");
-    expect(TARGETS.aspnetcore.baseUrl).toContain(":5000");
-    expect(TARGETS.springboot.baseUrl).toContain(":8080");
+    expect(TARGETS.msw.baseUrl).toContain(":5100");
+    expect(TARGETS.nextjs.baseUrl).toContain(":5101");
+    expect(TARGETS.aspnetcore.baseUrl).toContain(":5104");
+    expect(TARGETS.springboot.baseUrl).toContain(":5105");
   });
 
   it("只有 msw 是内存 fixture", () => {

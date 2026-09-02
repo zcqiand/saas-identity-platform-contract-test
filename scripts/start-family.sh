@@ -9,7 +9,7 @@
 #      (suite 作为 multi-repo-family 用 gitlink 挂载, 本仓库目录下 output/ 自带)
 #   2. 各后端 .env.local 指向 PG (本机走 Tailscale 100.79.128.25:5432, 远程节点)
 #   3. dotnet 8 SDK + JDK 21 + Maven + Node 24 已装
-#   4. 4 端口 5174/5000/8080/3000 空闲
+#   4. 4 端口 5100/5104/5105/5101 空闲（2026-09-02 端口分段 §6）
 #
 # 与 ci.yml 区别:
 #   - 不 git clone (本机 sibling 已在)
@@ -78,7 +78,7 @@ echo "  ✓ 5 sibling 仓齐全 + 7 工具齐"
 #   2. 杀匹配已知后端进程名的残留进程 (pre-LISTENING 阶段, 例如 mvn spring-boot:run
 #      在 JPA entity manager fail 时 exit 但 mvn wrapper 还在, 或 nextjs 在 turbopack warmup)
 echo "  [1/2] 检查 4 端口 LISTENING 残留进程..."
-for p in 5174 5000 8080 3000; do
+for p in 5100 5104 5105 5101; do
   pids=$(netstat -ano 2>/dev/null | awk -v port=":$p$" '$2 ~ port"$" && $4 == "LISTENING" {print $5}' | sort -u)
   for pid in $pids; do
     if [ -n "$pid" ] && [ "$pid" != "0" ]; then
@@ -144,13 +144,13 @@ SPRINGBOOT_ONLY=$(grep -E '^(DATABASE_USER|DATABASE_PASSWORD|DATABASE_NAME|JDBC_
 # 注意: grep 无匹配返回 1, pipefail 会让 pipeline 整体返回 1, set -e 触发退出。
 # 加 `|| true` 兜底, 缺 SERVER_PORT 时走 :="hardcode" 默认值。
 MSW_PORT=$(grep -E '^SERVER_PORT' "$MSW_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
-: "${MSW_PORT:=5174}"
+: "${MSW_PORT:=5100}"
 ASPNETCORE_PORT=$(grep -E '^SERVER_PORT' "$ASPNETCORE_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
-: "${ASPNETCORE_PORT:=5000}"
+: "${ASPNETCORE_PORT:=5104}"
 SPRINGBOOT_PORT=$(grep -E '^SERVER_PORT' "$SPRINGBOOT_DIR/.env.local" 2>/dev/null | head -1 | cut -d= -f2 || true)
-: "${SPRINGBOOT_PORT:=8080}"
+: "${SPRINGBOOT_PORT:=5105}"
 NEXTJS_PORT=$(grep -E '^SERVER_PORT' "$NEXTJS_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
-: "${NEXTJS_PORT:=3000}"
+: "${NEXTJS_PORT:=5101}"
 
 # aspnetcore DATABASE_URL 兜底: appsettings.json 内嵌 Password=changeme 是占位,
 # 不一定匹配 PG 真密码。从 springboot .env.local 那里拿真值, 加 single quote 包
@@ -205,11 +205,11 @@ healthcheck() {
   return 1
 }
 
-healthcheck msw        "http://localhost:5174/healthz"
-healthcheck aspnetcore "http://localhost:5000/health"
-healthcheck springboot "http://localhost:8080/actuator/health"
+healthcheck msw        "http://localhost:5100/healthz"
+healthcheck aspnetcore "http://localhost:5104/health"
+healthcheck springboot "http://localhost:5105/actuator/health"
 if [ "$NEXTJS_ACTIVE" = "true" ]; then
-  healthcheck nextjs     "http://localhost:3000/api/health"
+  healthcheck nextjs     "http://localhost:5101/api/health"
 fi
 
 # === 5. live vitest ===
