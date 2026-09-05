@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "approved": false,
+  "base_sha": "9c68386ab01e6960",
+  "summary": "Task 3 spec §1 三级定义统一（表头说明文字重写，无 ID 变更）",
+  "changes": [
+    {
+      "id": "M01",
+      "action": "变更",
+      "name": "三级表头说明文字重写",
+      "reason": "spec §1 三级定义统一（与 ID 集合无关，apply 阶段走正则替换）"
+    }
+  ],
+  "sync_files": [],
+  "applied_at": "2026-09-06T01:13:42+0800"
+}
