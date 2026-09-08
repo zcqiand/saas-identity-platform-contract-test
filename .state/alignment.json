@@ -6,41 +6,8 @@
     "features": 4,
     "items": 80
   },
-  "warnings_total": 28,
-  "warnings": {
-    "已上线但无设计映射": [
-      "M96.F02.I60",
-      "M96.F02.I61",
-      "M96.F02.I62",
-      "M96.F02.I63",
-      "M96.F02.I64",
-      "M96.F02.I65",
-      "M96.F02.I66",
-      "M96.F02.I67",
-      "M96.F02.I68",
-      "M96.F02.I69",
-      "M96.F02.I70",
-      "M96.F02.I71",
-      "M96.F02.I72",
-      "M96.F02.I73"
-    ],
-    "已上线但不在任何流程且非孤儿白名单": [
-      "M96.F02.I60",
-      "M96.F02.I61",
-      "M96.F02.I62",
-      "M96.F02.I63",
-      "M96.F02.I64",
-      "M96.F02.I65",
-      "M96.F02.I66",
-      "M96.F02.I67",
-      "M96.F02.I68",
-      "M96.F02.I69",
-      "M96.F02.I70",
-      "M96.F02.I71",
-      "M96.F02.I72",
-      "M96.F02.I73"
-    ]
-  },
+  "warnings_total": 0,
+  "warnings": {},
   "unreachable_shipped": [],
   "function_map": {
     "M01.F01.I01": {
@@ -680,7 +647,9 @@
       ],
       "tests": [
         "M96.F02.I28 POST /me/tenants/{t}/switch 四方比对 > alice 切到所属 tenant → 200 + SwitchTenantResponse 必填",
-        "M96.F02.I28 POST /me/tenants/{t}/switch 四方比对 > 切到不存在的 tenant → 404 全等"
+        "M96.F02.I28 POST /me/tenants/{t}/switch 四方比对 > 切到不存在的 tenant → 404 全等",
+        "M96.F02.I28 POST /oauth/token (refresh_token grant) 四方比对 > 合法 refreshToken → 200 + 新 TokenResponse 必填",
+        "M96.F02.I28 POST /oauth/token (refresh_token grant) 四方比对 > 非法 refreshToken → 400 全等"
       ],
       "entry": []
     },
@@ -1255,8 +1224,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I60 GET /admin/tenants 分页 defaults 契约面 > 不传 ?page/?pageSize → page=0, pageSize=20 全等"
       ],
@@ -1267,8 +1240,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I61 GET /admin/tenants 显式分页回显 > ?page=1&pageSize=2 → 回显一致（page=1, pageSize=2）"
       ],
@@ -1279,8 +1256,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I62 GET /admin/tenants/{id} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
       ],
@@ -1291,8 +1272,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I63 GET /admin/apps 显式分页回显 > ?page=1&pageSize=2 → 回显一致（page=1, pageSize=2）"
       ],
@@ -1303,8 +1288,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I64 POST /admin/apps 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
       ],
@@ -1315,8 +1304,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I65 GET /admin/apps/{appId} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
       ],
@@ -1327,8 +1320,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I66 GET /admin/apps/{appId}/menus/{menuId} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
       ],
@@ -1339,8 +1336,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I67 POST /tenants/{t}/roles 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
       ],
@@ -1351,8 +1352,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I68 PATCH /tenants/{t}/roles/{r} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
       ],
@@ -1363,8 +1368,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I69 POST /tenants/{t}/users 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
       ],
@@ -1375,8 +1384,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I70 PATCH /tenants/{t}/users/{u} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
       ],
@@ -1387,8 +1400,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I71 GET /tenants/{t}/users ?status= 过滤 > ?status=active — 响应分页 envelope 全等（4 后端契约面）"
       ],
@@ -1399,8 +1416,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I72 GET /tenants/{t}/audit-events ?action= 过滤 > ?action=login_success — 响应分页 envelope 全等"
       ],
@@ -1411,8 +1432,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [],
-      "designs": [],
+      "flows": [
+        "docs\\design\\flow-function-map.md"
+      ],
+      "designs": [
+        "docs\\design\\design-function-map.md"
+      ],
       "tests": [
         "M96.F02.I73 GET /tenants/{t}/audit-events ?actorUserId= 过滤 > ?actorUserId=<alice> — 响应分页 envelope 全等"
       ],

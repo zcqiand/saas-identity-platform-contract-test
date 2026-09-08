@@ -1,5 +1,6 @@
 // ADR-0018: beforeAll 走 HTTP delete 清 PG 共库探针数据, 不走直连 PG（守住 ADR-0015 黑盒契约）。
-// scope: 只清 users + api_keys（I10 fail 源头）。apps / tenants / menus / roles 留待后续 PR。
+// scope: 清 users / api_keys / roles / menus（I05 fail 源头：ct-menu- 留 → me/menus normalize 分叉）。
+// 留待后续 PR: apps / tenants（admin scope，写测试自身已 uniqName 创 + teardown 删；本仓不主动扫）。
 //
 // 走 HTTP 而不是直连 PG 的理由（ADR §Alternatives B 被拒绝）：
 //   1. 守住 ADR-0015 黑盒契约（CLAUDE.md §2 铁律）
@@ -181,6 +182,55 @@ async function cleanupApiKeys(target: Target): Promise<void> {
   }
 }
 
+interface MenuRow {
+  id?: string;
+  code?: string;
+  name?: string;
+  createdAt?: string;
+}
+
+const MENUS_PATH = pathWithParams("/api/v1/admin/apps/{appId}/menus", {
+  appId: ALICE_PARAMS.appId,
+});
+
+// menus 探针 prefix（来自 admin-app-menus-write.test.ts:39 uniqueName("ct-menu")）。
+// 2026-09-06 I05 fail：上次 run teardown 删菜单 nextjs 超时失败，ct-menu- 行落 PG，
+// 后续 me.test.ts GET /me/menus 把 alice 可见菜单拉下来 → nextjs 多一条 vs msw 内存 fixture 空。
+// 走 /admin/apps/{appId}/menus 全表扫 + ct-menu- prefix 删 = 把「写测试自己 teardown
+// 失败的兜底」放进 globalSetup，下次 run 进 describe 前 PG 已经干净。
+const MENU_MATCH = (m: MenuRow) => /^ct-menu-/.test(m.code ?? "");
+
+async function cleanupMenus(target: Target): Promise<void> {
+  const token = await login(target);
+  const list = await probeRequest(target, {
+    method: "GET",
+    path: MENUS_PATH,
+    token,
+  });
+  if (list.status !== 200) {
+    console.warn(
+      `[cleanup-pg] ${target.name} GET ${MENUS_PATH} status=${list.status}`,
+    );
+    return;
+  }
+  const items = (list.body as MenuRow[]) ?? [];
+  for (const m of items) {
+    if (!m.id) continue;
+    const matched = MENU_MATCH(m) || SENTINEL_OR_NEG_YEAR(m.createdAt ?? "");
+    if (!matched) continue;
+    const del = await probeRequest(target, {
+      method: "DELETE",
+      path: `${MENUS_PATH}/${m.id}`,
+      token,
+    });
+    if (!DELETE_TOLERANT(del.status)) {
+      console.warn(
+        `[cleanup-pg] ${target.name} delete menu ${m.id} (code=${m.code}) status=${del.status}`,
+      );
+    }
+  }
+}
+
 /**
  * ADR-0018 §3 主函数。
  * vitest.globalSetup 在每个 vitest 进程开始时跑一次（不是每 worker 一次）。
@@ -191,10 +241,11 @@ export async function cleanupAllProbeRows(): Promise<void> {
   // 它是内存态，任何一轮 run 的 teardown 失败（或手工 curl 探针）残留行会活到
   // 后续所有 run（进程不重启不清零），列表比对立即分叉。msw 有 DELETE 端点，
   // 按同一 prefix/sentinel 匹配清内存行。3 真后端共库，残留同样会撞唯一约束/漂移 total。
+  // 2026-09-06 I05：补 cleanupMenus，msw 也参与（共享 fixture 残留同样会撞 normalize 比对）。
   const targets = selectedTargets();
   for (const t of targets) {
     if (t.inMemory) {
-      // msw 无 PG sentinel 行，只跑 users/roles/api-keys 的 prefix 匹配删除
+      // msw 无 PG sentinel 行，只跑 users/roles/api-keys/menus 的 prefix 匹配删除
       try {
         await cleanupUsers(t);
       } catch (e) {
@@ -209,6 +260,11 @@ export async function cleanupAllProbeRows(): Promise<void> {
         await cleanupApiKeys(t);
       } catch (e) {
         console.warn(`[cleanup-pg] api-keys ${t.name}(inMemory)`, e);
+      }
+      try {
+        await cleanupMenus(t);
+      } catch (e) {
+        console.warn(`[cleanup-pg] menus ${t.name}(inMemory)`, e);
       }
       continue;
     }
@@ -226,6 +282,11 @@ export async function cleanupAllProbeRows(): Promise<void> {
       await cleanupApiKeys(t);
     } catch (e) {
       console.warn(`[cleanup-pg] api-keys ${t.name}`, e);
+    }
+    try {
+      await cleanupMenus(t);
+    } catch (e) {
+      console.warn(`[cleanup-pg] menus ${t.name}`, e);
     }
   }
 }

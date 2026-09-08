@@ -91,6 +91,20 @@ flowchart TD
 | M96.F02.I57 | api-keys 写端点四方比对（POST …/api-keys/{k}/rotate）。新 prefix/secret ≠ 旧值断言，harness 自闭环。 |
 | M96.F02.I58 | audit 写端点四方比对（POST …/audit-events/export）。downloadUrl 含随机成分 drop 后 shape，harness 自闭环。 |
 | M96.F02.I59 | audit 写端点四方比对（PUT …/audit-events/retention）。共享状态先读原值后还原，harness 自闭环。 |
+| M96.F02.I60 | `GET /admin/tenants` 分页 defaults 契约面（不传 ?page/?pageSize → page=0, pageSize=20 全等）。从 I29 拆出的「0-indexed defaults」子锚点，独立断言；harness 直写，无业务流承载。 |
+| M96.F02.I61 | `GET /admin/tenants` 显式分页回显（?page=1&pageSize=2）。从 I29 拆出的「回显一致」子锚点，harness 直写，独立于任何业务流。 |
+| M96.F02.I62 | `GET /admin/tenants/{id}` 404 ErrorResponse envelope shape。从 I31 拆出的「前端 catch 分支依赖的 envelope」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I63 | `GET /admin/apps` 显式分页回显（?page=1&pageSize=2）。从 I44 拆出的「回显一致」子锚点，harness 直写，独立于任何业务流。 |
+| M96.F02.I64 | `POST /admin/apps` 缺必填字段错误分支（空 body → 4xx + envelope）。从 I45 拆出的「错误分支契约面」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I65 | `GET /admin/apps/{appId}` 404 ErrorResponse envelope shape。从 I46 拆出的「前端 catch 分支依赖的 envelope」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I66 | `GET /admin/apps/{appId}/menus/{menuId}` 404 ErrorResponse envelope shape。从 I52 拆出的「前端 catch 分支依赖的 envelope」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I67 | `POST /tenants/{t}/roles` 缺必填字段错误分支（空 body → 4xx + envelope）。从 I34 拆出的「错误分支契约面」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I68 | `PATCH /tenants/{t}/roles/{r}` 404 ErrorResponse envelope shape。从 I35 拆出的「前端 catch 分支依赖的 envelope」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I69 | `POST /tenants/{t}/users` 缺必填字段错误分支（空 body → 4xx + envelope）。从 I19 拆出的「错误分支契约面」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I70 | `PATCH /tenants/{t}/users/{u}` 404 ErrorResponse envelope shape。从 I39 拆出的「前端 catch 分支依赖的 envelope」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I71 | `GET /tenants/{t}/users ?status=` 过滤（合法枚举 → 200 + envelope 全等；不比 items）。从 I10 拆出的「query filter 契约面」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I72 | `GET /tenants/{t}/audit-events ?action=` 过滤（合法枚举 → 200 + envelope 全等；不比 items）。从 I12 拆出的「query filter 契约面」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I73 | `GET /tenants/{t}/audit-events ?actorUserId=` 过滤（合法 UUID → 200 + envelope 全等；不比 items）。从 I12 拆出的「query filter 契约面」子锚点，harness 直写，跨切元能力。 |
 | M96.F03.I01 | harness 目标端口声明（`src/targets.ts` `TARGETS`）。跨切元能力，端口是 conventions §6 显式字面量；套件既不消费也无业务流程「声明端口」一步。 |
 | M96.F03.I02 | harness 「声明即必须可达」不变量（`src/targets.ts` `selectedTargets` + `TargetError`）。跨切不变量的执行点，不挂流程。 |
 

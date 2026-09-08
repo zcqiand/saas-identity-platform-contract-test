@@ -28,7 +28,11 @@ export function client(target: Target): AxiosInstance {
       jar,
       withCredentials: true,
       maxRedirects: 0,
-      timeout: 8000,
+      // 2026-09-06: 8000 → 30000。live run 跨 4 后端 + 共库 PG, 后端偶尔 GC pause /
+      // JIT warmup 拉到 8s+ (实测 I03/I14/I42 三次 springboot/nextjs 各抖一次,8s
+      // 误判 unreachable 把整组 describe 标 fail),beforeAll 的 60_000 timeout
+      // 还有富余,给 axios 配齐它。30s 仍远小于 4 后端真挂（连接超时默认 60s）。
+      timeout: 30000,
       // 任何状态码都返回，不抛 —— 状态码本身是被比对的对象。
       validateStatus: () => true,
       headers: { "content-type": "application/json" },

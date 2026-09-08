@@ -73,6 +73,20 @@
 | M96.F02.I59 | — | `PUT /api/v1/tenants/{t}/audit-events/retention` | `audit_retention_policies` (测后还原) | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F03.I01 | — | harness: `src/http.ts` POST/PATCH/PUT/DELETE + `src/unique.ts` + `src/teardown.ts` | — | — | REQ-2026-008 §3 T-1 | 已上线 |
 | M96.F03.I02 | — | harness: `src/targets.ts` `selectedTargets` + `TargetError` | — | — | ADR-0015 §Decision.4（声明即必须可达） | 已上线 |
+| M96.F02.I60 | — | `GET /api/v1/admin/tenants`（不传 ?page/?pageSize → page=0, pageSize=20） | `tenants`（0-indexed defaults 契约面） | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I61 | — | `GET /api/v1/admin/tenants?page=1&pageSize=2`（回显一致） | `tenants` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I62 | — | `GET /api/v1/admin/tenants/{id}`（404 ErrorResponse envelope） | `tenants`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I63 | — | `GET /api/v1/admin/apps?page=1&pageSize=2`（回显一致） | `apps` | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I64 | — | `POST /api/v1/admin/apps`（空 body → 4xx + envelope） | `apps`（envelope shape） | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I65 | — | `GET /api/v1/admin/apps/{appId}`（404 ErrorResponse envelope） | `apps`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I66 | — | `GET /api/v1/admin/apps/{appId}/menus/{menuId}`（404 ErrorResponse envelope） | `menus`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I67 | — | `POST /api/v1/tenants/{t}/roles`（空 body → 4xx + envelope） | `roles`（envelope shape） | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I68 | — | `PATCH /api/v1/tenants/{t}/roles/{r}`（404 ErrorResponse envelope） | `roles`（envelope shape） | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I69 | — | `POST /api/v1/tenants/{t}/users`（空 body → 4xx + envelope） | `users`（envelope shape） | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I70 | — | `PATCH /api/v1/tenants/{t}/users/{u}`（404 ErrorResponse envelope） | `users`（envelope shape） | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I71 | — | `GET /api/v1/tenants/{t}/users?status=active`（过滤 envelope 全等） | `users` / `tenant_memberships`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I72 | — | `GET /api/v1/tenants/{t}/audit-events?action=login_success`（过滤 envelope 全等） | `audit_events`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I73 | — | `GET /api/v1/tenants/{t}/audit-events?actorUserId=<UUID>`（过滤 envelope 全等） | `audit_events`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已上线 |
 
 ## 约定
 

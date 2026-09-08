@@ -33,6 +33,9 @@ const OAUTH_BODY = {
 /** I26 成功分支各 target 拿的一次性 code（换 token 用，不跨后端）。 */
 const authCodes = new Map<string, string>();
 
+/** I27 token 交换响应里的 refreshToken（I28 用）。 */
+const refreshTokens = new Map<string, string>();
+
 describe.skipIf(!live)("M96.F02.I26 POST /oauth/authorize 四方比对", () => {
   it("合法 clientId → 200 {code,state}（code 剔除后全等）", async () => {
     const probes = [];
@@ -101,6 +104,9 @@ describe.skipIf(!live)("M96.F02.I27 POST /oauth/token 四方比对", () => {
       for (const key of ["accessToken", "tokenType", "expiresIn", "scope"]) {
         expect(body[key], `${t.name} token 响应缺 ${key}`).toBeDefined();
       }
+      if (body.refreshToken) {
+        refreshTokens.set(t.name, String(body.refreshToken));
+      }
       probes.push(r);
     }
     // token 已剔；scope 各家可能排序/子集不同，drop 掉只比骨架
@@ -129,6 +135,62 @@ describe.skipIf(!live)("M96.F02.I27 POST /oauth/token 四方比对", () => {
     }
     for (const p of probes) {
       expect(p.status, `${p.target} code 重放期望 400 实得 ${p.status}`).toBe(400);
+    }
+  }, 60_000);
+});
+
+// M96.F02.I28 — POST /oauth/token (refresh_token grant) 四方比对
+// 对应 shared BASE M04.F03.I09 令牌刷新（tsp routes/oauth.tsp 把 I08+I09 合并到一个
+// `/oauth/token` op，按 grantType 字段路由；contract-test 用独立 describe 区分 grant
+// 类型，命中独立 BASE ID）。
+describe.skipIf(!live)("M96.F02.I28 POST /oauth/token (refresh_token grant) 四方比对", () => {
+  it("合法 refreshToken → 200 + 新 TokenResponse 必填", async () => {
+    const probes = [];
+    for (const t of targets) {
+      const rt = refreshTokens.get(t.name);
+      if (!rt) throw new Error(`${t.name} I27 未拿到 refreshToken，I28 无法继续`);
+      const r = await probeRequest(t, {
+        method: "POST",
+        path: "/api/v1/oauth/token",
+        body: {
+          grantType: "refresh_token",
+          refreshToken: rt,
+          clientId: OAUTH_BODY.clientId,
+          tenantId: OAUTH_BODY.tenantId,
+        },
+      });
+      expect(
+        r.status,
+        `${t.name} refresh 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`,
+      ).toBe(200);
+      const body = r.body as Record<string, unknown>;
+      for (const key of ["accessToken", "tokenType", "expiresIn", "scope"]) {
+        expect(body[key], `${t.name} refresh 响应缺 ${key}`).toBeDefined();
+      }
+      probes.push(r);
+    }
+    const divergences = compareBodies(probes, targets, ["scope"]);
+    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+  }, 60_000);
+
+  it("非法 refreshToken → 400 全等", async () => {
+    const probes = [];
+    for (const t of targets) {
+      probes.push(
+        await probeRequest(t, {
+          method: "POST",
+          path: "/api/v1/oauth/token",
+          body: {
+            grantType: "refresh_token",
+            refreshToken: "not-a-real-token",
+            clientId: OAUTH_BODY.clientId,
+            tenantId: OAUTH_BODY.tenantId,
+          },
+        }),
+      );
+    }
+    for (const p of probes) {
+      expect(p.status, `${p.target} refresh 非法 rt 期望 400 实得 ${p.status}`).toBe(400);
     }
   }, 60_000);
 });
