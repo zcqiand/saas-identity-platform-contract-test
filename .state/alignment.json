@@ -4,10 +4,35 @@
   "functions": {
     "modules": 2,
     "features": 4,
-    "items": 80
+    "items": 84
   },
-  "warnings_total": 0,
-  "warnings": {},
+  "warnings_total": 18,
+  "warnings": {
+    "已上线但无设计映射": [
+      "M96.F02.I74",
+      "M96.F02.I75",
+      "M96.F02.I76",
+      "M96.F02.I77"
+    ],
+    "已上线但无测试引用": [
+      "M96.F02.I03",
+      "M96.F02.I04",
+      "M96.F02.I05",
+      "M96.F02.I06",
+      "M96.F02.I07",
+      "M96.F02.I08",
+      "M96.F02.I09",
+      "M96.F02.I10",
+      "M96.F02.I11",
+      "M96.F02.I22"
+    ],
+    "已上线但不在任何流程且非孤儿白名单": [
+      "M96.F02.I74",
+      "M96.F02.I75",
+      "M96.F02.I76",
+      "M96.F02.I77"
+    ]
+  },
   "unreachable_shipped": [],
   "function_map": {
     "M01.F01.I01": {
@@ -25,9 +50,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -45,9 +68,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -64,9 +85,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -81,9 +100,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -99,9 +116,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -117,9 +132,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -138,18 +151,11 @@
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I03 /api/v1/me/tenants 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 响应体是 TenantMembership 数组",
-        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 必填字段齐全（契约 required: id/userId/tenantId/roleIds/status/joinedAt）",
-        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I04": {
@@ -159,18 +165,11 @@
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I04 GET /api/v1/me 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I04 GET /api/v1/me 四方比对 > 响应体是单对象 CurrentUser（不是数组）",
-        "M96.F02.I04 GET /api/v1/me 四方比对 > 必填字段齐全（契约 required: id/email/memberships）",
-        "M96.F02.I04 GET /api/v1/me 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I05": {
@@ -180,18 +179,11 @@
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 响应体是 map（对象），每个 value 都是菜单数组",
-        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 每个目标都返回 200",
-        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 菜单数组里必填字段齐全（EffectiveMenuNode.required: id/appId/code/name/type/sortOrder/children）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I06": {
@@ -201,18 +193,11 @@
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I06 /api/v1/apps/lab-management 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I06 /api/v1/apps/lab-management 四方比对 > 响应体是单对象 AppPublicInfo（不是数组）",
-        "M96.F02.I06 /api/v1/apps/lab-management 四方比对 > 必填字段齐全（契约 required: id/code/name/status）",
-        "M96.F02.I06 /api/v1/apps/lab-management 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I07": {
@@ -222,18 +207,11 @@
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > 响应体是分页包装 {items: Role[]}",
-        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > 每个 Role 必填字段齐全",
-        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I08": {
@@ -243,18 +221,11 @@
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > 响应体是单对象 Role",
-        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > 必填字段齐全（Role.required）",
-        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I09": {
@@ -264,18 +235,11 @@
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > 响应体是单对象 RoleMenuGrant",
-        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > 必填字段齐全（RoleMenuGrant.required: roleId/tenantId/menuIds/updatedAt）",
-        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I10": {
@@ -285,18 +249,11 @@
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I10 GET /tenants/{t}/users 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I10 GET /tenants/{t}/users 四方比对 > 响应体是分页包装 {items: User[]}",
-        "M96.F02.I10 GET /tenants/{t}/users 四方比对 > 每个 User 必填字段齐全",
-        "M96.F02.I10 GET /tenants/{t}/users 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I11": {
@@ -306,165 +263,109 @@
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对 > 响应体是单对象 User",
-        "M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对 > 必填字段齐全（User.required）",
-        "M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I12": {
       "name": "`GET /tenants/{t}/audit-events` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I12 GET /tenants/{t}/audit-events 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I12 GET /tenants/{t}/audit-events 四方比对 > 响应体是分页包装 {items: AuditEvent[]}",
-        "M96.F02.I12 GET /tenants/{t}/audit-events 四方比对 > 每个 AuditEvent 必填字段齐全（id/tenantId/action/occurredAt）",
-        "M96.F02.I12 GET /tenants/{t}/audit-events 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I13": {
       "name": "`GET /tenants/{t}/audit-events/by-user/{u}` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I13 GET /tenants/{t}/audit-events/by-user/{u} 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I13 GET /tenants/{t}/audit-events/by-user/{u} 四方比对 > 响应体是分页包装 {items: AuditEvent[]}",
-        "M96.F02.I13 GET /tenants/{t}/audit-events/by-user/{u} 四方比对 > 每个 AuditEvent 必填字段齐全",
-        "M96.F02.I13 GET /tenants/{t}/audit-events/by-user/{u} 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I14": {
       "name": "`GET /tenants/{t}/audit-events/retention` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I14 GET /tenants/{t}/audit-events/retention 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I14 GET /tenants/{t}/audit-events/retention 四方比对 > 响应体是单对象 {retentionDays: number}",
-        "M96.F02.I14 GET /tenants/{t}/audit-events/retention 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I15": {
       "name": "`GET /tenants/{t}/api-keys` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [
         "docs\\requirements\\REQ-2026-009-read-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I15 /api/v1/tenants/00000000-0000-0000-0000-000000000001/api-keys 四方比对 > normalize 后所有目标全等（只看 envelope + items 的字段集，不比 data）",
-        "M96.F02.I15 /api/v1/tenants/00000000-0000-0000-0000-000000000001/api-keys 四方比对 > 响应体是分页包装 {items: ApiKey[]}",
-        "M96.F02.I15 /api/v1/tenants/00000000-0000-0000-0000-000000000001/api-keys 四方比对 > 每个 ApiKey 必填字段齐全（id/tenantId/name/prefix/status/scopes/createdAt）",
-        "M96.F02.I15 /api/v1/tenants/00000000-0000-0000-0000-000000000001/api-keys 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I16": {
       "name": "`POST /tenants/{t}/api-keys` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [
         "docs\\requirements\\REQ-2026-008-write-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > M96.F02.I16 aspnetcore 创建返回 200/201 + apiKey 字段齐全",
-        "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > M96.F02.I16 msw 创建返回 200/201 + apiKey 字段齐全",
-        "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > M96.F02.I16 nextjs 创建返回 200/201 + apiKey 字段齐全",
-        "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > M96.F02.I16 springboot 创建返回 200/201 + apiKey 字段齐全",
-        "M96.F02.I16 POST /tenants/{t}/api-keys 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I17": {
       "name": "`POST /tenants/{t}/api-keys/{k}/revoke` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [
         "docs\\requirements\\REQ-2026-008-write-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对 > M96.F02.I17 aspnetcore revoke 返回 200 + 字段齐全",
-        "M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对 > M96.F02.I17 msw revoke 返回 200 + 字段齐全",
-        "M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对 > M96.F02.I17 nextjs revoke 返回 200 + 字段齐全",
-        "M96.F02.I17 POST /tenants/{t}/api-keys/{k}/revoke 四方比对 > M96.F02.I17 springboot revoke 返回 200 + 字段齐全"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I18": {
       "name": "写端点副作用 — api_key_created/revoked 进 audit_events",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [
         "docs\\requirements\\REQ-2026-008-write-endpoint-coverage.md"
       ],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 aspnetcore api_key_created + api_key_revoked 各至少一条",
-        "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 msw api_key_created + api_key_revoked 各至少一条",
-        "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 nextjs api_key_created + api_key_revoked 各至少一条",
-        "M96.F02.I18 写端点副作用 — api_key_created/revoked 事件进 audit_events > M96.F02.I18 springboot api_key_created + api_key_revoked 各至少一条"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I19": {
@@ -472,18 +373,15 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 aspnetcore 创建返回 200/201 + user 字段齐全",
-        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 msw 创建返回 200/201 + user 字段齐全",
-        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 nextjs 创建返回 200/201 + user 字段齐全",
-        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > M96.F02.I19 springboot 创建返回 200/201 + user 字段齐全",
-        "M96.F02.I19 POST /tenants/{t}/users 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
+        "M96.F02.I19 POST /tenants/{t}/members 四方比对 > M96.F02.I19 aspnetcore 创建返回 200/201 + user 字段齐全",
+        "M96.F02.I19 POST /tenants/{t}/members 四方比对 > M96.F02.I19 msw 创建返回 200/201 + user 字段齐全",
+        "M96.F02.I19 POST /tenants/{t}/members 四方比对 > M96.F02.I19 springboot 创建返回 200/201 + user 字段齐全",
+        "M96.F02.I19 POST /tenants/{t}/members 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
       ],
       "entry": []
     },
@@ -492,16 +390,13 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
         "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 aspnetcore 整批设置返回 200 + roleMenuGrant 字段齐全",
         "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 msw 整批设置返回 200 + roleMenuGrant 字段齐全",
-        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 nextjs 整批设置返回 200 + roleMenuGrant 字段齐全",
         "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 springboot 整批设置返回 200 + roleMenuGrant 字段齐全",
         "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
       ],
@@ -509,29 +404,14 @@
     },
     "M96.F02.I21": {
       "name": "`DELETE /tenants/{t}/api-keys/{k}` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 aspnetcore DELETE 物理删除返回 204",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 aspnetcore 前置：POST /api-keys 创一把 key",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 aspnetcore 重复 DELETE 期望 404（幂等性）",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 msw DELETE 物理删除返回 204",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 msw 前置：POST /api-keys 创一把 key",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 msw 重复 DELETE 期望 404（幂等性）",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 nextjs DELETE 物理删除返回 204",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 nextjs 前置：POST /api-keys 创一把 key",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 nextjs 重复 DELETE 期望 404（幂等性）",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 springboot DELETE 物理删除返回 204",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 springboot 前置：POST /api-keys 创一把 key",
-        "M96.F02.I21 DELETE /tenants/{t}/api-keys/{k} 四方比对 > M96.F02.I21 springboot 重复 DELETE 期望 404（幂等性）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I22": {
@@ -539,16 +419,11 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I22 POST /auth/login 四方比对 > 正确凭证 → 200 + LoginResponse 必填字段齐全",
-        "M96.F02.I22 POST /auth/login 四方比对 > 错误密码 → 4xx 全等（normalize 后 body 全等）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I23": {
@@ -556,9 +431,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -572,9 +445,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -589,9 +460,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -605,9 +474,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -622,9 +489,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -639,9 +504,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -658,9 +521,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -674,16 +535,13 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
         "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 aspnetcore 创 tenant 返回 200/201 + 字段齐全",
         "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 msw 创 tenant 返回 200/201 + 字段齐全",
-        "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 nextjs 创 tenant 返回 200/201 + 字段齐全",
         "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 springboot 创 tenant 返回 200/201 + 字段齐全",
         "M96.F02.I30 POST /admin/tenants 四方比对 > normalize 后成功响应字段一致（除唯一值/时间戳）"
       ],
@@ -694,16 +552,13 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
         "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 aspnetcore 取自己创的 tenant → 200 + 字段齐全",
         "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 msw 取自己创的 tenant → 200 + 字段齐全",
-        "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 nextjs 取自己创的 tenant → 200 + 字段齐全",
         "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 springboot 取自己创的 tenant → 200 + 字段齐全",
         "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > 不存在 id → 404 全等"
       ],
@@ -714,16 +569,13 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
         "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 aspnetcore 改 name → 200 + updatedAt 必填",
         "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 nextjs 改 name → 200 + updatedAt 必填",
         "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 springboot 改 name → 200 + updatedAt 必填"
       ],
       "entry": []
@@ -733,9 +585,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -749,16 +599,13 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
         "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 aspnetcore 创建返回 200/201 + role 字段齐全",
         "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 msw 创建返回 200/201 + role 字段齐全",
-        "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 nextjs 创建返回 200/201 + role 字段齐全",
         "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 springboot 创建返回 200/201 + role 字段齐全",
         "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
       ],
@@ -769,16 +616,13 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
         "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 aspnetcore 改 name → 200 + updatedAt 必填",
         "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 nextjs 改 name → 200 + updatedAt 必填",
         "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 springboot 改 name → 200 + updatedAt 必填",
         "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > 不存在 id → 404 全等"
       ],
@@ -789,16 +633,13 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
         "M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对 > M96.F02.I36 aspnetcore 设 permissionIds → 200 + 响应回带",
         "M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对 > M96.F02.I36 msw 设 permissionIds → 200 + 响应回带",
-        "M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对 > M96.F02.I36 nextjs 设 permissionIds → 200 + 响应回带",
         "M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对 > M96.F02.I36 springboot 设 permissionIds → 200 + 响应回带"
       ],
       "entry": []
@@ -808,9 +649,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -824,9 +663,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -840,18 +677,15 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > M96.F02.I39 aspnetcore 改 displayName → 200 + updatedAt 必填",
-        "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > M96.F02.I39 msw 改 displayName → 200 + updatedAt 必填",
-        "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > M96.F02.I39 nextjs 改 displayName → 200 + updatedAt 必填",
-        "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > M96.F02.I39 springboot 改 displayName → 200 + updatedAt 必填",
-        "M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对 > 不存在 id → 404 全等"
+        "M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对 > M96.F02.I39 aspnetcore 改 displayName → 200 + updatedAt 必填",
+        "M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对 > M96.F02.I39 msw 改 displayName → 200 + updatedAt 必填",
+        "M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对 > M96.F02.I39 springboot 改 displayName → 200 + updatedAt 必填",
+        "M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对 > 不存在 id → 404 全等"
       ],
       "entry": []
     },
@@ -860,17 +694,14 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对 > M96.F02.I40 aspnetcore 设 roleIds → 200 + 响应回带",
-        "M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对 > M96.F02.I40 msw 设 roleIds → 200 + 响应回带",
-        "M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对 > M96.F02.I40 nextjs 设 roleIds → 200 + 响应回带",
-        "M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对 > M96.F02.I40 springboot 设 roleIds → 200 + 响应回带"
+        "M96.F02.I40 PUT /tenants/{t}/members/{u}/roles 四方比对 > M96.F02.I40 aspnetcore 设 roleIds → 200 + 响应回带",
+        "M96.F02.I40 PUT /tenants/{t}/members/{u}/roles 四方比对 > M96.F02.I40 msw 设 roleIds → 200 + 响应回带",
+        "M96.F02.I40 PUT /tenants/{t}/members/{u}/roles 四方比对 > M96.F02.I40 springboot 设 roleIds → 200 + 响应回带"
       ],
       "entry": []
     },
@@ -879,17 +710,14 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对 > M96.F02.I41 aspnetcore active → suspended → active 往返",
-        "M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对 > M96.F02.I41 msw active → suspended → active 往返",
-        "M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对 > M96.F02.I41 nextjs active → suspended → active 往返",
-        "M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对 > M96.F02.I41 springboot active → suspended → active 往返"
+        "M96.F02.I41 PATCH /tenants/{t}/members/{u}/status 四方比对 > M96.F02.I41 aspnetcore active → suspended → active 往返",
+        "M96.F02.I41 PATCH /tenants/{t}/members/{u}/status 四方比对 > M96.F02.I41 msw active → suspended → active 往返",
+        "M96.F02.I41 PATCH /tenants/{t}/members/{u}/status 四方比对 > M96.F02.I41 springboot active → suspended → active 往返"
       ],
       "entry": []
     },
@@ -898,18 +726,15 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I42 aspnetcore 邀请 → 200/201 + status=invited",
-        "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I42 msw 邀请 → 200/201 + status=invited",
-        "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I42 nextjs 邀请 → 200/201 + status=invited",
-        "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I42 springboot 邀请 → 200/201 + status=invited",
-        "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I43 DELETE /tenants/{t}/users/{u} 四方比对 > I42 的邀请行删除 → 200/204 + 重复删 → 404（幂等）"
+        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I42 aspnetcore 邀请 → 200/201 + status=invited",
+        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I42 msw 邀请 → 200/201 + status=invited",
+        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I42 springboot 邀请 → 200/201 + status=invited",
+        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I43 DELETE /tenants/{t}/members/{u} 四方比对 > I42 的邀请行删除 → 200/204 + 重复删 → 404（幂等）"
       ],
       "entry": []
     },
@@ -918,14 +743,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对 > M96.F02.I43 DELETE /tenants/{t}/users/{u} 四方比对 > I42 的邀请行删除 → 200/204 + 重复删 → 404（幂等）"
+        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I43 DELETE /tenants/{t}/members/{u} 四方比对 > I42 的邀请行删除 → 200/204 + 重复删 → 404（幂等）"
       ],
       "entry": []
     },
@@ -934,14 +757,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I44 GET /admin/apps 四方比对 > 列表 → 200 + 分页包装 shape"
+        "M96.F02.I44 GET /admin/clients 四方比对 > 列表 → 200 + 分页包装 shape"
       ],
       "entry": []
     },
@@ -950,18 +771,15 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I45 POST /admin/apps 四方比对 > M96.F02.I45 aspnetcore 创 app 返回 200/201 + 字段齐全",
-        "M96.F02.I45 POST /admin/apps 四方比对 > M96.F02.I45 msw 创 app 返回 200/201 + 字段齐全",
-        "M96.F02.I45 POST /admin/apps 四方比对 > M96.F02.I45 nextjs 创 app 返回 200/201 + 字段齐全",
-        "M96.F02.I45 POST /admin/apps 四方比对 > M96.F02.I45 springboot 创 app 返回 200/201 + 字段齐全",
-        "M96.F02.I45 POST /admin/apps 四方比对 > normalize 后成功响应字段一致（除唯一值/时间戳）"
+        "M96.F02.I45 POST /admin/clients 四方比对 > M96.F02.I45 aspnetcore 创 app 返回 200/201 + 字段齐全",
+        "M96.F02.I45 POST /admin/clients 四方比对 > M96.F02.I45 msw 创 app 返回 200/201 + 字段齐全",
+        "M96.F02.I45 POST /admin/clients 四方比对 > M96.F02.I45 springboot 创 app 返回 200/201 + 字段齐全",
+        "M96.F02.I45 POST /admin/clients 四方比对 > normalize 后成功响应字段一致（除唯一值/时间戳）"
       ],
       "entry": []
     },
@@ -970,18 +788,15 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > M96.F02.I46 aspnetcore 取自己创的 app → 200 + 字段齐全",
-        "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > M96.F02.I46 msw 取自己创的 app → 200 + 字段齐全",
-        "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > M96.F02.I46 nextjs 取自己创的 app → 200 + 字段齐全",
-        "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > M96.F02.I46 springboot 取自己创的 app → 200 + 字段齐全",
-        "M96.F02.I46 GET /admin/apps/{appId} 四方比对 > 不存在 id → 404 全等"
+        "M96.F02.I46 GET /admin/clients/{clientId} 四方比对 > M96.F02.I46 aspnetcore 取自己创的 app → 200 + 字段齐全",
+        "M96.F02.I46 GET /admin/clients/{clientId} 四方比对 > M96.F02.I46 msw 取自己创的 app → 200 + 字段齐全",
+        "M96.F02.I46 GET /admin/clients/{clientId} 四方比对 > M96.F02.I46 springboot 取自己创的 app → 200 + 字段齐全",
+        "M96.F02.I46 GET /admin/clients/{clientId} 四方比对 > 不存在 id → 404 全等"
       ],
       "entry": []
     },
@@ -990,17 +805,14 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I47 PATCH /admin/apps/{appId} 四方比对 > M96.F02.I47 aspnetcore 改 name → 200 + updatedAt 必填",
-        "M96.F02.I47 PATCH /admin/apps/{appId} 四方比对 > M96.F02.I47 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I47 PATCH /admin/apps/{appId} 四方比对 > M96.F02.I47 nextjs 改 name → 200 + updatedAt 必填",
-        "M96.F02.I47 PATCH /admin/apps/{appId} 四方比对 > M96.F02.I47 springboot 改 name → 200 + updatedAt 必填"
+        "M96.F02.I47 PATCH /admin/clients/{clientId} 四方比对 > M96.F02.I47 aspnetcore 改 name → 200 + updatedAt 必填",
+        "M96.F02.I47 PATCH /admin/clients/{clientId} 四方比对 > M96.F02.I47 msw 改 name → 200 + updatedAt 必填",
+        "M96.F02.I47 PATCH /admin/clients/{clientId} 四方比对 > M96.F02.I47 springboot 改 name → 200 + updatedAt 必填"
       ],
       "entry": []
     },
@@ -1009,14 +821,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I48 DELETE /admin/apps/{appId} 四方比对 > I45 的 app 删除 → 204/200 + 重复删 → 404（幂等）"
+        "M96.F02.I48 DELETE /admin/clients/{clientId} 四方比对 > I45 的 app 删除 → 204/200 + 重复删 → 404（幂等）"
       ],
       "entry": []
     },
@@ -1025,17 +835,14 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对 > M96.F02.I49 aspnetcore active → disabled → active 往返",
-        "M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对 > M96.F02.I49 msw active → disabled → active 往返",
-        "M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对 > M96.F02.I49 nextjs active → disabled → active 往返",
-        "M96.F02.I49 PATCH /admin/apps/{appId}/status 四方比对 > M96.F02.I49 springboot active → disabled → active 往返"
+        "M96.F02.I49 PATCH /admin/clients/{clientId}/status 四方比对 > M96.F02.I49 aspnetcore active → disabled → active 往返",
+        "M96.F02.I49 PATCH /admin/clients/{clientId}/status 四方比对 > M96.F02.I49 msw active → disabled → active 往返",
+        "M96.F02.I49 PATCH /admin/clients/{clientId}/status 四方比对 > M96.F02.I49 springboot active → disabled → active 往返"
       ],
       "entry": []
     },
@@ -1044,14 +851,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I50 GET /admin/apps/{appId}/menus 四方比对 > seed 菜单列表 → 200 + Menu[] shape"
+        "M96.F02.I50 GET /clients/{clientId}/menus 四方比对 > seed 菜单列表 → 200 + Menu[] shape"
       ],
       "entry": []
     },
@@ -1060,17 +865,14 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对 > M96.F02.I51 aspnetcore 创 menu（A/B 两个）→ 200/201 + 字段齐全",
-        "M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对 > M96.F02.I51 msw 创 menu（A/B 两个）→ 200/201 + 字段齐全",
-        "M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对 > M96.F02.I51 nextjs 创 menu（A/B 两个）→ 200/201 + 字段齐全",
-        "M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对 > M96.F02.I51 springboot 创 menu（A/B 两个）→ 200/201 + 字段齐全"
+        "M96.F02.I51 POST /clients/{clientId}/menus 四方比对 > M96.F02.I51 aspnetcore 创 menu（A/B 两个）→ 200/201 + 字段齐全",
+        "M96.F02.I51 POST /clients/{clientId}/menus 四方比对 > M96.F02.I51 msw 创 menu（A/B 两个）→ 200/201 + 字段齐全",
+        "M96.F02.I51 POST /clients/{clientId}/menus 四方比对 > M96.F02.I51 springboot 创 menu（A/B 两个）→ 200/201 + 字段齐全"
       ],
       "entry": []
     },
@@ -1079,18 +881,15 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I52 aspnetcore 取自建 menu → 200",
-        "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I52 msw 取自建 menu → 200",
-        "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I52 nextjs 取自建 menu → 200",
-        "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I52 springboot 取自建 menu → 200",
-        "M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对 > 不存在 id → 404 全等"
+        "M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I52 aspnetcore 取自建 menu → 200",
+        "M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I52 msw 取自建 menu → 200",
+        "M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I52 springboot 取自建 menu → 200",
+        "M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对 > 不存在 id → 404 全等"
       ],
       "entry": []
     },
@@ -1099,17 +898,14 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I53 aspnetcore 改 name → 200 + updatedAt 必填",
-        "M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I53 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I53 nextjs 改 name → 200 + updatedAt 必填",
-        "M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对 > M96.F02.I53 springboot 改 name → 200 + updatedAt 必填"
+        "M96.F02.I53 PATCH /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I53 aspnetcore 改 name → 200 + updatedAt 必填",
+        "M96.F02.I53 PATCH /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I53 msw 改 name → 200 + updatedAt 必填",
+        "M96.F02.I53 PATCH /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I53 springboot 改 name → 200 + updatedAt 必填"
       ],
       "entry": []
     },
@@ -1118,14 +914,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I54 DELETE /admin/apps/{appId}/menus/{menuId} 四方比对 > I51 的 menu 对删除 → 204/200 + 重复删 → 404（幂等）"
+        "M96.F02.I54 DELETE /clients/{clientId}/menus/{menuId} 四方比对 > I51 的 menu 对删除 → 204/200 + 重复删 → 404（幂等）"
       ],
       "entry": []
     },
@@ -1134,17 +928,14 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 aspnetcore A/B 换序 → 200 + Menu[]",
-        "M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 msw A/B 换序 → 200 + Menu[]",
-        "M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 nextjs A/B 换序 → 200 + Menu[]",
-        "M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 springboot A/B 换序 → 200 + Menu[]"
+        "M96.F02.I55 PUT /clients/{clientId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 aspnetcore A/B 换序 → 200 + Menu[]",
+        "M96.F02.I55 PUT /clients/{clientId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 msw A/B 换序 → 200 + Menu[]",
+        "M96.F02.I55 PUT /clients/{clientId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 springboot A/B 换序 → 200 + Menu[]"
       ],
       "entry": []
     },
@@ -1153,70 +944,51 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 aspnetcore B 挂到 A 下 → 200 + parentId 回带",
-        "M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 msw B 挂到 A 下 → 200 + parentId 回带",
-        "M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 nextjs B 挂到 A 下 → 200 + parentId 回带",
-        "M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 springboot B 挂到 A 下 → 200 + parentId 回带"
+        "M96.F02.I56 PATCH /clients/{clientId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 aspnetcore B 挂到 A 下 → 200 + parentId 回带",
+        "M96.F02.I56 PATCH /clients/{clientId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 msw B 挂到 A 下 → 200 + parentId 回带",
+        "M96.F02.I56 PATCH /clients/{clientId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 springboot B 挂到 A 下 → 200 + parentId 回带"
       ],
       "entry": []
     },
     "M96.F02.I57": {
       "name": "`POST /tenants/{t}/api-keys/{k}/rotate` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > M96.F02.I57 aspnetcore rotate → 200/201 + 新 key + 新 secret",
-        "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > M96.F02.I57 msw rotate → 200/201 + 新 key + 新 secret",
-        "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > M96.F02.I57 nextjs rotate → 200/201 + 新 key + 新 secret",
-        "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > M96.F02.I57 springboot rotate → 200/201 + 新 key + 新 secret",
-        "M96.F02.I57 POST /tenants/{t}/api-keys/{k}/rotate 四方比对 > normalize 后 rotate 成功响应字段一致（除 volatile）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I58": {
       "name": "`POST /tenants/{t}/audit-events/export` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I58 POST /tenants/{t}/audit-events/export 四方比对 > 合法区间 + format → 200 + {downloadUrl} shape"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I59": {
       "name": "`PUT /tenants/{t}/audit-events/retention` 四方比对",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I59 PUT /tenants/{t}/audit-events/retention 四方比对 > 设 retentionDays → 回显 + 还原 seed 原值"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I60": {
@@ -1224,9 +996,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -1240,9 +1010,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -1256,9 +1024,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -1272,14 +1038,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I63 GET /admin/apps 显式分页回显 > ?page=1&pageSize=2 → 回显一致（page=1, pageSize=2）"
+        "M96.F02.I63 GET /admin/clients 显式分页回显 > ?page=1&pageSize=2 → 回显一致（page=1, pageSize=2）"
       ],
       "entry": []
     },
@@ -1288,14 +1052,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I64 POST /admin/apps 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
+        "M96.F02.I64 POST /admin/clients 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
       ],
       "entry": []
     },
@@ -1304,14 +1066,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I65 GET /admin/apps/{appId} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
+        "M96.F02.I65 GET /admin/clients/{clientId} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
       ],
       "entry": []
     },
@@ -1320,14 +1080,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I66 GET /admin/apps/{appId}/menus/{menuId} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
+        "M96.F02.I66 GET /clients/{clientId}/menus/{menuId} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
       ],
       "entry": []
     },
@@ -1336,9 +1094,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -1352,9 +1108,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -1368,14 +1122,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I69 POST /tenants/{t}/users 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
+        "M96.F02.I69 POST /tenants/{t}/members 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
       ],
       "entry": []
     },
@@ -1384,14 +1136,12 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I70 PATCH /tenants/{t}/users/{u} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
+        "M96.F02.I70 PATCH /tenants/{t}/members/{u} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
       ],
       "entry": []
     },
@@ -1400,46 +1150,88 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F02.I71 GET /tenants/{t}/users ?status= 过滤 > ?status=active — 响应分页 envelope 全等（4 后端契约面）"
+        "M96.F02.I71 GET /tenants/{t}/members ?status= 过滤 > ?status=active — 响应分页 envelope 全等（4 后端契约面）"
       ],
       "entry": []
     },
     "M96.F02.I72": {
       "name": "`GET /tenants/{t}/audit-events` ?action= 过滤",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I72 GET /tenants/{t}/audit-events ?action= 过滤 > ?action=login_success — 响应分页 envelope 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I73": {
       "name": "`GET /tenants/{t}/audit-events` ?actorUserId= 过滤",
-      "status": "已上线",
+      "status": "已废弃",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
+      "tests": [],
+      "entry": []
+    },
+    "M96.F02.I74": {
+      "name": "`GET /tenants/{t}/applications` 四方比对",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
       "tests": [
-        "M96.F02.I73 GET /tenants/{t}/audit-events ?actorUserId= 过滤 > ?actorUserId=<alice> — 响应分页 envelope 全等"
+        "M96.F02.I74 GET /tenants/{tenantId}/applications 四方比对 > 列表 → 200 + 分页包装 shape"
+      ],
+      "entry": []
+    },
+    "M96.F02.I75": {
+      "name": "`POST /tenants/{t}/applications` 四方比对",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F02.I75 POST /tenants/{tenantId}/applications 四方比对 > M96.F02.I75 aspnetcore 订阅 application 返回 200/201 + 字段齐全",
+        "M96.F02.I75 POST /tenants/{tenantId}/applications 四方比对 > M96.F02.I75 msw 订阅 application 返回 200/201 + 字段齐全",
+        "M96.F02.I75 POST /tenants/{tenantId}/applications 四方比对 > M96.F02.I75 springboot 订阅 application 返回 200/201 + 字段齐全"
+      ],
+      "entry": []
+    },
+    "M96.F02.I76": {
+      "name": "`PATCH /tenants/{t}/applications/{clientId}` 四方比对",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clientId} 四方比对 > M96.F02.I76 aspnetcore 改 status → 200 + updatedAt 必填",
+        "M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clientId} 四方比对 > M96.F02.I76 msw 改 status → 200 + updatedAt 必填",
+        "M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clientId} 四方比对 > M96.F02.I76 springboot 改 status → 200 + updatedAt 必填"
+      ],
+      "entry": []
+    },
+    "M96.F02.I77": {
+      "name": "`DELETE /tenants/{t}/applications/{clientId}` 四方比对",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "M96.F02.I77 DELETE /tenants/{tenantId}/applications/{clientId} 四方比对 > I75 的 application 删除 → 204/200 + 重复删 → 404（幂等）"
       ],
       "entry": []
     },
@@ -1448,9 +1240,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
@@ -1465,9 +1255,7 @@
       "status": "已上线",
       "type": "接口",
       "requirements": [],
-      "flows": [
-        "docs\\design\\flow-function-map.md"
-      ],
+      "flows": [],
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
