@@ -144,6 +144,10 @@
 | M96.F02.I71 | `GET /tenants/{t}/users` ?status= 过滤 | 接口 | 前端+后端 | 合法枚举 ?status=active → 200 + envelope 全等（不比 items）；从 I10 拆出；live 已暴露 springboot 400 待修 | 已上线 |
 | M96.F02.I72 | `GET /tenants/{t}/audit-events` ?action= 过滤 | 接口 | 前端+后端 | 合法枚举 ?action=login_success → 200 + envelope 全等；从 I12 拆出；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
 | M96.F02.I73 | `GET /tenants/{t}/audit-events` ?actorUserId= 过滤 | 接口 | 前端+后端 | 合法 UUID ?actorUserId → 200 + envelope 全等；从 I12 拆出；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I74 | `GET /tenants/{t}/applications` 四方比对 | 接口 | 前端+后端 | 列表 → 200 + 分页包装 shape；B.2 补覆盖（0e99ad8 加测试时漏登记清单，2026-09-10 补登）；M00.F05.I01 跨后端覆盖 | 已上线 |
+| M96.F02.I75 | `POST /tenants/{t}/applications` 四方比对 | 接口 | 前端+后端 | 订阅 application 返回 200/201 + 字段齐全；B.2 补覆盖（同上补登）；M00.F05.I02 跨后端覆盖 | 已上线 |
+| M96.F02.I76 | `PATCH /tenants/{t}/applications/{clientId}` 四方比对 | 接口 | 前端+后端 | 改 status → 200 + updatedAt 必填；B.2 补覆盖（同上补登）；M00.F05.I03 跨后端覆盖 | 已上线 |
+| M96.F02.I77 | `DELETE /tenants/{t}/applications/{clientId}` 四方比对 | 接口 | 前端+后端 | 删除 → 204/200 + 幂等（重复 → 404）；B.2 补覆盖（同上补登）；M00.F05.I04 跨后端覆盖 | 已上线 |
 
 ### M96.F03 目标声明与可达性
 

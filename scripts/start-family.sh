@@ -138,7 +138,10 @@ PIDS=()
 #                 所以 aspnetcore/msw/nextjs 用各自的 DB 连接源 (appsettings.json / 内嵌 / postgres.js),
 #                 **不传** SPRINGBOOT_ONLY。
 COMMON_ENV=$(grep -E '^(JWT_|SAAS_)' "$SPRINGBOOT_DIR/.env.local" | tr '\n' ' ')
-SPRINGBOOT_ONLY=$(grep -E '^(DATABASE_USER|DATABASE_PASSWORD|DATABASE_NAME|JDBC_URL)' "$SPRINGBOOT_DIR/.env.local" | tr '\n' ' ')
+# 注意: springboot application.yml 是 ${DATABASE_URL:${JDBC_URL:}} (ADR-0019 后 DATABASE_URL 是主 key,
+# JDBC_URL 只是 dev 兼容兜底)。.env.local 里只有 DATABASE_URL — 漏了它 springboot 拿不到
+# datasource url,启动即炸 "Failed to determine suitable jdbc url"。
+SPRINGBOOT_ONLY=$(grep -E '^(DATABASE_URL|DATABASE_USER|DATABASE_PASSWORD|DATABASE_NAME|JDBC_URL)' "$SPRINGBOOT_DIR/.env.local" | tr '\n' ' ')
 
 # 各后端 SERVER_PORT 优先用各自 .env.local, 缺时 fallback .env.example, 最后硬编码兜底
 # 注意: grep 无匹配返回 1, pipefail 会让 pipeline 整体返回 1, set -e 触发退出。
