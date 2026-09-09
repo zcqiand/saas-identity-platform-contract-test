@@ -27,7 +27,7 @@ const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
 /** I75 各 target 创的 application id。 */
-const ctx: { appIds: Map<string, string> } = { appIds: new Map() };
+const ctx: { clientIds: Map<string, string> } = { clientIds: new Map() };
 
 describe.skipIf(!live)("M96.F02.I74 GET /tenants/{tenantId}/applications 四方比对", () => {
   it("列表 → 200 + 分页包装 shape", async () => {
@@ -57,7 +57,7 @@ describe.skipIf(!live)("M96.F02.I74 GET /tenants/{tenantId}/applications 四方�
 describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方比对", () => {
   beforeAll(() => {
     clearCleanups();
-    ctx.appIds.clear();
+    ctx.clientIds.clear();
   }, 30_000);
 
   for (const target of targets) {
@@ -77,12 +77,12 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
         expect(body[key], `${target.name} application 行缺 ${key}`).toBeDefined();
       }
       const appId = String(body.id);
-      ctx.appIds.set(target.name, appId);
+      ctx.clientIds.set(target.name, appId);
 
       registerCleanup(`delete-app:${target.name}`, async () => {
         const tr = await probeRequest(target, {
           method: "DELETE",
-          path: `${BASE_PATH}/${appId}`,
+          path: `${BASE_PATH}/${clientId}`,
         });
         if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
           console.warn(`[teardown] delete-app ${target.name} 异常 status=${tr.status}`);
@@ -95,11 +95,11 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
 describe.skipIf(!live)("M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clientId} 四方比对", () => {
   for (const target of targets) {
     it(`M96.F02.I76 ${target.name} 改 status → 200 + updatedAt 必填`, async () => {
-      const appId = ctx.appIds.get(target.name);
-      if (!appId) throw new Error(`${target.name} I75 未创 application，跳过 I76`);
+      const clientId = ctx.clientIds.get(target.name);
+      if (!clientId) throw new Error(`${target.name} I75 未创 application，跳过 I76`);
       const r = await probeRequest(target, {
         method: "PATCH",
-        path: `${BASE_PATH}/${appId}`,
+        path: `${BASE_PATH}/${clientId}`,
         body: { status: "disabled" },
       });
       expect(
@@ -117,11 +117,11 @@ describe.skipIf(!live)("M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clie
 describe.skipIf(!live)("M96.F02.I77 DELETE /tenants/{tenantId}/applications/{clientId} 四方比对", () => {
   it("I75 的 application 删除 → 204/200 + 重复删 → 404（幂等）", async () => {
     for (const target of targets) {
-      const appId = ctx.appIds.get(target.name);
-      if (!appId) throw new Error(`${target.name} I75 未创 application，跳过 I77`);
+      const clientId = ctx.clientIds.get(target.name);
+      if (!clientId) throw new Error(`${target.name} I75 未创 application，跳过 I77`);
       const first = await probeRequest(target, {
         method: "DELETE",
-        path: `${BASE_PATH}/${appId}`,
+        path: `${BASE_PATH}/${clientId}`,
       });
       expect(
         [200, 204],
@@ -129,24 +129,24 @@ describe.skipIf(!live)("M96.F02.I77 DELETE /tenants/{tenantId}/applications/{cli
       ).toContain(first.status);
       const second = await probeRequest(target, {
         method: "DELETE",
-        path: `${BASE_PATH}/${appId}`,
+        path: `${BASE_PATH}/${clientId}`,
       });
       expect(
         [404, 200, 204],
         `${target.name} 重复删期望 404 实得 ${second.status}`,
       ).toContain(second.status);
-      ctx.appIds.delete(target.name);
+      ctx.clientIds.delete(target.name);
     }
   }, 60_000);
 
   afterAll(async () => {
     await runCleanups();
-    for (const [tname, appId] of ctx.appIds) {
+    for (const [tname, clientId] of ctx.clientIds) {
       const t = TARGETS[tname];
       if (!t) continue;
       const r = await probeRequest(t, {
         method: "DELETE",
-        path: `${BASE_PATH}/${appId}`,
+        path: `${BASE_PATH}/${clientId}`,
       });
       if (r.status !== 200 && r.status !== 204 && r.status !== 404) {
         console.warn(`[teardown] final delete-app ${tname} 异常 status=${r.status}`);

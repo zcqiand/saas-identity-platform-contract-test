@@ -25,7 +25,7 @@ const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
 /** I45 各 target 创的 app id。 */
-const ctx: { appIds: Map<string, string> } = { appIds: new Map() };
+const ctx: { clientIds: Map<string, string> } = { clientIds: new Map() };
 
 describe.skipIf(!live)("M96.F02.I44 GET /admin/clients 四方比对", () => {
   it("列表 → 200 + 分页包装 shape", async () => {
@@ -73,7 +73,7 @@ describe.skipIf(!live)("M96.F02.I63 GET /admin/clients 显式分页回显", () =
 describe.skipIf(!live)("M96.F02.I45 POST /admin/clients 四方比对", () => {
   beforeAll(() => {
     clearCleanups();
-    ctx.appIds.clear();
+    ctx.clientIds.clear();
   }, 30_000);
 
   for (const target of targets) {
@@ -95,9 +95,9 @@ describe.skipIf(!live)("M96.F02.I45 POST /admin/clients 四方比对", () => {
         expect(body[key], `${target.name} app 行缺 ${key}`).toBeDefined();
       }
       expect(body.status, `${target.name} 新 app 必须 active`).toBe("active");
-      ctx.appIds.set(target.name, String(body.id));
+      ctx.clientIds.set(target.name, String(body.id));
 
-      const appId = String(body.id);
+      const clientId = String(body.id);
       registerCleanup(`delete-app:${target.name}`, async () => {
         const tr = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${clientId}` });
         if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
@@ -156,8 +156,8 @@ describe.skipIf(!live)("M96.F02.I64 POST /admin/clients 缺必填字段错误分
 describe.skipIf(!live)("M96.F02.I46 GET /admin/clients/{clientId} 四方比对", () => {
   for (const target of targets) {
     it(`M96.F02.I46 ${target.name} 取自己创的 app → 200 + 字段齐全`, async () => {
-      const appId = ctx.appIds.get(target.name);
-      if (!appId) throw new Error(`${target.name} I45 未创建 app，跳过 I46`);
+      const clientId = ctx.clientIds.get(target.name);
+      if (!clientId) throw new Error(`${target.name} I45 未创建 app，跳过 I46`);
       const r = await probeRequest(target, { method: "GET", path: `${BASE_PATH}/${clientId}` });
       expect(r.status, `${target.name} get 期望 200 实得 ${r.status}`).toBe(200);
       expect((r.body as Record<string, unknown>).id).toBeDefined();
@@ -196,8 +196,8 @@ describe.skipIf(!live)("M96.F02.I65 GET /admin/clients/{clientId} 404 ErrorRespo
 describe.skipIf(!live)("M96.F02.I47 PATCH /admin/clients/{clientId} 四方比对", () => {
   for (const target of targets) {
     it(`M96.F02.I47 ${target.name} 改 name → 200 + updatedAt 必填`, async () => {
-      const appId = ctx.appIds.get(target.name);
-      if (!appId) throw new Error(`${target.name} I45 未创建 app，跳过 I47`);
+      const clientId = ctx.clientIds.get(target.name);
+      if (!clientId) throw new Error(`${target.name} I45 未创建 app，跳过 I47`);
       const r = await probeRequest(target, {
         method: "PATCH",
         path: `${BASE_PATH}/${clientId}`,
@@ -213,8 +213,8 @@ describe.skipIf(!live)("M96.F02.I49 PATCH /admin/clients/{clientId}/status 四�
   // 排在 I48 DELETE 前：status 往返需要行还在
   for (const target of targets) {
     it(`M96.F02.I49 ${target.name} active → disabled → active 往返`, async () => {
-      const appId = ctx.appIds.get(target.name);
-      if (!appId) throw new Error(`${target.name} I45 未创建 app，跳过 I49`);
+      const clientId = ctx.clientIds.get(target.name);
+      if (!clientId) throw new Error(`${target.name} I45 未创建 app，跳过 I49`);
       const off = await probeRequest(target, {
         method: "PATCH",
         path: `${BASE_PATH}/${clientId}/status`,
@@ -236,19 +236,19 @@ describe.skipIf(!live)("M96.F02.I49 PATCH /admin/clients/{clientId}/status 四�
 describe.skipIf(!live)("M96.F02.I48 DELETE /admin/clients/{clientId} 四方比对", () => {
   it("I45 的 app 删除 → 204/200 + 重复删 → 404（幂等）", async () => {
     for (const target of targets) {
-      const appId = ctx.appIds.get(target.name);
-      if (!appId) throw new Error(`${target.name} I45 未创建 app，跳过 I48`);
+      const clientId = ctx.clientIds.get(target.name);
+      if (!clientId) throw new Error(`${target.name} I45 未创建 app，跳过 I48`);
       const first = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${clientId}` });
       expect([200, 204], `${target.name} delete 期望 200/204 实得 ${first.status}`).toContain(first.status);
       const second = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${clientId}` });
       expect([404, 200, 204], `${target.name} 重复删期望 404 实得 ${second.status}`).toContain(second.status);
-      ctx.appIds.delete(target.name);
+      ctx.clientIds.delete(target.name);
     }
   }, 60_000);
 
   afterAll(async () => {
     await runCleanups();
-    for (const [tname, appId] of ctx.appIds) {
+    for (const [tname, clientId] of ctx.clientIds) {
       const t = TARGETS[tname];
       if (!t) continue;
       const r = await probeRequest(t, { method: "DELETE", path: `${BASE_PATH}/${clientId}` });
