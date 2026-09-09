@@ -1,4 +1,4 @@
-// M96.F02.I50–I56 — /admin/apps/{appId}/menus CRUD + 结构维护四方比对（第四期 B 组续）。
+// M96.F02.I50–I56 — /clients/{clientId}/menus CRUD + 结构维护四方比对（第四期 B 组续）。
 //
 // appId 用 seed 的 lab-management（菜单挂 seed 数据上，只读列表可比对）；
 // 写操作全部打「本文件自建的 menu」——不碰 seed 行（c0000000* 是 role grant 引用的）。
@@ -16,13 +16,14 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { compareBodies, formatDivergences } from "../src/compare.js";
 import { probeRequest } from "../src/http.js";
 import { pathWithParams } from "../src/path.js";
-import { ALICE_PARAMS } from "../src/seed.js";
+import { SEED } from "../src/seed.js";
+
 import { type Target, selectedTargets, TARGETS } from "../src/targets.js";
 import { uniqueName } from "../src/unique.js";
 import { clearCleanups, registerCleanup, runCleanups } from "../src/teardown.js";
 
-const BASE_PATH = pathWithParams("/api/v1/admin/apps/{appId}/menus", {
-  appId: ALICE_PARAMS.appId,
+const BASE_PATH = pathWithParams("/api/v1/clients/{clientId}/menus", {
+  clientId: SEED.apps.labManagement,
 });
 const DEAD_ID = "00000000-0000-0000-0000-00000000dead";
 
@@ -48,7 +49,7 @@ async function createMenu(target: Target): Promise<string> {
   return String((r.body as Record<string, unknown>).id);
 }
 
-describe.skipIf(!live)("M96.F02.I50 GET /admin/apps/{appId}/menus 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I50 GET /clients/{clientId}/menus 四方比对", () => {
   it("seed 菜单列表 → 200 + Menu[] shape", async () => {
     for (const t of targets) {
       const r = await probeRequest(t, { method: "GET", path: BASE_PATH });
@@ -65,7 +66,7 @@ describe.skipIf(!live)("M96.F02.I50 GET /admin/apps/{appId}/menus 四方比对",
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I51 POST /clients/{clientId}/menus 四方比对", () => {
   beforeAll(() => {
     clearCleanups();
     ctx.menuA.clear();
@@ -97,7 +98,7 @@ describe.skipIf(!live)("M96.F02.I51 POST /admin/apps/{appId}/menus 四方比对"
   }
 });
 
-describe.skipIf(!live)("M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对", () => {
   for (const target of targets) {
     it(`M96.F02.I52 ${target.name} 取自建 menu → 200`, async () => {
       const menuId = ctx.menuA.get(target.name);
@@ -119,7 +120,7 @@ describe.skipIf(!live)("M96.F02.I52 GET /admin/apps/{appId}/menus/{menuId} 四�
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I66 GET /admin/apps/{appId}/menus/{menuId} 404 ErrorResponse envelope", () => {
+describe.skipIf(!live)("M96.F02.I66 GET /clients/{clientId}/menus/{menuId} 404 ErrorResponse envelope", () => {
   it("404 envelope shape 全等（前端 catch 分支依赖）", async () => {
     // SSOT ErrorResponse: {code, message, details?} —— 4 后端各自命名不同
     // （msw: {code,message}；springboot/aspnetcore/nextjs: {error,message,...}）。
@@ -137,7 +138,7 @@ describe.skipIf(!live)("M96.F02.I66 GET /admin/apps/{appId}/menus/{menuId} 404 E
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I53 PATCH /clients/{clientId}/menus/{menuId} 四方比对", () => {
   for (const target of targets) {
     it(`M96.F02.I53 ${target.name} 改 name → 200 + updatedAt 必填`, async () => {
       const menuId = ctx.menuA.get(target.name);
@@ -154,7 +155,7 @@ describe.skipIf(!live)("M96.F02.I53 PATCH /admin/apps/{appId}/menus/{menuId} 四
   }
 });
 
-describe.skipIf(!live)("M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reorder 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I55 PUT /clients/{clientId}/menus/{menuId}/reorder 四方比对", () => {
   // 排在 I56 parent 前：reorder 语义是「同 parent 同级」，先于挪 parent
   for (const target of targets) {
     it(`M96.F02.I55 ${target.name} A/B 换序 → 200 + Menu[]`, async () => {
@@ -173,7 +174,7 @@ describe.skipIf(!live)("M96.F02.I55 PUT /admin/apps/{appId}/menus/{menuId}/reord
   }
 });
 
-describe.skipIf(!live)("M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/parent 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I56 PATCH /clients/{clientId}/menus/{menuId}/parent 四方比对", () => {
   for (const target of targets) {
     it(`M96.F02.I56 ${target.name} B 挂到 A 下 → 200 + parentId 回带`, async () => {
       const a = ctx.menuA.get(target.name);
@@ -198,7 +199,7 @@ describe.skipIf(!live)("M96.F02.I56 PATCH /admin/apps/{appId}/menus/{menuId}/par
   }
 });
 
-describe.skipIf(!live)("M96.F02.I54 DELETE /admin/apps/{appId}/menus/{menuId} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I54 DELETE /clients/{clientId}/menus/{menuId} 四方比对", () => {
   it("I51 的 menu 对删除 → 204/200 + 重复删 → 404（幂等）", async () => {
     for (const target of targets) {
       for (const m of [ctx.menuA.get(target.name), ctx.menuB.get(target.name)]) {
@@ -232,8 +233,8 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
   it("打印启用方式", () => {
     expect(targets.length).toBeLessThan(2);
     console.info(
-      "[contract-test] admin-app-menus 比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run tests/admin-app-menus-write.test.ts\n" +
+      "[contract-test] client-menus 比对未运行。启用：\n" +
+        "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run tests/client-menus-write.test.ts\n" +
         "  前置：4 个后端分别跑在 5100 / 5104 / 5105 / 5101",
     );
   });

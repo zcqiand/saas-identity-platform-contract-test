@@ -1,7 +1,7 @@
 // M96.F02.I10 / I11 — 用户读四方比对。
 //
-// I10: GET /tenants/{t}/users     —— 分页包装
-// I11: GET /tenants/{t}/users/{u} —— 单个 User
+// I10: GET /tenants/{t}/members     —— 分页包装
+// I11: GET /tenants/{t}/members/{u} —— 单个 User
 //
 // User.required: id, tenantId, username, email, status, roleIds, createdAt, updatedAt。
 // alice 是 acme 用户；列列表时 acme 应该至少有 alice/bob/carol 三条（V016 seed）。
@@ -27,8 +27,8 @@ const USER_REQUIRED = [
   "updatedAt",
 ];
 
-describe.skipIf(!live)("M96.F02.I10 GET /tenants/{t}/users 四方比对", () => {
-  const PATH = pathWithParams("/api/v1/tenants/{tenantId}/users", {
+describe.skipIf(!live)("M96.F02.I10 GET /tenants/{t}/members 四方比对", () => {
+  const PATH = pathWithParams("/api/v1/tenants/{tenantId}/members", {
     tenantId: ALICE_PARAMS.tenantId,
   });
 
@@ -67,12 +67,12 @@ describe.skipIf(!live)("M96.F02.I10 GET /tenants/{t}/users 四方比对", () => 
   });
 });
 
-describe.skipIf(!live)("M96.F02.I71 GET /tenants/{t}/users ?status= 过滤", () => {
+describe.skipIf(!live)("M96.F02.I71 GET /tenants/{t}/members ?status= 过滤", () => {
   it("?status=active — 响应分页 envelope 全等（4 后端契约面）", async () => {
     // SSOT listUsers ?status=UserStatus —— 4 后端都必须接受合法枚举值。
     // 真后端实现 filter；msw 内存 fixture 可能返全集（no filter）。
     // 契约面是「接受 status query 不报错 + envelope 一致」,不比 items 内容。
-    const PATH = pathWithParams("/api/v1/tenants/{tenantId}/users", {
+    const PATH = pathWithParams("/api/v1/tenants/{tenantId}/members", {
       tenantId: ALICE_PARAMS.tenantId,
     });
     const filterPath = `${PATH}?status=active`;
@@ -97,8 +97,8 @@ describe.skipIf(!live)("M96.F02.I71 GET /tenants/{t}/users ?status= 过滤", () 
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I11 GET /tenants/{t}/users/{u} 四方比对", () => {
-  const PATH = pathWithParams("/api/v1/tenants/{tenantId}/users/{userId}", {
+describe.skipIf(!live)("M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对", () => {
+  const PATH = pathWithParams("/api/v1/tenants/{tenantId}/members/{userId}", {
     tenantId: ALICE_PARAMS.tenantId,
     userId: ALICE_PARAMS.userId,
   });

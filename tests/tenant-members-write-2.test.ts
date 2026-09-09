@@ -1,6 +1,6 @@
-// M96.F02.I39–I43 — /tenants/{t}/users 写端点第二组（第四期 A 组续）。
+// M96.F02.I39–I43 — /tenants/{t}/members 写端点第二组（第四期 A 组续）。
 //
-// 延续 tenant-users-write.test.ts（I19 POST）的写比对模型：3 后端共享一个 PG，
+// 延续 tenant-members-write.test.ts（I19 POST）的写比对模型：3 后端共享一个 PG，
 // msw 内存 fixture；唯一化 username/email 防撞 UNIQUE。本文件各 it 自创自删，
 // 不依赖 I19 的 ctx（vitest 并行文件间没有顺序保证）。
 //
@@ -23,7 +23,7 @@ import { uniqueName } from "../src/unique.js";
 import { clearCleanups, registerCleanup, runCleanups } from "../src/teardown.js";
 
 const TENANT_ID = ALICE_PARAMS.tenantId;
-const USER_BASE = pathWithParams("/api/v1/tenants/{tenantId}/users", { tenantId: TENANT_ID });
+const USER_BASE = pathWithParams("/api/v1/tenants/{tenantId}/members", { tenantId: TENANT_ID });
 const ALICE_PATH = `${USER_BASE}/${SEED.userId}`;
 const DEAD_ID = "00000000-0000-0000-0000-00000000dead";
 
@@ -57,7 +57,7 @@ async function ensureUser(target: Target): Promise<string> {
   return id;
 }
 
-describe.skipIf(!live)("M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对", () => {
   beforeAll(() => {
     clearCleanups();
     ctx.userIds.clear();
@@ -88,7 +88,7 @@ describe.skipIf(!live)("M96.F02.I39 PATCH /tenants/{t}/users/{u} 四方比对", 
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I70 PATCH /tenants/{t}/users/{u} 404 ErrorResponse envelope", () => {
+describe.skipIf(!live)("M96.F02.I70 PATCH /tenants/{t}/members/{u} 404 ErrorResponse envelope", () => {
   it("404 envelope shape 全等（前端 catch 分支依赖）", async () => {
     // SSOT ErrorResponse: {code, message, details?} —— 4 后端各自命名不同
     // （msw: {code,message}；springboot/aspnetcore/nextjs: {error,message,...}）。
@@ -106,7 +106,7 @@ describe.skipIf(!live)("M96.F02.I70 PATCH /tenants/{t}/users/{u} 404 ErrorRespon
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I40 PUT /tenants/{t}/members/{u}/roles 四方比对", () => {
   for (const target of targets) {
     it(`M96.F02.I40 ${target.name} 设 roleIds → 200 + 响应回带`, async () => {
       const userId = await ensureUser(target);
@@ -128,7 +128,7 @@ describe.skipIf(!live)("M96.F02.I40 PUT /tenants/{t}/users/{u}/roles 四方比�
   }
 });
 
-describe.skipIf(!live)("M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I41 PATCH /tenants/{t}/members/{u}/status 四方比对", () => {
   for (const target of targets) {
     it(`M96.F02.I41 ${target.name} active → suspended → active 往返`, async () => {
       const userId = await ensureUser(target);
@@ -150,7 +150,7 @@ describe.skipIf(!live)("M96.F02.I41 PATCH /tenants/{t}/users/{u}/status 四方�
   }
 });
 
-describe.skipIf(!live)("M96.F02.I42 POST /tenants/{t}/users/invitations 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对", () => {
   /** 各 target 邀请出的 user id（I43 删除用）。 */
   const invited: Map<string, string> = new Map();
 
@@ -185,7 +185,7 @@ describe.skipIf(!live)("M96.F02.I42 POST /tenants/{t}/users/invitations 四方�
     }, 30_000);
   }
 
-  describe.skipIf(!live)("M96.F02.I43 DELETE /tenants/{t}/users/{u} 四方比对", () => {
+  describe.skipIf(!live)("M96.F02.I43 DELETE /tenants/{t}/members/{u} 四方比对", () => {
     it("I42 的邀请行删除 → 200/204 + 重复删 → 404（幂等）", async () => {
       for (const target of targets) {
         const userId = invited.get(target.name);
@@ -223,7 +223,7 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
     expect(targets.length).toBeLessThan(2);
     console.info(
       "[contract-test] users 写端点第二组比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run tests/tenant-users-write-2.test.ts\n" +
+        "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run tests/tenant-members-write-2.test.ts\n" +
         "  前置：4 个后端分别跑在 5100 / 5104 / 5105 / 5101",
     );
   });

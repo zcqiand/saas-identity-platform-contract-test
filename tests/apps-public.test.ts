@@ -1,8 +1,8 @@
-// M96.F02.I06 — `GET /api/v1/apps/{code}` 四方比对。
+// M96.F02.I06 — `GET /api/v1/clients/{clientId}` 四方比对。
 //
-// tag=apps（非 admin-apps）按家族约定是公开路径；OIDC 登录页用它取 redirect 元数据。
-// 这里带 Bearer 探（按家族约定未授权即 401，但公开路径应 200 走通）。
-// 匿名访问（不带 Bearer）若未来要覆盖，独立加 describe，不混本 ID。
+// 9/8 schema-first pivot：apps → oauth_client。clientId 是 SSOT 字段；
+// OIDC 登录页用这个公开端点取 client 元数据。公开路径（无 admin 守卫）。
+// 这里带 Bearer 探（公开端点应 200 走通；不强制 JWT 鉴权）。
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, formatDivergences } from "../src/compare.js";
@@ -11,7 +11,9 @@ import { pathWithParams } from "../src/path.js";
 import { SEED } from "../src/seed.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
-const PATH = pathWithParams("/api/v1/apps/{code}", { code: SEED.appCodes.labManagement });
+const PATH = pathWithParams("/api/v1/clients/{clientId}", {
+  clientId: SEED.apps.labManagement,
+});
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
@@ -28,7 +30,7 @@ describe.skipIf(!live)(`M96.F02.I06 ${PATH} 四方比对`, () => {
     expect(bad, `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`).toEqual([]);
   });
 
-  it("响应体是单对象 AppPublicInfo（不是数组）", () => {
+  it("响应体是单对象 OAuthClientPublicInfo（不是数组）", () => {
     for (const p of probes) {
       expect(Array.isArray(p.body), `${p.target} 期望单对象`).toBe(false);
       expect(typeof p.body, `${p.target} 不是对象`).toBe("object");
@@ -36,13 +38,13 @@ describe.skipIf(!live)(`M96.F02.I06 ${PATH} 四方比对`, () => {
     }
   });
 
-  it("必填字段齐全（契约 required: id/code/name/status）", () => {
+  it("必填字段齐全（契约 required: clientId/clientName/status）", () => {
     for (const p of probes) {
       const body = p.body as Record<string, unknown>;
-      for (const key of ["id", "code", "name", "status"]) {
+      for (const key of ["clientId", "clientName", "status"]) {
         expect(body[key], `${p.target} 缺 ${key}`).toBeDefined();
       }
-      expect(body.code, `${p.target} code 应当等于查询参数`).toBe(SEED.appCodes.labManagement);
+      expect(body.clientId, `${p.target} clientId 应当等于查询参数`).toBe(SEED.apps.labManagement);
     }
   });
 

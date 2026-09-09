@@ -1,4 +1,4 @@
-// M96.F02.I19 — POST /tenants/{t}/users 四方比对（写端点第二期 M01.F01.I02）。
+// M96.F02.I19 — POST /tenants/{t}/members 四方比对（写端点第二期 M01.F01.I02）。
 //
 // 写比对模型：3 后端共享一个 PG（users.tenant_id, users.email UNIQUE）；
 // msw 内存 fixture。比对 shape 不比 byte。
@@ -20,14 +20,14 @@ import { uniqueName } from "../src/unique.js";
 import { clearCleanups, registerCleanup, runCleanups } from "../src/teardown.js";
 
 const TENANT_ID = ALICE_PARAMS.tenantId;
-const BASE_PATH = pathWithParams("/api/v1/tenants/{tenantId}/users", { tenantId: TENANT_ID });
+const BASE_PATH = pathWithParams("/api/v1/tenants/{tenantId}/members", { tenantId: TENANT_ID });
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
 const ctx: { userIds: Map<string, string> } = { userIds: new Map() };
 
-describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/users 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/members 四方比对", () => {
   beforeAll(() => {
     clearCleanups();
     ctx.userIds.clear();
@@ -104,7 +104,7 @@ describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/users 四方比对", () =>
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I69 POST /tenants/{t}/users 缺必填字段错误分支", () => {
+describe.skipIf(!live)("M96.F02.I69 POST /tenants/{t}/members 缺必填字段错误分支", () => {
   it("空 body → 4xx + ErrorResponse envelope shape 全等", async () => {
     // 不带 username/email/password → 4 后端契约面：400 + ErrorResponse。
     // 注意：msw 可能返 500（实现层未做 zod 校验），那时会先黄。
@@ -147,7 +147,7 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
     expect(targets.length).toBeLessThan(2);
     console.info(
       "[contract-test] M96.F02.I19 写端点比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run tests/tenant-users-write.test.ts\n" +
+        "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run tests/tenant-members-write.test.ts\n" +
         "  前置：4 个后端分别跑在 5100 / 5104 / 5105 / 5101",
     );
   });
