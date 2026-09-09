@@ -170,12 +170,11 @@ ASPNETCORE_PG_URL='Host=100.79.128.25;Port=5432;Database=saas_dev;Username=postg
 (cd "$SPRINGBOOT_DIR" && nohup env $COMMON_ENV $SPRINGBOOT_ONLY SERVER_PORT="$SPRINGBOOT_PORT" mvn -q spring-boot:run  >"$CT_ROOT/.runtime-logs/springboot.log" 2>&1) & PIDS+=($!)
 (cd "$NEXTJS_DIR"     && nohup env $COMMON_ENV SERVER_PORT="$NEXTJS_PORT"      npm run dev                                >"$CT_ROOT/.runtime-logs/nextjs.log"     2>&1) & PIDS+=($!)
 
-# nextjs 仓当前未实现 health endpoint (无 src/app/api/health/route.ts),
-# healthcheck 必 FAIL。本机脚本自动跳过: 检测 route.ts 存在性。nextjs 加 endpoint 后
-# 自动恢复 4 后端。NEXT_SKIP=1 强制跳过 (即使文件存在)。
+# nextjs 仓已实现 health endpoint (app/api/health/route.ts, 根 app/ 非 src/app/)。
+# 保留存在性检测兜底: nextjs 仓若挪走 route.ts 自动跳过。NEXT_SKIP=1 强制跳过。
 NEXTJS_ACTIVE="true"
 if [ "${NEXT_SKIP:-0}" = "1" ]; then NEXTJS_ACTIVE="false"; fi
-if [ ! -f "$NEXTJS_DIR/src/app/api/health/route.ts" ]; then NEXTJS_ACTIVE="false"; fi
+if [ ! -f "$NEXTJS_DIR/app/api/health/route.ts" ]; then NEXTJS_ACTIVE="false"; fi
 
 cleanup() {
   echo ""

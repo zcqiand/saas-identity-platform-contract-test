@@ -95,9 +95,10 @@ describe.skipIf(!live)("M96.F02.I45 POST /admin/clients 四方比对", () => {
         expect(body[key], `${target.name} app 行缺 ${key}`).toBeDefined();
       }
       expect(body.status, `${target.name} 新 app 必须 active`).toBe("active");
-      ctx.clientIds.set(target.name, String(body.id));
+      // 寻址契约：/admin/clients/{clientId} 用字符串 clientId 列（非 UUID id）
+      ctx.clientIds.set(target.name, String(body.clientId));
 
-      const clientId = String(body.id);
+      const clientId = String(body.clientId);
       registerCleanup(`delete-app:${target.name}`, async () => {
         const tr = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${clientId}` });
         if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
@@ -122,9 +123,9 @@ describe.skipIf(!live)("M96.F02.I45 POST /admin/clients 四方比对", () => {
         },
       });
       expect([200, 201]).toContain(r.status);
-      const shapeId = String((r.body as Record<string, unknown>).id);
-      registerCleanup(`delete-shape-app:${t.name}:${shapeId.slice(-8)}`, async () => {
-        const tr = await probeRequest(t, { method: "DELETE", path: `${BASE_PATH}/${shapeId}` });
+      const shapeClientId = String((r.body as Record<string, unknown>).clientId);
+      registerCleanup(`delete-shape-app:${t.name}:${shapeClientId.slice(-8)}`, async () => {
+        const tr = await probeRequest(t, { method: "DELETE", path: `${BASE_PATH}/${shapeClientId}` });
         if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
           console.warn(`[teardown] shape-app delete ${t.name} 异常 status=${tr.status}`);
         }

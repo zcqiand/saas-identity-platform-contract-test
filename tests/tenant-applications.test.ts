@@ -40,9 +40,9 @@ describe.skipIf(!live)("M96.F02.I74 GET /tenants/{tenantId}/applications 四方�
       for (const key of ["page", "pageSize", "total"]) {
         expect(body[key], `${t.name} list 分页缺 ${key}`).toBeDefined();
       }
-      // 元素 shape（id/clientId/tenantId/status/createdAt/updatedAt 必填）
+      // 元素 shape（id/clientId/tenantId/status/createdAt 必填；shared TenantApplication 无 updatedAt）
       if (body.items!.length > 0) {
-        for (const key of ["id", "clientId", "tenantId", "status", "createdAt", "updatedAt"]) {
+        for (const key of ["id", "clientId", "tenantId", "status", "createdAt"]) {
           expect(body.items![0]![key], `${t.name} application 行缺 ${key}`).toBeDefined();
         }
       }
@@ -73,11 +73,11 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
         `${target.name} 期望 200/201 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 300)}`,
       ).toContain(r.status);
       const body = r.body as Record<string, unknown>;
-      for (const key of ["id", "clientId", "tenantId", "status", "createdAt", "updatedAt"]) {
+      for (const key of ["id", "clientId", "tenantId", "status", "createdAt"]) {
         expect(body[key], `${target.name} application 行缺 ${key}`).toBeDefined();
       }
-      const appId = String(body.id);
-      ctx.clientIds.set(target.name, appId);
+      // 寻址契约：/applications/{clientId} 用字符串 clientId 列（非 UUID id）
+      ctx.clientIds.set(target.name, clientId);
 
       registerCleanup(`delete-app:${target.name}`, async () => {
         const tr = await probeRequest(target, {
@@ -106,10 +106,6 @@ describe.skipIf(!live)("M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clie
         r.status,
         `${target.name} patch 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`,
       ).toBe(200);
-      expect(
-        (r.body as Record<string, unknown>).updatedAt,
-        `${target.name} patch 后 updatedAt 必填`,
-      ).toBeDefined();
     }, 30_000);
   }
 });
