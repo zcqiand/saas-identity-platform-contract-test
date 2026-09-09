@@ -57,10 +57,10 @@
 | M96.F02.I09 | `GET /tenants/{t}/roles/{r}/menus` 四方比对 | 新增 | RoleMenuGrant 单对象;`menuIds[]` | T-1, T-2, T-3 |
 | M96.F02.I10 | `GET /tenants/{t}/users` 四方比对 | 新增 | 分页包装;`roleIds[]` 必填 + 数组类型断言 | T-1, T-2, T-3 |
 | M96.F02.I11 | `GET /tenants/{t}/users/{u}` 四方比对 | 新增 | 单 User;`username === "alice"` | T-1, T-2, T-3 |
-| M96.F02.I12 | `GET /tenants/{t}/audit-events` 四方比对 | 新增 | 分页包装;items 数据走 dynamicDrop,envelope 比对 | T-1, T-2, T-3 |
-| M96.F02.I13 | `GET /tenants/{t}/audit-events/by-user/{u}` 四方比对 | 新增 | by-user 过滤;同 I12 envelope 比对 | T-1, T-2, T-3 |
-| M96.F02.I14 | `GET /tenants/{t}/audit-events/retention` 四方比对 | 新增 | `{retentionDays: number}` 单对象 | T-1, T-2, T-3 |
-| M96.F02.I15 | `GET /tenants/{t}/api-keys` 四方比对 | 新增 | 分页包装;envelope + items 字段集合,数据不参与 | T-1, T-2, T-3 |
+| M96.F02.I12 | `GET /tenants/{t}/audit-events` 四方比对 | 新增 | 分页包装;items 数据走 dynamicDrop,envelope 比对。【2026-09-10 已废弃:SSOT b749c18 下线,测试已删 3ed021e/3ed8151】 | T-1, T-2, T-3 |
+| M96.F02.I13 | `GET /tenants/{t}/audit-events/by-user/{u}` 四方比对 | 新增 | by-user 过滤;同 I12 envelope 比对。【2026-09-10 已废弃:SSOT b749c18 下线,测试已删 3ed021e/3ed8151】 | T-1, T-2, T-3 |
+| M96.F02.I14 | `GET /tenants/{t}/audit-events/retention` 四方比对 | 新增 | `{retentionDays: number}` 单对象。【2026-09-10 已废弃:SSOT b749c18 下线,测试已删 3ed021e/3ed8151】 | T-1, T-2, T-3 |
+| M96.F02.I15 | `GET /tenants/{t}/api-keys` 四方比对 | 新增 | 分页包装;envelope + items 字段集合,数据不参与。【2026-09-10 已废弃:SSOT b749c18 下线,测试已删 3ed021e/3ed8151】 | T-1, T-2, T-3 |
 
 > 13 个 ID 在 `docs/functions/function-tree.md` 状态「开发中」→「已上线」;本仓契约面只认 M96.*;shared 仓契约面 (Tenant / TenantMembership / CurrentUser / AppPublicInfo / Role / User / AuditEvent / ApiKey 等) 由 4 真后端的 OpenAPI 串联,不进本仓 function-tree。
 

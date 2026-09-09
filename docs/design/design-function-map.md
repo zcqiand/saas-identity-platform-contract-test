@@ -23,16 +23,16 @@
 | M96.F02.I09 | — | `GET /api/v1/tenants/{t}/roles/{r}/menus` | `role_menu_grants` | — | REQ-2026-009 §2 AC-1 | 已上线 |
 | M96.F02.I10 | — | `GET /api/v1/tenants/{t}/users` | `users` / `tenant_memberships` | — | REQ-2026-009 §2 AC-1 | 已上线 |
 | M96.F02.I11 | — | `GET /api/v1/tenants/{t}/users/{u}` | `users` / `tenant_memberships` | — | REQ-2026-009 §2 AC-1 | 已上线 |
-| M96.F02.I12 | — | `GET /api/v1/tenants/{t}/audit-events` | `audit_events` | — | REQ-2026-009 §2 AC-1 | 已上线 |
-| M96.F02.I13 | — | `GET /api/v1/tenants/{t}/audit-events/by-user/{u}` | `audit_events` | — | REQ-2026-009 §2 AC-1 | 已上线 |
-| M96.F02.I14 | — | `GET /api/v1/tenants/{t}/audit-events/retention` | `audit_retention_policies` | — | REQ-2026-009 §2 AC-1 | 已上线 |
-| M96.F02.I15 | — | `GET /api/v1/tenants/{t}/api-keys` | `api_keys` | — | REQ-2026-009 §2 AC-1 | 已上线 |
-| M96.F02.I16 | — | `POST /api/v1/tenants/{t}/api-keys` | — | — | [REQ-2026-008 §2 AC-1](../requirements/REQ-2026-008-write-endpoint-coverage.md) | 已上线 |
-| M96.F02.I17 | — | `POST /api/v1/tenants/{t}/api-keys/{k}/revoke` | — | — | REQ-2026-008 §2 AC-1 | 已上线 |
-| M96.F02.I18 | — | `GET /api/v1/tenants/{t}/audit-events?action=` | `audit_events` (metadata.apiKeyId) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I12 | — | `GET /api/v1/tenants/{t}/audit-events` | `audit_events` | — | REQ-2026-009 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
+| M96.F02.I13 | — | `GET /api/v1/tenants/{t}/audit-events/by-user/{u}` | `audit_events` | — | REQ-2026-009 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
+| M96.F02.I14 | — | `GET /api/v1/tenants/{t}/audit-events/retention` | `audit_retention_policies` | — | REQ-2026-009 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
+| M96.F02.I15 | — | `GET /api/v1/tenants/{t}/api-keys` | `api_keys` | — | REQ-2026-009 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
+| M96.F02.I16 | — | `POST /api/v1/tenants/{t}/api-keys` | — | — | [REQ-2026-008 §2 AC-1](../requirements/REQ-2026-008-write-endpoint-coverage.md) | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
+| M96.F02.I17 | — | `POST /api/v1/tenants/{t}/api-keys/{k}/revoke` | — | — | REQ-2026-008 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
+| M96.F02.I18 | — | `GET /api/v1/tenants/{t}/audit-events?action=` | `audit_events` (metadata.apiKeyId) | — | REQ-2026-008 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
 | M96.F02.I19 | — | `POST /api/v1/tenants/{t}/users` | `users` (status 固定 active, 4 后端契约面) + `audit_events` (user_created) | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I20 | — | `PUT /api/v1/tenants/{t}/roles/{r}/menus` | `role_menu_grants` | — | REQ-2026-008 §2 AC-1 | 已上线 |
-| M96.F02.I21 | — | `DELETE /api/v1/tenants/{t}/api-keys/{k}` | `api_keys` (硬删；幂等返 204 / 404) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I21 | — | `DELETE /api/v1/tenants/{t}/api-keys/{k}` | `api_keys` (硬删；幂等返 204 / 404) | — | REQ-2026-008 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
 | M96.F02.I22 | — | `POST /api/v1/auth/login` | `users` (session 验证) | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I23 | — | `POST /api/v1/auth/logout` | saas session 撤销 | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I24 | — | `POST /api/v1/auth/refresh` | refresh token rotate 存储 | — | REQ-2026-008 §2 AC-1 | 已上线 |
@@ -68,9 +68,9 @@
 | M96.F02.I54 | — | `DELETE /api/v1/admin/apps/{appId}/menus/{menuId}` | `menus` (硬删；幂等 404) | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I55 | — | `PUT /api/v1/admin/apps/{appId}/menus/{menuId}/reorder` | `menus.sortOrder` | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I56 | — | `PATCH /api/v1/admin/apps/{appId}/menus/{menuId}/parent` | `menus.parentId` (测后还原顶级) | — | REQ-2026-008 §2 AC-1 | 已上线 |
-| M96.F02.I57 | — | `POST /api/v1/tenants/{t}/api-keys/{k}/rotate` | `api_keys` (旧 revoke + 新行) | — | REQ-2026-008 §2 AC-1 | 已上线 |
-| M96.F02.I58 | — | `POST /api/v1/tenants/{t}/audit-events/export` | `audit_events` (读区间) | — | REQ-2026-008 §2 AC-1 | 已上线 |
-| M96.F02.I59 | — | `PUT /api/v1/tenants/{t}/audit-events/retention` | `audit_retention_policies` (测后还原) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I57 | — | `POST /api/v1/tenants/{t}/api-keys/{k}/rotate` | `api_keys` (旧 revoke + 新行) | — | REQ-2026-008 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
+| M96.F02.I58 | — | `POST /api/v1/tenants/{t}/audit-events/export` | `audit_events` (读区间) | — | REQ-2026-008 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
+| M96.F02.I59 | — | `PUT /api/v1/tenants/{t}/audit-events/retention` | `audit_retention_policies` (测后还原) | — | REQ-2026-008 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
 | M96.F03.I01 | — | harness: `src/http.ts` POST/PATCH/PUT/DELETE + `src/unique.ts` + `src/teardown.ts` | — | — | REQ-2026-008 §3 T-1 | 已上线 |
 | M96.F03.I02 | — | harness: `src/targets.ts` `selectedTargets` + `TargetError` | — | — | ADR-0015 §Decision.4（声明即必须可达） | 已上线 |
 | M96.F02.I60 | — | `GET /api/v1/admin/tenants`（不传 ?page/?pageSize → page=0, pageSize=20） | `tenants`（0-indexed defaults 契约面） | — | REQ-2026-009 §2 AC-1 | 已上线 |
@@ -85,8 +85,8 @@
 | M96.F02.I69 | — | `POST /api/v1/tenants/{t}/users`（空 body → 4xx + envelope） | `users`（envelope shape） | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I70 | — | `PATCH /api/v1/tenants/{t}/users/{u}`（404 ErrorResponse envelope） | `users`（envelope shape） | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I71 | — | `GET /api/v1/tenants/{t}/users?status=active`（过滤 envelope 全等） | `users` / `tenant_memberships`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已上线 |
-| M96.F02.I72 | — | `GET /api/v1/tenants/{t}/audit-events?action=login_success`（过滤 envelope 全等） | `audit_events`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已上线 |
-| M96.F02.I73 | — | `GET /api/v1/tenants/{t}/audit-events?actorUserId=<UUID>`（过滤 envelope 全等） | `audit_events`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已上线 |
+| M96.F02.I72 | — | `GET /api/v1/tenants/{t}/audit-events?action=login_success`（过滤 envelope 全等） | `audit_events`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
+| M96.F02.I73 | — | `GET /api/v1/tenants/{t}/audit-events?actorUserId=<UUID>`（过滤 envelope 全等） | `audit_events`（envelope shape） | — | REQ-2026-009 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
 
 ## 约定
 

@@ -82,16 +82,16 @@
 | M96.F02.I09 | `GET /tenants/{t}/roles/{r}/menus` 四方比对 | 接口 | 前端+后端 | 角色绑定的菜单 ID 列表 | 已上线 |
 | M96.F02.I10 | `GET /tenants/{t}/users` 四方比对 | 接口 | 前端+后端 | 用户列表，分页包装 | 已上线 |
 | M96.F02.I11 | `GET /tenants/{t}/users/{u}` 四方比对 | 接口 | 前端+后端 | 单个 User | 已上线 |
-| M96.F02.I12 | `GET /tenants/{t}/audit-events` 四方比对 | 接口 | 前端+后端 | 审计事件列表，分页包装 | 已上线 |
-| M96.F02.I13 | `GET /tenants/{t}/audit-events/by-user/{u}` 四方比对 | 接口 | 前端+后端 | by-user 过滤的审计事件 | 已上线 |
-| M96.F02.I14 | `GET /tenants/{t}/audit-events/retention` 四方比对 | 接口 | 前端+后端 | 留存策略 `{retentionDays:int32}` | 已上线 |
-| M96.F02.I15 | `GET /tenants/{t}/api-keys` 四方比对 | 接口 | 前端+后端 | api-keys 列表，分页包装 | 已上线 |
-| M96.F02.I16 | `POST /tenants/{t}/api-keys` 四方比对 | 接口 | 前端+后端 | 创 key：201 + 必填字段 shape 比对；target.keyId 入 ctx 供 I17/I18 | 已上线 |
-| M96.F02.I17 | `POST /tenants/{t}/api-keys/{k}/revoke` 四方比对 | 接口 | 前端+后端 | 200 + revokedAt 必填；真后端 idempotent，msw 二次 404 | 已上线 |
-| M96.F02.I18 | 写端点副作用 — api_key_created/revoked 进 audit_events | 接口 | 前端+后端 | 250ms buffer 后 GET ?action=，按 metadata.apiKeyId 过滤找自己刚创的 key；shape 比对，actorUserId 不参与（msw=undefined vs real=alice） | 已上线 |
+| M96.F02.I12 | `GET /tenants/{t}/audit-events` 四方比对 | 接口 | 前端+后端 | 审计事件列表，分页包装；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I13 | `GET /tenants/{t}/audit-events/by-user/{u}` 四方比对 | 接口 | 前端+后端 | by-user 过滤的审计事件；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I14 | `GET /tenants/{t}/audit-events/retention` 四方比对 | 接口 | 前端+后端 | 留存策略 `{retentionDays:int32}`；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I15 | `GET /tenants/{t}/api-keys` 四方比对 | 接口 | 前端+后端 | api-keys 列表，分页包装；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I16 | `POST /tenants/{t}/api-keys` 四方比对 | 接口 | 前端+后端 | 创 key：201 + 必填字段 shape 比对；target.keyId 入 ctx 供 I17/I18；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I17 | `POST /tenants/{t}/api-keys/{k}/revoke` 四方比对 | 接口 | 前端+后端 | 200 + revokedAt 必填；真后端 idempotent，msw 二次 404；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I18 | 写端点副作用 — api_key_created/revoked 进 audit_events | 接口 | 前端+后端 | 250ms buffer 后 GET ?action=，按 metadata.apiKeyId 过滤找自己刚创的 key；shape 比对，actorUserId 不参与（msw=undefined vs real=alice）；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
 | M96.F02.I19 | `POST /tenants/{t}/users` 四方比对 | 接口 | 前端+后端 | 创 user：200/201 + 必填字段 shape 比对；status 固定 `active`（4 后端契约面，msw 真后端全一致）；target.userId 入 ctx（cleanup 用 DELETE） | 已上线 |
 | M96.F02.I20 | `PUT /tenants/{t}/roles/{r}/menus` 四方比对 | 接口 | 前端+后端 | 整批替换 setRoleMenus：200 + roleId/tenantId/menuIds/updatedAt 必填；menuIds 长度按 TARGET_MENU_IDS | 已上线 |
-| M96.F02.I21 | `DELETE /tenants/{t}/api-keys/{k}` 四方比对 | 接口 | 前端+后端 | 物理删：204 + 幂等（重复删 → 404）；M05.F01.I05 跨后端覆盖；msw/springboot NoSuchElementException→404，aspnetcore KeyNotFoundException→404 | 已上线 |
+| M96.F02.I21 | `DELETE /tenants/{t}/api-keys/{k}` 四方比对 | 接口 | 前端+后端 | 物理删：204 + 幂等（重复删 → 404）；M05.F01.I05 跨后端覆盖；msw/springboot NoSuchElementException→404，aspnetcore KeyNotFoundException→404；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
 | M96.F02.I22 | `POST /auth/login` 四方比对 | 接口 | 前端+后端 | 正确凭证 200 shape 比对（token 剔除）+ 错误密码 4xx 全等；M03.F01.I01 跨后端覆盖 | 已上线 |
 | M96.F02.I23 | `POST /auth/logout` 四方比对 | 接口 | 前端+后端 | 带有效 session 200/204 全等；M03.F03.I05 跨后端覆盖 | 已上线 |
 | M96.F02.I24 | `POST /auth/refresh` 四方比对 | 接口 | 前端+后端 | login 的 refreshToken 各自换新对，token 剔除后 shape 比对；M03.F02.I04 跨后端覆盖；前置 msw 补确定性 handler | 已上线 |
@@ -127,9 +127,9 @@
 | M96.F02.I54 | `DELETE /admin/apps/{appId}/menus/{menuId}` 四方比对 | 接口 | 前端+后端 | 删自建 menu 对 → 200/204 + 幂等（重复 → 404）；M08.F01.I05 跨后端覆盖 | 已上线 |
 | M96.F02.I55 | `PUT /admin/apps/{appId}/menus/{menuId}/reorder` 四方比对 | 接口 | 前端+后端 | A/B 换序 → 200 + Menu[]（同 parent 同级语义，排在 I56 parent 前）；M08.F02.I06 跨后端覆盖 | 已上线 |
 | M96.F02.I56 | `PATCH /admin/apps/{appId}/menus/{menuId}/parent` 四方比对 | 接口 | 前端+后端 | B 挂 A 下 → 200 + parentId 回带，断言后还原顶级；M08.F02.I07 跨后端覆盖 | 已上线 |
-| M96.F02.I57 | `POST /tenants/{t}/api-keys/{k}/rotate` 四方比对 | 接口 | 前端+后端 | 先创再 rotate：新 prefix/secret/status=active（≠旧值）；新旧行 teardown 物理 DELETE；M05.F01.I04 跨后端覆盖 | 已上线 |
-| M96.F02.I58 | `POST /tenants/{t}/audit-events/export` 四方比对 | 接口 | 前端+后端 | {from,to,format} → 200 + {downloadUrl} shape（URL 本身 drop）；M06.F01.I03 跨后端覆盖 | 已上线 |
-| M96.F02.I59 | `PUT /tenants/{t}/audit-events/retention` 四方比对 | 接口 | 前端+后端 | 设 42 → 回显，断言后还原 seed 原值（共享状态）；M06.F02.I02 跨后端覆盖 | 已上线 |
+| M96.F02.I57 | `POST /tenants/{t}/api-keys/{k}/rotate` 四方比对 | 接口 | 前端+后端 | 先创再 rotate：新 prefix/secret/status=active（≠旧值）；新旧行 teardown 物理 DELETE；M05.F01.I04 跨后端覆盖；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I58 | `POST /tenants/{t}/audit-events/export` 四方比对 | 接口 | 前端+后端 | {from,to,format} → 200 + {downloadUrl} shape（URL 本身 drop）；M06.F01.I03 跨后端覆盖；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I59 | `PUT /tenants/{t}/audit-events/retention` 四方比对 | 接口 | 前端+后端 | 设 42 → 回显，断言后还原 seed 原值（共享状态）；M06.F02.I02 跨后端覆盖；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
 | M96.F02.I60 | `GET /admin/tenants` 分页 defaults 契约面 | 接口 | 前端+后端 | 不传 ?page/?pageSize → page=0/pageSize=20 全等（0-indexed 收口）；2026-09-01 从 I29 拆出独立锚点 | 已上线 |
 | M96.F02.I61 | `GET /admin/tenants` 显式分页回显 | 接口 | 前端+后端 | ?page=1&pageSize=2 → 回显一致 + items ≤ pageSize；从 I29 拆出 | 已上线 |
 | M96.F02.I62 | `GET /admin/tenants/{id}` 404 ErrorResponse envelope | 接口 | 前端+后端 | drop code/message 等 5 key 后骨架全等（前端 catch 分支依赖）；从 I31 拆出 | 已上线 |
@@ -142,8 +142,8 @@
 | M96.F02.I69 | `POST /tenants/{t}/users` 缺必填字段错误分支 | 接口 | 前端+后端 | 空 body → 4xx + envelope shape 全等；从 I19 拆出；live 已暴露 springboot body 分歧待修 | 已上线 |
 | M96.F02.I70 | `PATCH /tenants/{t}/users/{u}` 404 ErrorResponse envelope | 接口 | 前端+后端 | 404 envelope shape 全等；从 I39 拆出；live 已暴露 aspnetcore 500 待修 | 已上线 |
 | M96.F02.I71 | `GET /tenants/{t}/users` ?status= 过滤 | 接口 | 前端+后端 | 合法枚举 ?status=active → 200 + envelope 全等（不比 items）；从 I10 拆出；live 已暴露 springboot 400 待修 | 已上线 |
-| M96.F02.I72 | `GET /tenants/{t}/audit-events` ?action= 过滤 | 接口 | 前端+后端 | 合法枚举 ?action=login_success → 200 + envelope 全等；从 I12 拆出 | 已上线 |
-| M96.F02.I73 | `GET /tenants/{t}/audit-events` ?actorUserId= 过滤 | 接口 | 前端+后端 | 合法 UUID ?actorUserId → 200 + envelope 全等；从 I12 拆出 | 已上线 |
+| M96.F02.I72 | `GET /tenants/{t}/audit-events` ?action= 过滤 | 接口 | 前端+后端 | 合法枚举 ?action=login_success → 200 + envelope 全等；从 I12 拆出；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
+| M96.F02.I73 | `GET /tenants/{t}/audit-events` ?actorUserId= 过滤 | 接口 | 前端+后端 | 合法 UUID ?actorUserId → 200 + envelope 全等；从 I12 拆出；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
 
 ### M96.F03 目标声明与可达性
 

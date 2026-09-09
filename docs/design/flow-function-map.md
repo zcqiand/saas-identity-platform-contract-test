@@ -43,16 +43,16 @@ flowchart TD
 | M96.F02.I09 | 读端点四方比对（GET /tenants/{t}/roles/{r}/menus）。RoleMenuGrant 单对象；`menuIds[]` 数组归一化后比对，harness 自闭环。 |
 | M96.F02.I10 | 读端点四方比对（GET /tenants/{t}/users）。分页包装；`roleIds[]` 必填 + 数组类型断言。注：家族约定 `users.role_ids` 列为冗余占位（见 memory `users-role-ids-redundant-authoritative-memberships`），真值在 `tenant_memberships`——本端点比对走 normalize，4 后端都从 memberships 取真值时此字段自动相等。 |
 | M96.F02.I11 | 读端点四方比对（GET /tenants/{t}/users/{u}）。单 User；`username === "alice"` + 4 数组必填，harness 自闭环。 |
-| M96.F02.I12 | 读端点四方比对（GET /tenants/{t}/audit-events）。分页包装；items 数据走 dynamicDrop（occurredAt/metadata/actorUserId/targetUserId/items/total），envelope (`page`, `pageSize`) 比对。 |
-| M96.F02.I13 | 读端点四方比对（GET /tenants/{t}/audit-events/by-user/{u}）。by-user 过滤；同 I12 envelope 比对策略，harness 自闭环。 |
-| M96.F02.I14 | 读端点四方比对（GET /tenants/{t}/audit-events/retention）。单对象 `{retentionDays: number}`；无流程视角，harness 自闭环。 |
-| M96.F02.I15 | 读端点四方比对（GET /tenants/{t}/api-keys）。分页包装；envelope + items 字段集合，数据不参与比对（写端点批次累积）。 |
-| M96.F02.I16 | 写端点四方比对（POST /tenants/{t}/api-keys）。流程视角无法表达「同时打 4 端」，声明即直写在 `tests/tenant-api-keys-write.test.ts`，harness 自闭环。 |
-| M96.F02.I17 | 写端点四方比对（POST /tenants/{t}/api-keys/{k}/revoke）。与 I16 同处直写，harness 自闭环。 |
-| M96.F02.I18 | 写端点副作用验证（audit_events 出现 api_key_created/revoked）。副作用断言依赖 250ms buffer + `metadata.apiKeyId` 过滤，独立于任何业务流。 |
+| M96.F02.I12 | 读端点四方比对（GET /tenants/{t}/audit-events）。分页包装；items 数据走 dynamicDrop（occurredAt/metadata/actorUserId/targetUserId/items/total），envelope (`page`, `pageSize`) 比对。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
+| M96.F02.I13 | 读端点四方比对（GET /tenants/{t}/audit-events/by-user/{u}）。by-user 过滤；同 I12 envelope 比对策略，harness 自闭环。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
+| M96.F02.I14 | 读端点四方比对（GET /tenants/{t}/audit-events/retention）。单对象 `{retentionDays: number}`；无流程视角，harness 自闭环。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
+| M96.F02.I15 | 读端点四方比对（GET /tenants/{t}/api-keys）。分页包装；envelope + items 字段集合，数据不参与比对（写端点批次累积）。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
+| M96.F02.I16 | 写端点四方比对（POST /tenants/{t}/api-keys）。流程视角无法表达「同时打 4 端」，声明即直写在 `tests/tenant-api-keys-write.test.ts`，harness 自闭环。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
+| M96.F02.I17 | 写端点四方比对（POST /tenants/{t}/api-keys/{k}/revoke）。与 I16 同处直写，harness 自闭环。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
+| M96.F02.I18 | 写端点副作用验证（audit_events 出现 api_key_created/revoked）。副作用断言依赖 250ms buffer + `metadata.apiKeyId` 过滤，独立于任何业务流。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
 | M96.F02.I19 | 写端点四方比对（POST /tenants/{t}/users，status 固定 active）。status:active 契约面不可在 OpenAPI 表达（CreateUserRequest 无 status 字段），harness 直写断言，跨切元能力。 |
 | M96.F02.I20 | 写端点四方比对（PUT /tenants/{t}/roles/{r}/menus，整批替换 setRoleMenus）。harness 直写，独立于任何业务流。 |
-| M96.F02.I21 | 写端点四方比对（DELETE /tenants/{t}/api-keys/{k}，硬删 + 幂等返 204 / 404）。与 I03 revoke 软删并存；幂等语义契约面不可在 OpenAPI 表达，harness 直写断言。 |
+| M96.F02.I21 | 写端点四方比对（DELETE /tenants/{t}/api-keys/{k}，硬删 + 幂等返 204 / 404）。与 I03 revoke 软删并存；幂等语义契约面不可在 OpenAPI 表达，harness 直写断言。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
 | M96.F02.I22 | auth 端点四方比对（POST /auth/login）。认证面比对无业务流程承载，「同时打 4 端」直写在 `tests/auth.test.ts`，harness 自闭环。 |
 | M96.F02.I23 | auth 端点四方比对（POST /auth/logout）。同上，harness 自闭环。 |
 | M96.F02.I24 | auth 端点四方比对（POST /auth/refresh，rotate 语义）。token 剔除后 shape 比对，harness 自闭环。 |
@@ -88,9 +88,9 @@ flowchart TD
 | M96.F02.I54 | admin-menus 写端点四方比对（DELETE /admin/apps/{appId}/menus/{menuId}）。硬删 + 幂等，harness 自闭环。 |
 | M96.F02.I55 | admin-menus 结构维护四方比对（PUT …/menus/{menuId}/reorder）。A/B 换序 Menu[] 响应，harness 自闭环。 |
 | M96.F02.I56 | admin-menus 结构维护四方比对（PATCH …/menus/{menuId}/parent）。parentId 回带 + 还原顶级，harness 自闭环。 |
-| M96.F02.I57 | api-keys 写端点四方比对（POST …/api-keys/{k}/rotate）。新 prefix/secret ≠ 旧值断言，harness 自闭环。 |
-| M96.F02.I58 | audit 写端点四方比对（POST …/audit-events/export）。downloadUrl 含随机成分 drop 后 shape，harness 自闭环。 |
-| M96.F02.I59 | audit 写端点四方比对（PUT …/audit-events/retention）。共享状态先读原值后还原，harness 自闭环。 |
+| M96.F02.I57 | api-keys 写端点四方比对（POST …/api-keys/{k}/rotate）。新 prefix/secret ≠ 旧值断言，harness 自闭环。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
+| M96.F02.I58 | audit 写端点四方比对（POST …/audit-events/export）。downloadUrl 含随机成分 drop 后 shape，harness 自闭环。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
+| M96.F02.I59 | audit 写端点四方比对（PUT …/audit-events/retention）。共享状态先读原值后还原，harness 自闭环。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
 | M96.F02.I60 | `GET /admin/tenants` 分页 defaults 契约面（不传 ?page/?pageSize → page=0, pageSize=20 全等）。从 I29 拆出的「0-indexed defaults」子锚点，独立断言；harness 直写，无业务流承载。 |
 | M96.F02.I61 | `GET /admin/tenants` 显式分页回显（?page=1&pageSize=2）。从 I29 拆出的「回显一致」子锚点，harness 直写，独立于任何业务流。 |
 | M96.F02.I62 | `GET /admin/tenants/{id}` 404 ErrorResponse envelope shape。从 I31 拆出的「前端 catch 分支依赖的 envelope」子锚点，harness 直写，跨切元能力。 |
@@ -103,8 +103,8 @@ flowchart TD
 | M96.F02.I69 | `POST /tenants/{t}/users` 缺必填字段错误分支（空 body → 4xx + envelope）。从 I19 拆出的「错误分支契约面」子锚点，harness 直写，跨切元能力。 |
 | M96.F02.I70 | `PATCH /tenants/{t}/users/{u}` 404 ErrorResponse envelope shape。从 I39 拆出的「前端 catch 分支依赖的 envelope」子锚点，harness 直写，跨切元能力。 |
 | M96.F02.I71 | `GET /tenants/{t}/users ?status=` 过滤（合法枚举 → 200 + envelope 全等；不比 items）。从 I10 拆出的「query filter 契约面」子锚点，harness 直写，跨切元能力。 |
-| M96.F02.I72 | `GET /tenants/{t}/audit-events ?action=` 过滤（合法枚举 → 200 + envelope 全等；不比 items）。从 I12 拆出的「query filter 契约面」子锚点，harness 直写，跨切元能力。 |
-| M96.F02.I73 | `GET /tenants/{t}/audit-events ?actorUserId=` 过滤（合法 UUID → 200 + envelope 全等；不比 items）。从 I12 拆出的「query filter 契约面」子锚点，harness 直写，跨切元能力。 |
+| M96.F02.I72 | `GET /tenants/{t}/audit-events ?action=` 过滤（合法枚举 → 200 + envelope 全等；不比 items）。从 I12 拆出的「query filter 契约面」子锚点，harness 直写，跨切元能力。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
+| M96.F02.I73 | `GET /tenants/{t}/audit-events ?actorUserId=` 过滤（合法 UUID → 200 + envelope 全等；不比 items）。从 I12 拆出的「query filter 契约面」子锚点，harness 直写，跨切元能力。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
 | M96.F03.I01 | harness 目标端口声明（`src/targets.ts` `TARGETS`）。跨切元能力，端口是 conventions §6 显式字面量；套件既不消费也无业务流程「声明端口」一步。 |
 | M96.F03.I02 | harness 「声明即必须可达」不变量（`src/targets.ts` `selectedTargets` + `TargetError`）。跨切不变量的执行点，不挂流程。 |
 

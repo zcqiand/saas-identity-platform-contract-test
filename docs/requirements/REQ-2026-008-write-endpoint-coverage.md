@@ -50,9 +50,9 @@
 
 | 功能 ID | 功能名称 | 影响类型 | 说明 | 关联任务 |
 |---|---|---|---|---|
-| M96.F02.I16 | POST /api-keys 四方比对 | 新增 | harness + I-row | T-1, T-7 |
-| M96.F02.I17 | POST /api-keys/:id/revoke 四方比对 | 新增 | harness + I-row | T-1, T-7 |
-| M96.F02.I18 | 写端点副作用 — audit_events 进 | 新增 | I18 shape 比对 | T-1, T-7 |
+| M96.F02.I16 | POST /api-keys 四方比对 | 新增 | harness + I-row。【2026-09-10 已废弃:SSOT b749c18 下线,测试已删 3ed021e/3ed8151】 | T-1, T-7 |
+| M96.F02.I17 | POST /api-keys/:id/revoke 四方比对 | 新增 | harness + I-row。【2026-09-10 已废弃:SSOT b749c18 下线,测试已删 3ed021e/3ed8151】 | T-1, T-7 |
+| M96.F02.I18 | 写端点副作用 — audit_events 进 | 新增 | I18 shape 比对。【2026-09-10 已废弃:SSOT b749c18 下线,测试已删 3ed021e/3ed8151】 | T-1, T-7 |
 
 > api-key + audit 是 shared 仓契约面的 ID，在 `../saas-identity-platform-shared/docs/functions/function-tree.md` 登记；本仓契约面只认 M96.*。L5 check_deploy_parity 与 L5 alignment 共享同一索引但跨仓 ID 不入 L5 引用完整性检查。
 
