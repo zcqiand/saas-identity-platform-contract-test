@@ -48,12 +48,16 @@ async function ensureUser(target: Target): Promise<string> {
   }
   const id = String((r.body as Record<string, unknown>).id);
   ctx.userIds.set(target.name, id);
-  registerCleanup(`delete-u2:${target.name}`, async () => {
-    const tr = await probeRequest(target, { method: "DELETE", path: `${USER_BASE}/${id}` });
-    if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-      console.warn(`[teardown] delete-u2 ${target.name} 异常 status=${tr.status}`);
-    }
-  });
+  registerCleanup(
+    `delete-u2:${target.name}`,
+    async () => {
+      const tr = await probeRequest(target, { method: "DELETE", path: `${USER_BASE}/${id}` });
+      if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+        console.warn(`[teardown] delete-u2 ${target.name} 异常 status=${tr.status}`);
+      }
+    },
+    { kind: "child" },
+  );
   return id;
 }
 
@@ -175,15 +179,19 @@ describe.skipIf(!live)("M96.F02.I42 POST /tenants/{t}/members/invitations 四方
       // 之前没注册 → 4 target 邀请出 4 个 user 全残留,I10 GET /users 时行数差。
       // I43 describe 已 DELETE 这些 user,但**只在 I43 测**时跑;vitest describe 顺序
       // 不保证 I42 在 I43 前 — 失败时残留。注册 cleanup 保证 afterAll 一定清。
-      registerCleanup(`delete-invite:${target.name}`, async () => {
-        const tr = await probeRequest(target, {
-          method: "DELETE",
-          path: `${USER_BASE}/${userId}`,
-        });
-        if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-          console.warn(`[teardown] delete invite ${userId} status=${tr.status}`);
-        }
-      });
+      registerCleanup(
+        `delete-invite:${target.name}`,
+        async () => {
+          const tr = await probeRequest(target, {
+            method: "DELETE",
+            path: `${USER_BASE}/${userId}`,
+          });
+          if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] delete invite ${userId} status=${tr.status}`);
+          }
+        },
+        { kind: "child" },
+      );
     }, 30_000);
   }
 

@@ -120,12 +120,16 @@ describe.skipIf(!live)("M96.F02.I30 POST /admin/tenants 四方比对", () => {
       ctx.tenantIds.set(target.name, String(body.id));
 
       const tenantId = String(body.id);
-      registerCleanup(`delete-tenant:${target.name}`, async () => {
-        const tr = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${tenantId}` });
-        if (tr.status !== 204 && tr.status !== 404) {
-          console.warn(`[teardown] delete ${target.name} 异常 status=${tr.status}`);
-        }
-      });
+      registerCleanup(
+        `delete-tenant:${target.name}`,
+        async () => {
+          const tr = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${tenantId}` });
+          if (tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] delete ${target.name} 异常 status=${tr.status}`);
+          }
+        },
+        { kind: "parent" },
+      );
     }, 30_000);
   }
 
@@ -141,12 +145,16 @@ describe.skipIf(!live)("M96.F02.I30 POST /admin/tenants 四方比对", () => {
       expect([200, 201]).toContain(r.status);
       // shape 探针创建的行也要清 —— 不注册 cleanup 会污染共库（total 计数漂移）
       const shapeId = String((r.body as Record<string, unknown>).id);
-      registerCleanup(`delete-shape:${t.name}:${shapeId.slice(-8)}`, async () => {
-        const tr = await probeRequest(t, { method: "DELETE", path: `${BASE_PATH}/${shapeId}` });
-        if (tr.status !== 204 && tr.status !== 404) {
-          console.warn(`[teardown] shape delete ${t.name} 异常 status=${tr.status}`);
-        }
-      });
+      registerCleanup(
+        `delete-shape:${t.name}:${shapeId.slice(-8)}`,
+        async () => {
+          const tr = await probeRequest(t, { method: "DELETE", path: `${BASE_PATH}/${shapeId}` });
+          if (tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] shape delete ${t.name} 异常 status=${tr.status}`);
+          }
+        },
+        { kind: "parent" },
+      );
       probes.push(r);
     }
     // settings 各家 DTO 形状不同（aspnetcore TenantSettings 有非 nullable maxUsers:int

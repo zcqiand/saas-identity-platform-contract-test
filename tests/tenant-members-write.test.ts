@@ -57,15 +57,19 @@ describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/members 四方比对", () 
 
       // teardown：每 target 注册 DELETE cleanup（容差 200/204/404）
       const userId = String(member.id);
-      registerCleanup(`delete-user:${target.name}`, async () => {
-        const tr = await probeRequest(target, {
-          method: "DELETE",
-          path: `${BASE_PATH}/${userId}`,
-        });
-        if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-          console.warn(`[teardown] delete-user ${target.name} 异常 status=${tr.status}`);
-        }
-      });
+      registerCleanup(
+        `delete-user:${target.name}`,
+        async () => {
+          const tr = await probeRequest(target, {
+            method: "DELETE",
+            path: `${BASE_PATH}/${userId}`,
+          });
+          if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] delete-user ${target.name} 异常 status=${tr.status}`);
+          }
+        },
+        { kind: "child" },
+      );
     }, 30_000);
   }
 
@@ -85,15 +89,19 @@ describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/members 四方比对", () 
           const raw = r.body as Record<string, unknown>;
           const member = (raw.member ?? raw) as Record<string, unknown>;
           const userId = String(member.id);
-          registerCleanup(`delete-shape-user:${t.name}`, async () => {
-            const tr = await probeRequest(t, {
-              method: "DELETE",
-              path: `${BASE_PATH}/${userId}`,
-            });
-            if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-              console.warn(`[teardown] delete shape-user ${userId} status=${tr.status}`);
-            }
-          });
+          registerCleanup(
+            `delete-shape-user:${t.name}`,
+            async () => {
+              const tr = await probeRequest(t, {
+                method: "DELETE",
+                path: `${BASE_PATH}/${userId}`,
+              });
+              if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+                console.warn(`[teardown] delete shape-user ${userId} status=${tr.status}`);
+              }
+          },
+            { kind: "child" },
+          );
         }
         return r;
       }),

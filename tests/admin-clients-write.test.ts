@@ -103,12 +103,16 @@ describe.skipIf(!live)("M96.F02.I45 POST /admin/clients 四方比对", () => {
       ctx.clientIds.set(target.name, String(body.clientId));
 
       const clientId = String(body.clientId);
-      registerCleanup(`delete-app:${target.name}`, async () => {
-        const tr = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${clientId}` });
-        if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-          console.warn(`[teardown] delete-app ${target.name} 异常 status=${tr.status}`);
-        }
-      });
+      registerCleanup(
+        `delete-app:${target.name}`,
+        async () => {
+          const tr = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${clientId}` });
+          if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] delete-app ${target.name} 异常 status=${tr.status}`);
+          }
+        },
+        { kind: "parent" },
+      );
     }, 30_000);
   }
 
@@ -129,12 +133,16 @@ describe.skipIf(!live)("M96.F02.I45 POST /admin/clients 四方比对", () => {
       });
       expect([200, 201]).toContain(r.status);
       const shapeClientId = String((r.body as Record<string, unknown>).clientId);
-      registerCleanup(`delete-shape-app:${t.name}:${shapeClientId.slice(-8)}`, async () => {
-        const tr = await probeRequest(t, { method: "DELETE", path: `${BASE_PATH}/${shapeClientId}` });
-        if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-          console.warn(`[teardown] shape-app delete ${t.name} 异常 status=${tr.status}`);
-        }
-      });
+      registerCleanup(
+        `delete-shape-app:${t.name}:${shapeClientId.slice(-8)}`,
+        async () => {
+          const tr = await probeRequest(t, { method: "DELETE", path: `${BASE_PATH}/${shapeClientId}` });
+          if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] shape-app delete ${t.name} 异常 status=${tr.status}`);
+          }
+        },
+        { kind: "parent" },
+      );
       probes.push(r);
     }
     const drop = ["id", "code", "name", "clientId", "clientSecret", "createdAt", "updatedAt"];

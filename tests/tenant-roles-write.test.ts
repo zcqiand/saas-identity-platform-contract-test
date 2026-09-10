@@ -59,12 +59,16 @@ describe.skipIf(!live)("M96.F02.I34 POST /tenants/{t}/roles 四方比对", () =>
       ctx.roleIds.set(target.name, String(body.id));
 
       const roleId = String(body.id);
-      registerCleanup(`delete-role:${target.name}`, async () => {
-        const tr = await probeRequest(target, { method: "DELETE", path: `${ROLE_BASE}/${roleId}` });
-        if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-          console.warn(`[teardown] delete-role ${target.name} 异常 status=${tr.status}`);
-        }
-      });
+      registerCleanup(
+        `delete-role:${target.name}`,
+        async () => {
+          const tr = await probeRequest(target, { method: "DELETE", path: `${ROLE_BASE}/${roleId}` });
+          if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] delete-role ${target.name} 异常 status=${tr.status}`);
+          }
+        },
+        { kind: "child" },
+      );
     }, 30_000);
   }
 
@@ -82,12 +86,16 @@ describe.skipIf(!live)("M96.F02.I34 POST /tenants/{t}/roles 四方比对", () =>
     for (let i = 0; i < targets.length; i++) {
       const shapeId = String((probes[i]!.body as Record<string, unknown>).id);
       const t = targets[i]!;
-      registerCleanup(`delete-shape-role:${t.name}:${shapeId.slice(-8)}`, async () => {
-        const tr = await probeRequest(t, { method: "DELETE", path: `${ROLE_BASE}/${shapeId}` });
-        if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-          console.warn(`[teardown] shape-role delete ${t.name} 异常 status=${tr.status}`);
-        }
-      });
+      registerCleanup(
+        `delete-shape-role:${t.name}:${shapeId.slice(-8)}`,
+        async () => {
+          const tr = await probeRequest(t, { method: "DELETE", path: `${ROLE_BASE}/${shapeId}` });
+          if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] shape-role delete ${t.name} 异常 status=${tr.status}`);
+          }
+        },
+        { kind: "child" },
+      );
     }
     for (const p of probes) {
       expect([200, 201]).toContain(p.status);

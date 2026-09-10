@@ -80,12 +80,16 @@ describe.skipIf(!live)("M96.F02.I51 POST /clients/{clientId}/menus 四方比对"
       ctx.menuA.set(target.name, a);
       ctx.menuB.set(target.name, b);
       for (const id of [a, b]) {
-        registerCleanup(`delete-menu:${target.name}:${id.slice(-8)}`, async () => {
-          const tr = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${id}` });
-          if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-            console.warn(`[teardown] delete-menu ${target.name} 异常 status=${tr.status}`);
-          }
-        });
+        registerCleanup(
+          `delete-menu:${target.name}:${id.slice(-8)}`,
+          async () => {
+            const tr = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${id}` });
+            if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+              console.warn(`[teardown] delete-menu ${target.name} 异常 status=${tr.status}`);
+            }
+          },
+          { kind: "child" },
+        );
       }
       // 字段断言（用 A 的响应重打一次 GET 验）
       const g = await probeRequest(target, { method: "GET", path: `${BASE_PATH}/${a}` });

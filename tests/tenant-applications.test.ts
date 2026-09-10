@@ -79,14 +79,16 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
       // 寻址契约：/applications/{clientId} 用字符串 clientId 列（非 UUID id）
       ctx.clientIds.set(target.name, clientId);
 
-      registerCleanup(`delete-app:${target.name}`, async () => {
-        const tr = await probeRequest(target, {
-          method: "DELETE",
-          path: `${BASE_PATH}/${clientId}`,
-        });
-        if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
-          console.warn(`[teardown] delete-app ${target.name} 异常 status=${tr.status}`);
-        }
+      registerCleanup(
+        `delete-app:${target.name}`,
+        async () => {
+          const tr = await probeRequest(target, {
+            method: "DELETE",
+            path: `${BASE_PATH}/${clientId}`,
+          });
+          if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] delete-app ${target.name} 异常 status=${tr.status}`);
+          }
       });
     }, 30_000);
   }

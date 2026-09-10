@@ -189,6 +189,100 @@ interface MenuRow {
   createdAt?: string;
 }
 
+interface OAuthClientRow {
+  id?: string;
+  clientId?: string;
+  clientName?: string;
+  createdAt?: string;
+}
+
+interface TenantApplicationRow {
+  id?: string;
+  clientId?: string;
+  tenantId?: string;
+  createdAt?: string;
+}
+
+// 9/10 I66/I75：上一轮 run 的 ct-app-* OAuth client / tenant_application 没清掉，本轮
+// oauth_access_token INSERT 引用被删的 ct-app-* → 23503。同 prefix 兜底清。
+const ADMIN_CLIENTS_PATH = "/api/v1/admin/clients";
+const ADMIN_TENANTS_APPS_PATH = pathWithParams(
+  "/api/v1/tenants/{tenantId}/applications",
+  { tenantId: ALICE_PARAMS.tenantId },
+);
+
+// admin/clients + tenant_applications 探针 prefix 全为 ct-app-（admin-clients-write /
+// tenant-applications 唯一化）。seed lab-management / erp / crm 不动。
+const OAUTH_CLIENT_MATCH = (c: OAuthClientRow) =>
+  /^ct-app-/.test(c.clientId ?? "");
+const TENANT_APP_MATCH = (a: TenantApplicationRow) =>
+  /^ct-app-/.test(a.clientId ?? "");
+
+async function cleanupAdminClients(target: Target): Promise<void> {
+  const token = await login(target);
+  const list = await probeRequest(target, {
+    method: "GET",
+    path: ADMIN_CLIENTS_PATH,
+    token,
+  });
+  if (list.status !== 200) {
+    console.warn(
+      `[cleanup-pg] ${target.name} GET ${ADMIN_CLIENTS_PATH} status=${list.status}`,
+    );
+    return;
+  }
+  const rawBody = list.body as { items?: OAuthClientRow[] } | OAuthClientRow[];
+  const items: OAuthClientRow[] = Array.isArray(rawBody)
+    ? rawBody
+    : (rawBody.items ?? []);
+  for (const c of items) {
+    if (!c.clientId) continue;
+    if (!OAUTH_CLIENT_MATCH(c) && !SENTINEL_OR_NEG_YEAR(c.createdAt ?? "")) continue;
+    const del = await probeRequest(target, {
+      method: "DELETE",
+      path: `${ADMIN_CLIENTS_PATH}/${c.clientId}`,
+      token,
+    });
+    if (!DELETE_TOLERANT(del.status)) {
+      console.warn(
+        `[cleanup-pg] ${target.name} delete client ${c.clientId} status=${del.status}`,
+      );
+    }
+  }
+}
+
+async function cleanupTenantApplications(target: Target): Promise<void> {
+  const token = await login(target);
+  const list = await probeRequest(target, {
+    method: "GET",
+    path: ADMIN_TENANTS_APPS_PATH,
+    token,
+  });
+  if (list.status !== 200) {
+    console.warn(
+      `[cleanup-pg] ${target.name} GET ${ADMIN_TENANTS_APPS_PATH} status=${list.status}`,
+    );
+    return;
+  }
+  const rawBody =
+    (list.body as { items?: TenantApplicationRow[] }).items ??
+    ((list.body as TenantApplicationRow[]) ?? []);
+  for (const a of rawBody) {
+    if (!a.clientId || !a.tenantId) continue;
+    if (!TENANT_APP_MATCH(a) && !SENTINEL_OR_NEG_YEAR(a.createdAt ?? "")) continue;
+    const del = await probeRequest(target, {
+      method: "DELETE",
+      path: `${ADMIN_TENANTS_APPS_PATH}/${a.clientId}`,
+      token,
+    });
+    if (!DELETE_TOLERANT(del.status)) {
+      console.warn(
+        `[cleanup-pg] ${target.name} delete tenant_application ${a.clientId} status=${del.status}`,
+      );
+    }
+  }
+}
+
 const MENUS_PATH = pathWithParams("/api/v1/admin/apps/{appId}/menus", {
   appId: ALICE_PARAMS.appId,
 });
@@ -266,6 +360,16 @@ export async function cleanupAllProbeRows(): Promise<void> {
       } catch (e) {
         console.warn(`[cleanup-pg] menus ${t.name}(inMemory)`, e);
       }
+      try {
+        await cleanupAdminClients(t);
+      } catch (e) {
+        console.warn(`[cleanup-pg] admin/clients ${t.name}(inMemory)`, e);
+      }
+      try {
+        await cleanupTenantApplications(t);
+      } catch (e) {
+        console.warn(`[cleanup-pg] tenant_applications ${t.name}(inMemory)`, e);
+      }
       continue;
     }
     try {
@@ -287,6 +391,16 @@ export async function cleanupAllProbeRows(): Promise<void> {
       await cleanupMenus(t);
     } catch (e) {
       console.warn(`[cleanup-pg] menus ${t.name}`, e);
+    }
+    try {
+      await cleanupAdminClients(t);
+    } catch (e) {
+      console.warn(`[cleanup-pg] admin/clients ${t.name}`, e);
+    }
+    try {
+      await cleanupTenantApplications(t);
+    } catch (e) {
+      console.warn(`[cleanup-pg] tenant_applications ${t.name}`, e);
     }
   }
 }
