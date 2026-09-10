@@ -22,6 +22,8 @@ export const SEED = {
     globexAdmin: "00000000-0000-0000-0000-a00000000003",
     initechAdmin: "00000000-0000-0000-0000-a00000000004",
   },
+  // 9/7 契约 pivot 后 client 的 URL/请求寻址一律用 clientId 字符串（= app code，
+  // oauth_client.client_id 列）；UUID 形式的 id 只在 oauth_client 表内部主键用。
   apps: {
     labManagement: "11111111-1111-1111-1111-111111111111",
     erp: "11111111-1111-1111-1111-111111111112",
@@ -32,6 +34,12 @@ export const SEED = {
     erp: "erp",
     crm: "crm",
   },
+  /** URL/请求寻址用的 clientId（字符串 code）。 */
+  clientIds: {
+    labManagement: "lab-management",
+    erp: "erp",
+    crm: "crm",
+  } as const,
 } as const;
 
 /** alice 的固定路径参数：/tenants/{t}/users/{u}。Tier A 大多数端点的「主路径」。 */
@@ -41,4 +49,6 @@ export const ALICE_PARAMS = {
   roleId: SEED.roles.acmeAdmin,
   appId: SEED.apps.labManagement,
   appCode: SEED.appCodes.labManagement,
+  /** clientId 寻址（9/7 pivot：路径参数用字符串 code，不用 UUID） */
+  clientId: SEED.clientIds.labManagement,
 } as const;

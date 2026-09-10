@@ -11,8 +11,14 @@ import { wrapper } from "axios-cookiejar-support";
 import type { Probe } from "./compare.js";
 import type { Target } from "./targets.js";
 
-/** V014/V015 seed + msw fixtures 共有的账号。显式字面量，不走 env 兜底。 */
-export const SEED_USER = { username: "alice", password: "dev123456" } as const;
+/** V014/V015 seed + msw fixtures 共有的账号。显式字面量，不走 env 兜底。
+ * clientId：shared 9/7 契约 pivot 后 LoginRequest 必填（sessions.tsp:12），
+ * 值 = seed-db 灌的 oauth_client.client_id（app code 字符串）。 */
+export const SEED_USER = {
+  username: "alice",
+  password: "dev123456",
+  clientId: "lab-management",
+} as const;
 
 export class UnreachableError extends Error {
   constructor(target: string, cause: unknown) {

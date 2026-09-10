@@ -122,6 +122,38 @@ echo "=== [2/6] 各后端 gen-shared (nextjs + springboot) ==="
 (cd "$NEXTJS_DIR" && npm run gen:shared 2>&1 | tail -3)
 (cd "$SPRINGBOOT_DIR" && bash scripts/gen-shared.sh 2>&1 | tail -5)
 
+# === 2.5 迁移 + 种子（DB 3 后端共库 saas_dev；msw 内存 fixture 不连 DB） ===
+# live 不依赖库的存量状态：每次跑前 migrate（幂等）+ 重灌种子（TRUNCATE + 灌）。
+# 种子 SSOT 是 msw src/seeds/*.json；装载器是 nextjs scripts/seed-db.mjs（家族约定）。
+# 密码约定 "plain:dev123456" — 三后端登录侧都识别该前缀（2026-09-10 对齐）。
+# 注意只传 PG_*：springboot .env.local 的 DATABASE_URL 是 jdbc: 格式，
+# migrate-db.mjs / seed-db.mjs 拿到会当 PG 连接串直接炸。
+echo ""
+echo "=== [2.5/6] shared db:migrate + nextjs seed-db ==="
+PG_ENV_FILE=$(mktemp)
+grep -E '^(PG_HOST|PG_PORT|PG_USER|PG_PASSWORD|PG_DATABASE)' "$SPRINGBOOT_DIR/.env.local" > "$PG_ENV_FILE" || true
+set -a; source "$PG_ENV_FILE"; set +a
+rm -f "$PG_ENV_FILE"
+export DATABASE_URL="postgresql://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DATABASE}"
+(cd "$SHARED_DIR" && node scripts/migrate-db.mjs 2>&1 | tail -3) || {
+  # Windows 已知坑（memory: windows-rebaseline-db-push-exit-null）：spawnSync npx →
+  # drizzle-kit 在 Windows 退 null 但 DDL 已应用。exit 非 0 不算失败，改走
+  # post-flight 校验：连得上 + lockout 列在（0002 已应用）即视为迁移就位。
+  echo "  [migrate] 退出非 0 — Windows spawnSync 假报嫌疑，走 post-flight 校验"
+  PG_PROBE=$(cd "$NEXTJS_DIR" && node -e "
+const {Client}=require('pg');
+(async()=>{const c=new Client({connectionString:process.env.DATABASE_URL});await c.connect();
+const r=await c.query(\"select count(*)::int n from information_schema.columns where table_name='sys_user' and column_name in ('failed_attempts','locked_until')\");
+console.log(r.rows[0].n);await c.end();})().catch(()=>{console.error('PG-UNREACHABLE');process.exit(1)})")
+  if [ "$PG_PROBE" = "2" ]; then
+    echo "  [migrate] post-flight OK（0002 lockout 列在，迁移已应用）"
+  else
+    echo "  [migrate] post-flight FAIL（probe=$PG_PROBE）— 真失败，停" >&2
+    exit 2
+  fi
+}
+(cd "$NEXTJS_DIR" && node scripts/seed-db.mjs 2>&1 | tail -12)
+
 # === 3. 后台起 4 后端 ===
 echo ""
 echo "=== [3/6] 后台起 4 后端 ==="

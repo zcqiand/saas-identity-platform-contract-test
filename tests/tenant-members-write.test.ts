@@ -44,17 +44,19 @@ describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/members 四方比对", () 
       });
       // TypeSpec createUser 只声明了 200；但真后端/nextjs/msw 习惯返 201。
       // 接受 200 或 201（契约面是同一成功响应）。
-      expect([200, 201], `${target.name} 期望 200/201 实得 ${r.status}`).toContain(r.status);
+      expect([200, 201], `${target.name} 期望 200/201 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toContain(r.status);
       const body = r.body as Record<string, unknown>;
-      const REQUIRED = ["id", "tenantId", "username", "email", "status", "roleIds", "createdAt"];
-      for (const key of REQUIRED) {
-        expect(body[key], `${target.name} 响应缺 ${key}`).toBeDefined();
-      }
-      expect(body.status, `${target.name} 新 user 必须 active`).toBe("active");
-      ctx.userIds.set(target.name, String(body.id));
+      // 9/7 SSOT pivot：createTenantUser → TenantMemberView {member, user, roles}。
+      // 各后端落地进度不一（有的还返回平铺 member），双路取。
+      const member = (body.member ?? body) as Record<string, unknown>;
+      const user = (body.user ?? member) as Record<string, unknown>;
+      expect(member.id, `${target.name} 响应 member.id`).toBeDefined();
+      expect(user.id, `${target.name} 响应 user.id`).toBeDefined();
+      expect(user.username, `${target.name} 响应 user.username`).toBeDefined();
+      ctx.userIds.set(target.name, String(member.id));
 
       // teardown：每 target 注册 DELETE cleanup（容差 200/204/404）
-      const userId = String(body.id);
+      const userId = String(member.id);
       registerCleanup(`delete-user:${target.name}`, async () => {
         const tr = await probeRequest(target, {
           method: "DELETE",
@@ -80,7 +82,9 @@ describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/members 四方比对", () 
         // 之前没注册 → 4 target POST 后没清 → 后端 PG 残留 shape-user-XXX,
         // 下次 I10 GET /users 时行数差 1+ → normalize 第 32 行分叉。
         if (r.status === 200 || r.status === 201) {
-          const userId = String((r.body as Record<string, unknown>).id);
+          const raw = r.body as Record<string, unknown>;
+          const member = (raw.member ?? raw) as Record<string, unknown>;
+          const userId = String(member.id);
           registerCleanup(`delete-shape-user:${t.name}`, async () => {
             const tr = await probeRequest(t, {
               method: "DELETE",

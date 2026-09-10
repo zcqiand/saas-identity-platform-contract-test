@@ -3,10 +3,9 @@
 // 写比对模型（同 I19/I30）：3 后端共享一个 PG（roles.tenant_id + code UNIQUE）；
 // msw 内存 fixture。比对 shape 不比 byte。唯一化 code 防共库撞唯一约束。
 //
-// I34 POST /roles：创 role → 200/201 + 必填字段；id 入 ctx 供 I35/I36/I37；
+// I34 POST /roles：创 role → 200/201 + 必填字段；id 入 ctx 供 I35/I37；
 //      teardown DELETE 兜底。
-// I35 PATCH /roles/{r}：改 name → 200 + updatedAt 必填。
-// I36 PUT /roles/{r}/permissions：设 permissionIds → 200 + 响应回带 permissionIds。
+// I35 PATCH /roles/{r}：改 roleName → 200 + updatedAt 必填。
 // I37 DELETE /roles/{r}：物理删 204/200 + 幂等（重复删 → 404）；I09.F02.I03 对齐。
 // I38 DELETE /roles/{r}/menus：清空授权（M09.F02.I03）—— 对 seed 共享 role
 //      （acme admin）打有破坏性：先 GET 记录原 menuIds，断言后还原（同 I20 模式）。
@@ -44,14 +43,17 @@ describe.skipIf(!live)("M96.F02.I34 POST /tenants/{t}/roles 四方比对", () =>
   for (const target of targets) {
     it(`M96.F02.I34 ${target.name} 创建返回 200/201 + role 字段齐全`, async () => {
       const code = uniqueName("ct-role");
+      // 9/7 SSOT pivot：CreateSysRoleRequest {clientId, roleCode, roleName}；
+      // permissionIds 域已废弃（b749c18），改由 role-menus 承载
       const r = await probeRequest(target, {
         method: "POST",
         path: ROLE_BASE,
-        body: { code, name: `contract-test ${code}` },
+        body: { clientId: ALICE_PARAMS.appCode, roleCode: code, roleName: `contract-test ${code}` },
       });
       expect([200, 201], `${target.name} 期望 200/201 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toContain(r.status);
       const body = r.body as Record<string, unknown>;
-      for (const key of ["id", "tenantId", "code", "name", "permissionIds", "createdAt", "updatedAt"]) {
+      // SysRole：id/tenantId/clientId/roleCode/roleName（permissionIds 已废弃）
+      for (const key of ["id", "tenantId", "roleCode", "roleName"]) {
         expect(body[key], `${target.name} role 行缺 ${key}（undefined 也算缺）`).toBeDefined();
       }
       ctx.roleIds.set(target.name, String(body.id));
@@ -72,7 +74,7 @@ describe.skipIf(!live)("M96.F02.I34 POST /tenants/{t}/roles 四方比对", () =>
         probeRequest(t, {
           method: "POST",
           path: ROLE_BASE,
-          body: { code: uniqueName("shape-role"), name: "shape role" },
+          body: { clientId: ALICE_PARAMS.appCode, roleCode: uniqueName("shape-role"), roleName: "shape role" },
         }),
       ),
     );
@@ -90,7 +92,7 @@ describe.skipIf(!live)("M96.F02.I34 POST /tenants/{t}/roles 四方比对", () =>
     for (const p of probes) {
       expect([200, 201]).toContain(p.status);
     }
-    const drop = ["id", "code", "name", "description", "createdAt", "updatedAt"];
+    const drop = ["id", "roleCode", "roleName", "code", "name", "description", "createdAt", "updatedAt"];
     const result = compareBodies(probes, targets, drop);
     expect(result, `\n${formatDivergences(result)}\n`).toEqual([]);
   }, 60_000);
@@ -120,7 +122,8 @@ describe.skipIf(!live)("M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对", 
       const r = await probeRequest(target, {
         method: "PATCH",
         path: `${ROLE_BASE}/${roleId}`,
-        body: { name: `renamed-${uniqueName("ct")}` },
+        // 9/7 SSOT：UpdateSysRoleRequest {roleName?, description?, status?}
+        body: { roleName: `renamed-${uniqueName("ct")}` },
       });
       expect(r.status, `${target.name} patch 期望 200 实得 ${r.status}`).toBe(200);
       const body = r.body as Record<string, unknown>;
@@ -131,7 +134,7 @@ describe.skipIf(!live)("M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对", 
   it("不存在 id → 404 全等", async () => {
     const probes = [];
     for (const t of targets) {
-      probes.push(await probeRequest(t, { method: "PATCH", path: `${ROLE_BASE}/${DEAD_ID}`, body: { name: "noop" } }));
+      probes.push(await probeRequest(t, { method: "PATCH", path: `${ROLE_BASE}/${DEAD_ID}`, body: { roleName: "noop" } }));
     }
     for (const p of probes) {
       expect(p.status, `${p.target} 不存在 id 期望 404 实得 ${p.status}`).toBe(404);
@@ -146,7 +149,7 @@ describe.skipIf(!live)("M96.F02.I68 PATCH /tenants/{t}/roles/{r} 404 ErrorRespon
     // 契约面是「有错误码字段 + 有人读字段」，drop 之后骨架必须一致。
     const probes = [];
     for (const t of targets) {
-      probes.push(await probeRequest(t, { method: "PATCH", path: `${ROLE_BASE}/${DEAD_ID}`, body: { name: "noop" } }));
+      probes.push(await probeRequest(t, { method: "PATCH", path: `${ROLE_BASE}/${DEAD_ID}`, body: { roleName: "noop" } }));
     }
     for (const p of probes) {
       expect(p.status, `${p.target} 404 envelope 期望 404 实得 ${p.status}`).toBe(404);
@@ -157,31 +160,8 @@ describe.skipIf(!live)("M96.F02.I68 PATCH /tenants/{t}/roles/{r} 404 ErrorRespon
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I36 PUT /tenants/{t}/roles/{r}/permissions 四方比对", () => {
-  // permissionIds 契约面是 UUID（V016 permissions 表 4 行 f0000000*；
-  // springboot GET role 返回的就是 UUID —— 不是 "users:read" 权限码）
-  const PERMS = ["00000000-0000-0000-0000-f00000000001", "00000000-0000-0000-0000-f00000000003"];
-
-  for (const target of targets) {
-    it(`M96.F02.I36 ${target.name} 设 permissionIds → 200 + 响应回带`, async () => {
-      const roleId = ctx.roleIds.get(target.name);
-      if (!roleId) throw new Error(`${target.name} I34 未创建 role，跳过 I36`);
-      const r = await probeRequest(target, {
-        method: "PUT",
-        path: `${ROLE_BASE}/${roleId}/permissions`,
-        body: { permissionIds: PERMS },
-      });
-      expect(r.status, `${target.name} 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toBe(200);
-      const body = r.body as Record<string, unknown>;
-      const got = body.permissionIds as string[] | undefined;
-      expect(Array.isArray(got), `${target.name} 响应 permissionIds 必为数组`).toBe(true);
-      // 顺序不保证：集合语义比对
-      for (const p of PERMS) {
-        expect(got!, `${target.name} permissionIds 应包含 ${p}`).toContain(p);
-      }
-    }, 30_000);
-  }
-});
+// M96.F02.I36（PUT /roles/{r}/permissions）已随 SSOT b749c18 废弃删除（permissions
+// 域下线，角色授权改由 role-menus 承载）—— 4 后端都无此端点，测试同步删（2026-09-10）。
 
 describe.skipIf(!live)("M96.F02.I37 DELETE /tenants/{t}/roles/{r} 四方比对", () => {
   it("I34 的 role 删除 → 204/200 + 重复删 → 404（幂等）", async () => {

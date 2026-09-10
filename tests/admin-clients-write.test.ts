@@ -40,7 +40,7 @@ describe.skipIf(!live)("M96.F02.I44 GET /admin/clients 四方比对", () => {
       }
       // seed 至少 3 个 app（lab-mgmt/erp/crm）
       expect(body.items!.length, `${t.name} list items 不应为空`).toBeGreaterThanOrEqual(3);
-      for (const key of ["id", "code", "name", "status", "createdAt", "updatedAt"]) {
+      for (const key of ["id", "clientId", "clientName", "status", "createdAt", "updatedAt"]) {
         expect(body.items![0]![key], `${t.name} app 行缺 ${key}`).toBeDefined();
       }
       probes.push(r);
@@ -82,19 +82,23 @@ describe.skipIf(!live)("M96.F02.I45 POST /admin/clients 四方比对", () => {
       const r = await probeRequest(target, {
         method: "POST",
         path: BASE_PATH,
+        // 9/7 SSOT：CreateOAuthClientRequest {clientId, clientName, clientSecret,
+        // grantTypes, redirectUris}（grantTypes/redirectUris 是逗号串不是数组）
         body: {
-          code,
-          name: `contract-test ${code}`,
-          clientId: `client-${code}`,
-          redirectUris: ["http://localhost:5201/callback"],
+          clientId: `ct-app-${code}`,
+          clientName: `contract-test ${code}`,
+          clientSecret: "ct-secret",
+          grantTypes: "authorization_code",
+          redirectUris: "http://localhost:5201/callback",
         },
       });
       expect([200, 201], `${target.name} 期望 200/201 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 300)}`).toContain(r.status);
       const body = r.body as Record<string, unknown>;
-      for (const key of ["id", "code", "name", "status", "createdAt", "updatedAt"]) {
+      // 9/7 SSOT：OAuthClient {id, clientId, clientName, status:smallint, ...}
+      for (const key of ["id", "clientId", "clientName", "status", "createdAt", "updatedAt"]) {
         expect(body[key], `${target.name} app 行缺 ${key}`).toBeDefined();
       }
-      expect(body.status, `${target.name} 新 app 必须 active`).toBe("active");
+      expect(body.status, `${target.name} 新 client 必须 active(1)`).toBe(1);
       // 寻址契约：/admin/clients/{clientId} 用字符串 clientId 列（非 UUID id）
       ctx.clientIds.set(target.name, String(body.clientId));
 
@@ -116,10 +120,11 @@ describe.skipIf(!live)("M96.F02.I45 POST /admin/clients 四方比对", () => {
         method: "POST",
         path: BASE_PATH,
         body: {
-          code,
-          name: `shape ${code}`,
-          clientId: `client-${code}`,
-          redirectUris: ["http://localhost:5201/callback"],
+          clientId: `ct-app-${code}`,
+          clientName: `shape ${code}`,
+          clientSecret: "ct-secret",
+          grantTypes: "authorization_code",
+          redirectUris: "http://localhost:5201/callback",
         },
       });
       expect([200, 201]).toContain(r.status);
@@ -202,7 +207,7 @@ describe.skipIf(!live)("M96.F02.I47 PATCH /admin/clients/{clientId} 四方比对
       const r = await probeRequest(target, {
         method: "PATCH",
         path: `${BASE_PATH}/${clientId}`,
-        body: { name: `renamed-${uniqueName("ct")}` },
+        body: { clientName: `renamed-${uniqueName("ct")}` },
       });
       expect(r.status, `${target.name} patch 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toBe(200);
       expect((r.body as Record<string, unknown>).updatedAt, `${target.name} patch 后 updatedAt 必填`).toBeDefined();
@@ -219,17 +224,17 @@ describe.skipIf(!live)("M96.F02.I49 PATCH /admin/clients/{clientId}/status 四�
       const off = await probeRequest(target, {
         method: "PATCH",
         path: `${BASE_PATH}/${clientId}/status`,
-        body: { status: "disabled" },
+        body: { status: 0 },
       });
       expect(off.status, `${target.name} disable 期望 200 实得 ${off.status} body=${JSON.stringify(off.body).slice(0, 200)}`).toBe(200);
-      expect((off.body as Record<string, unknown>).status, `${target.name} disable 后 status`).toBe("disabled");
+      expect((off.body as Record<string, unknown>).status, `${target.name} disable 后 status`).toBe(0);
       const on = await probeRequest(target, {
         method: "PATCH",
         path: `${BASE_PATH}/${clientId}/status`,
-        body: { status: "active" },
+        body: { status: 1 },
       });
       expect(on.status, `${target.name} enable 期望 200 实得 ${on.status}`).toBe(200);
-      expect((on.body as Record<string, unknown>).status, `${target.name} enable 后 status`).toBe("active");
+      expect((on.body as Record<string, unknown>).status, `${target.name} enable 后 status`).toBe(1);
     }, 30_000);
   }
 });

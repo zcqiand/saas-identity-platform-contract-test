@@ -36,9 +36,11 @@ const live = targets.length >= 2;
 // acme admin role 初始关联 menuIds — 用 I09 GET 结果作为 PUT 输入；
 // 这里直接用种子里 lab-mgmt app 下的两个常见 menu 作为「幂等写入」输入
 // （与 I09 GET 实际值可能略有差异；写入即覆盖语义，PUT 后所有目标应一致）。
+// 2026-09-10 修：旧值 c0000000* 是 V016 membership id 不是 menu id（写 PG 撞
+// sys_role_menu FK 23503）。改用 seed 真菜单（menus.json 91xxxxx 系）。
 const TARGET_MENU_IDS: string[] = [
-  "00000000-0000-0000-0000-c00000000001",
-  "00000000-0000-0000-0000-c00000000002",
+  "00000000-0000-0000-0000-910000000001",
+  "00000000-0000-0000-0000-910000000002",
 ];
 
 // 还原 alice admin 的 role_menu_grants 到 V016 seed 的 27 个 menuIds.

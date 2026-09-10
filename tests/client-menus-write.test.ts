@@ -23,7 +23,7 @@ import { uniqueName } from "../src/unique.js";
 import { clearCleanups, registerCleanup, runCleanups } from "../src/teardown.js";
 
 const BASE_PATH = pathWithParams("/api/v1/clients/{clientId}/menus", {
-  clientId: SEED.apps.labManagement,
+  clientId: SEED.clientIds.labManagement,
 });
 const DEAD_ID = "00000000-0000-0000-0000-00000000dead";
 
@@ -41,7 +41,7 @@ async function createMenu(target: Target): Promise<string> {
   const r = await probeRequest(target, {
     method: "POST",
     path: BASE_PATH,
-    body: { code, name: `contract-test ${code}` },
+    body: { title: `contract-test ${code}`, type: "page" },  // 9/7 SSOT: CreateSysMenuRequest {title,type,...}
   });
   if (r.status !== 200 && r.status !== 201) {
     throw new Error(`${target.name} 建menu失败 status=${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`);

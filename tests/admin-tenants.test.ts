@@ -109,7 +109,7 @@ describe.skipIf(!live)("M96.F02.I30 POST /admin/tenants 四方比对", () => {
       const r = await probeRequest(target, {
         method: "POST",
         path: BASE_PATH,
-        body: { code, name: `contract-test ${code}` },
+        body: { tenantKey: code, name: `contract-test ${code}` },  // 9/7 SSOT: CreateTenantRequest {tenantKey,name}
       });
       expect([200, 201], `${target.name} 期望 200/201 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toContain(r.status);
       const body = r.body as Record<string, unknown>;
@@ -136,7 +136,7 @@ describe.skipIf(!live)("M96.F02.I30 POST /admin/tenants 四方比对", () => {
       const r = await probeRequest(t, {
         method: "POST",
         path: BASE_PATH,
-        body: { code, name: `shape ${code}` },
+        body: { tenantKey: code, name: `shape ${code}` },
       });
       expect([200, 201]).toContain(r.status);
       // shape 探针创建的行也要清 —— 不注册 cleanup 会污染共库（total 计数漂移）

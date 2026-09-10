@@ -12,7 +12,7 @@ import { SEED } from "../src/seed.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const PATH = pathWithParams("/api/v1/clients/{clientId}", {
-  clientId: SEED.apps.labManagement,
+  clientId: SEED.clientIds.labManagement,
 });
 
 const targets: Target[] = selectedTargets();
@@ -44,7 +44,7 @@ describe.skipIf(!live)(`M96.F02.I06 ${PATH} 四方比对`, () => {
       for (const key of ["clientId", "clientName", "status"]) {
         expect(body[key], `${p.target} 缺 ${key}`).toBeDefined();
       }
-      expect(body.clientId, `${p.target} clientId 应当等于查询参数`).toBe(SEED.apps.labManagement);
+      expect(body.clientId, `${p.target} clientId 应当等于查询参数`).toBe(SEED.clientIds.labManagement);
     }
   });
 
