@@ -160,14 +160,16 @@ describe.skipIf(!live)("M96.F02.I42 POST /tenants/{t}/members/invitations 四方
       const r = await probeRequest(target, {
         method: "POST",
         path: `${USER_BASE}/invitations`,
-        body: { email, roleIds: [SEED.roles.acmeMember] },
+        body: { email },
       });
       expect([200, 201], `${target.name} 期望 200/201 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toContain(r.status);
-      const body = r.body as Record<string, unknown>;
-      expect(body.email, `${target.name} 响应缺 email`).toBe(email);
-      expect(body.status, `${target.name} 邀请行 status 必须 invited`).toBe("invited");
-      expect(body.id, `${target.name} 响应缺 id`).toBeDefined();
-      const userId = String(body.id);
+      const body = r.body as { user?: { id?: string; email?: string; status?: string }; member?: { tenantId?: string } };
+      // I42 方案 C（2026-09-10）：SSOT 保嵌套 TenantMemberView，邀请态挂 user.status=invited
+      expect(body.user?.email, `${target.name} 响应缺 user.email`).toBe(email);
+      expect(body.user?.status, `${target.name} 邀请行 user.status 必须 invited`).toBe("invited");
+      expect(body.user?.id, `${target.name} 响应缺 user.id`).toBeDefined();
+      expect(body.member?.tenantId, `${target.name} 响应缺 member.tenantId`).toBe(TENANT_ID);
+      const userId = String(body.user?.id);
       invited.set(target.name, userId);
       // 2026-09-01: 给 invite-* 探针补 registerCleanup(本轮 I10 修复)。
       // 之前没注册 → 4 target 邀请出 4 个 user 全残留,I10 GET /users 时行数差。

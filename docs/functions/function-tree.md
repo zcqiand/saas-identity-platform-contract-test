@@ -112,7 +112,7 @@
 | M96.F02.I39 | `PATCH /tenants/{t}/users/{u}` 四方比对 | 接口 | 前端+后端 | 改 displayName → 200 + updatedAt；不存在 id → 404 全等；M01.F01.I04 跨后端覆盖 | 已上线 |
 | M96.F02.I40 | `PUT /tenants/{t}/users/{u}/roles` 四方比对 | 接口 | 前端+后端 | 设 roleIds（seed acmeMember）→ 200 + GET 复核（authoritative 在 memberships）；M01.F02.I01 跨后端覆盖 | 已上线 |
 | M96.F02.I41 | `PATCH /tenants/{t}/users/{u}/status` 四方比对 | 接口 | 前端+后端 | active → suspended → active 往返，终态还原 active；M01.F02.I03 跨后端覆盖 | 已上线 |
-| M96.F02.I42 | `POST /tenants/{t}/users/invitations` 四方比对 | 接口 | 前端+后端 | 邀请 email → 200/201 + status=invited；id 供 I43 删除；M01.F02.I02 跨后端覆盖 | 已上线 |
+| M96.F02.I42 | `POST /tenants/{t}/users/invitations` 四方比对 | 接口 | 前端+后端 | 邀请 email → 200/201 + 嵌套 TenantMemberView，user.status=invited；id 供 I43 删除；M01.F02.I02 跨后端覆盖 | 已上线 |
 | M96.F02.I43 | `DELETE /tenants/{t}/users/{u}` 四方比对 | 接口 | 前端+后端 | 删 I42 邀请行 → 200/204 + 幂等（重复 → 404）；M01.F01.I05 跨后端覆盖 | 已上线 |
 | M96.F02.I44 | `GET /admin/apps` 四方比对 | 接口 | 前端+后端 | 平台 app 列表分页 shape（msw 不共库 → drop items/total）；M07.F01.I01 跨后端覆盖 | 已上线 |
 | M96.F02.I45 | `POST /admin/apps` 四方比对 | 接口 | 前端+后端 | 创 app（code/name/clientId/redirectUris 必填）→ 200/201；id 入 ctx 供 I46–I49；M07.F01.I02 跨后端覆盖 | 已上线 |
