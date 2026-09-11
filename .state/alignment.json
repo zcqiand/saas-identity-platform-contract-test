@@ -6,7 +6,7 @@
     "features": 4,
     "items": 84
   },
-  "warnings_total": 19,
+  "warnings_total": 9,
   "warnings": {
     "已上线但无设计映射": [
       "M96.F02.I74",
@@ -15,16 +15,6 @@
       "M96.F02.I77"
     ],
     "已上线但无测试引用": [
-      "M96.F02.I03",
-      "M96.F02.I04",
-      "M96.F02.I05",
-      "M96.F02.I06",
-      "M96.F02.I07",
-      "M96.F02.I08",
-      "M96.F02.I09",
-      "M96.F02.I10",
-      "M96.F02.I11",
-      "M96.F02.I22",
       "M96.F02.I36"
     ],
     "已上线但不在任何流程且非孤儿白名单": [
@@ -156,7 +146,12 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I03 /api/v1/me/tenants 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 响应体是 TenantMembership 数组",
+        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 必填字段齐全（契约 required: id/userId/tenantId/roleIds/status/joinedAt）",
+        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I04": {
@@ -170,7 +165,12 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I04 GET /api/v1/me 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I04 GET /api/v1/me 四方比对 > 响应体是单对象 CurrentUser（不是数组）",
+        "M96.F02.I04 GET /api/v1/me 四方比对 > 必填字段齐全（契约 required: id/email/memberships）",
+        "M96.F02.I04 GET /api/v1/me 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I05": {
@@ -184,7 +184,12 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 响应体是 map（对象），每个 value 都是菜单数组",
+        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 每个目标都返回 200",
+        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 菜单数组里必填字段齐全（EffectiveMenuNode.required: id/appId/code/name/type/sortOrder/children）"
+      ],
       "entry": []
     },
     "M96.F02.I06": {
@@ -198,7 +203,12 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I06 /api/v1/clients/lab-management 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I06 /api/v1/clients/lab-management 四方比对 > 响应体是单对象 OAuthClientPublicInfo（不是数组）",
+        "M96.F02.I06 /api/v1/clients/lab-management 四方比对 > 必填字段齐全（契约 required: clientId/clientName/status）",
+        "M96.F02.I06 /api/v1/clients/lab-management 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I07": {
@@ -212,7 +222,12 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > 响应体是分页包装 {items: Role[]}",
+        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > 每个 Role 必填字段齐全",
+        "M96.F02.I07 GET /tenants/{t}/roles 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I08": {
@@ -226,7 +241,12 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > 响应体是单对象 Role",
+        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > 必填字段齐全（Role.required）",
+        "M96.F02.I08 GET /tenants/{t}/roles/{r} 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I09": {
@@ -240,7 +260,12 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > 响应体是单对象 RoleMenuGrant",
+        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > 必填字段齐全（RoleMenuGrant.required: roleId/tenantId/menuIds/updatedAt）",
+        "M96.F02.I09 GET /tenants/{t}/roles/{r}/menus 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I10": {
@@ -254,7 +279,12 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I10 GET /tenants/{t}/members 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I10 GET /tenants/{t}/members 四方比对 > 响应体是分页包装 {items: User[]}",
+        "M96.F02.I10 GET /tenants/{t}/members 四方比对 > 每个 User 必填字段齐全",
+        "M96.F02.I10 GET /tenants/{t}/members 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I11": {
@@ -268,7 +298,12 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对 > normalize 后所有目标全等",
+        "M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对 > 响应体是单对象 User",
+        "M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对 > 必填字段齐全（User.required）",
+        "M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I12": {
@@ -426,7 +461,10 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I22 POST /auth/login 四方比对 > 正确凭证 → 200 + LoginResponse 必填字段齐全",
+        "M96.F02.I22 POST /auth/login 四方比对 > 错误密码 → 4xx 全等（normalize 后 body 全等）"
+      ],
       "entry": []
     },
     "M96.F02.I23": {
