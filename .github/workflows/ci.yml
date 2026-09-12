@@ -42,6 +42,12 @@ jobs:
       # msw server.ts 读它挂 CORS（2026-09-13 起 env 驱动 + fail-fast，缺即 exit 1）；
       # CI checkout 无 .env，必须由 workflow 注入三前端 dev origin
       SAAS_CORS_ALLOWED_ORIGINS: http://localhost:5101,http://localhost:5102,http://localhost:5103
+      # JWT 全家共享（ADR-0019 各后端缺 key 即 fail-fast；且「前端不可区分」要求
+      # A 后端签的 token B 后端能验 —— 四方必须同一把 key，job 级统一注入）
+      JWT_SIGNING_KEY: contract-test-dev-signing-key-32bytes
+      JWT_ISSUER: saas-identity-platform
+      JWT_AUDIENCE: saas-identity-platform-clients
+      JWT_TTL_SECONDS: "3600"
       TRACE_MAP: "1"
       CONTRACT_TARGETS: msw,aspnetcore,springboot,nextjs
 
