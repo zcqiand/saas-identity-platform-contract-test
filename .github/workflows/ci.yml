@@ -2,12 +2,14 @@ name: ci
 
 # saas-identity-platform-contract-test
 # 推送链:
-# - branch push(master/main) → 跑 contract-test（对齐门禁 L1-L5）
-# - tag push 不部署 —— 本仓是验证层，不是业务仓
+# - branch push(master/main) → 跑 contract-test（4 后端 live 比对 + L3 typecheck）
+# - tag push → 同一套验证（本仓是验证层，不部署；2026-09-13 起补 tags 触发器，
+#   旧版漏了它 —— v0.3.1-20260913 推 tag 时 CI 根本没跑）
 # 镜像名/路径用 ${{ github.event.repository.name }} 避免跨仓劫持。
 on:
   push:
     branches: [main, master]
+    tags: ["v*"]
   pull_request:
     branches: [main, master]
 
@@ -28,7 +30,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready -U saas
+          --health-cmd "pg_isready -U saas"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -160,10 +162,7 @@ jobs:
       - name: L3 typecheck
         run: npx --no tsc --noEmit
 
-      # L5 alignment + 全 gate
-      # suite 根目录跑 gate.py，自动定位合同仓
-      - name: L5 alignment + gate
-        working-directory: ..
-        run: |
-          python scripts/checks/_alignment.py -p saas-identity-platform-contract-test
-          python scripts/gate.py -p saas-identity-platform-contract-test
+      # L5 alignment + 全 gate：不在 CI 跑（2026-09-13 撤除）。原步骤 `working-directory: ..`
+      # 跑 `python scripts/gate.py`，但 CI 从未 checkout suite（无 harness 可执行），
+      # 08-31 建立起就是死步骤 —— 只是从没被跑到（container init 先炸）。suite 门
+      # （L0/L0.5/L5）是本机 harness 职责，push 前本地 `python scripts/gate.py -p …` 把守。
