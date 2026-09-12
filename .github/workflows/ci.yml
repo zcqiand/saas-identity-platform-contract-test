@@ -36,7 +36,9 @@ jobs:
           --health-retries 10
 
     env:
-      DATABASE_URL: postgresql://saas:saas@localhost:5432/saas?schema=public
+      # 无 ?schema=public 后缀：那是 prisma 风格参数，Npgsql 不认（run 34724026070
+      # aspnetcore 启动即崩 ArgumentException）。node-pg / drizzle 都不需要它。
+      DATABASE_URL: postgresql://saas:saas@localhost:5432/saas
       # msw server.ts 读它挂 CORS（2026-09-13 起 env 驱动 + fail-fast，缺即 exit 1）；
       # CI checkout 无 .env，必须由 workflow 注入三前端 dev origin
       SAAS_CORS_ALLOWED_ORIGINS: http://localhost:5101,http://localhost:5102,http://localhost:5103
@@ -134,7 +136,10 @@ jobs:
 
           (cd ../saas-identity-platform-msw && nohup npm run dev > "$LOGDIR/msw.log" 2>&1) & PIDS+=($!)
           (cd ../saas-identity-platform-aspnetcore && nohup dotnet run --project src/Saas.Identity.AspNetCore.csproj > "$LOGDIR/aspnetcore.log" 2>&1) & PIDS+=($!)
-          (cd ../saas-identity-platform-springboot && nohup mvn -q spring-boot:run > "$LOGDIR/springboot.log" 2>&1) & PIDS+=($!)
+          # springboot 的 datasource.url 是 jdbc 形态（application.yml 直灌 hikari，
+          # PG 驱动要求 jdbc: 前缀），凭据走 DATABASE_USER/DATABASE_PASSWORD 独立 key
+          # ——与 job 级 postgresql:// 形态（aspnetcore/nextjs 消费）不同源，故子壳覆盖
+          (cd ../saas-identity-platform-springboot && DATABASE_URL="jdbc:postgresql://localhost:5432/saas" DATABASE_USER=saas DATABASE_PASSWORD=saas nohup mvn -q spring-boot:run > "$LOGDIR/springboot.log" 2>&1) & PIDS+=($!)
           (cd ../saas-identity-platform-nextjs && nohup npm run dev > "$LOGDIR/nextjs.log" 2>&1) & PIDS+=($!)
 
           cleanup() {
