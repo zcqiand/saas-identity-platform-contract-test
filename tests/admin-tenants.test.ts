@@ -41,8 +41,8 @@ describe.skipIf(!live)("M96.F02.I29 GET /admin/tenants 四方比对", () => {
       }
       // 至少有 V016 seed 的 3 个租户
       expect(body.items!.length, `${t.name} list items 不应為空`).toBeGreaterThanOrEqual(3);
-      // seed 行字段齐全（拿第一行验 shape）
-      for (const key of ["id", "code", "name", "status", "createdAt", "updatedAt"]) {
+      // seed 行字段齐全（拿第一行验 shape）—— 9/7 SSOT Tenant: id/tenantKey/name/status/createdAt/updatedAt
+      for (const key of ["id", "tenantKey", "name", "status", "createdAt", "updatedAt"]) {
         expect(body.items![0]![key], `${t.name} tenant 行缺 ${key}`).toBeDefined();
       }
       probes.push(r);
@@ -113,7 +113,8 @@ describe.skipIf(!live)("M96.F02.I30 POST /admin/tenants 四方比对", () => {
       });
       expect([200, 201], `${target.name} 期望 200/201 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toContain(r.status);
       const body = r.body as Record<string, unknown>;
-      for (const key of ["id", "code", "name", "status", "createdAt", "updatedAt"]) {
+      // SSOT Tenant required: id/tenantKey/name/status/createdAt/updatedAt（code 是 pre-pivot 字段，已废）
+      for (const key of ["id", "tenantKey", "name", "status", "createdAt", "updatedAt"]) {
         expect(body[key], `${target.name} 创 tenant 缺 ${key}`).toBeDefined();
       }
       expect(body.status, `${target.name} 新 tenant 必须 active`).toBe("active");
@@ -159,7 +160,9 @@ describe.skipIf(!live)("M96.F02.I30 POST /admin/tenants 四方比对", () => {
     }
     // settings 各家 DTO 形状不同（aspnetcore TenantSettings 有非 nullable maxUsers:int
     // 必输出 0；msw/nextjs jsonb 原样 {}）—— SSOT 层面已知分叉，drop 不比。
-    const drop = ["id", "code", "name", "settings", "createdAt", "updatedAt"];
+    // tenantKey/name 是各 target 独立 uniqueName（I30 各家创各家的行），值必不一致 → drop；
+    // createdAt/updatedAt 走 normalize 内置 TIMESTAMP_KEYS，这里重复声明只是显式化。
+    const drop = ["id", "tenantKey", "name", "settings", "createdAt", "updatedAt"];
     const divergences = compareBodies(probes, targets, drop);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   }, 60_000);

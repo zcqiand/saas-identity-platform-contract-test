@@ -9,20 +9,21 @@
 // 认证面：msw 要 saas session cookie（login 写 jar），3 真后端走 Bearer。
 // contract-test 的 axios client 自带 cookie jar + login 顺手覆盖两者 —— 直接 probeRequest。
 //
-// 请求参数与 V017 后 seed 对齐：clientId=UUID（V014 收敛决策），redirectUri 在白名单。
+// 请求参数与 ADR-0032 D4 对齐：clientId 统一 code 形（oauth_client.client_id 字符串），
+// V014 的「clientId=UUID」收敛决策已被取代；redirectUri 在白名单。
 import { describe, expect, it } from "vitest";
 
 import { compareAll, compareBodies, formatDivergences } from "../src/compare.js";
 import { probeRequest } from "../src/http.js";
-import { ALICE_PARAMS } from "../src/seed.js";
+import { ALICE_PARAMS, SEED } from "../src/seed.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-// V017 后 seed：lab-mgmt app 的 clientId（UUID）与 redirectUri 白名单（apps.json 同源）
+// seed：lab-management app 的 clientId（code 形）与 redirectUri 白名单（apps.json 同源）
 const OAUTH_BODY = {
-  clientId: "11111111-1111-1111-1111-111111111111",
+  clientId: SEED.clientIds.labManagement,
   redirectUri: "http://localhost:5201/callback",
   responseType: "code",
   scope: "lab.read",
@@ -67,9 +68,9 @@ describe.skipIf(!live)("M96.F02.I26 POST /oauth/authorize 四方比对", () => {
         await probeRequest(t, {
           method: "POST",
           path: "/api/v1/oauth/authorize",
-          // 合法 UUID 形状但未注册（V014 后 clientId 收敛为 UUID；非 UUID 字面量
-          // 在 aspnetcore 走 NSwag Guid 反序列化 → 500，测的是解析器不是契约面）
-          body: { ...OAUTH_BODY, clientId: "11111111-1111-1111-1111-222222222222" },
+          // ADR-0032 D4：clientId 统一 code 形字符串——未注册 code 直接 400，
+          // 不再需要「UUID 形状躲 Guid 解析器」的旧 workaround
+          body: { ...OAUTH_BODY, clientId: "no-such-client" },
         }),
       );
     }

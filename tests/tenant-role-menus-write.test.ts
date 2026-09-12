@@ -97,19 +97,22 @@ describe.skipIf(!live)("M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比�
       expect(body.updatedAt, `${target.name} updatedAt 必填`).toBeDefined();
       // inline 还原 — 不让 c0000000* 测试假 ID 漏到并行跑的 I05/I09 read
       await restoreGrant(target);
-    }, 30_000);
+    }, 60_000); // nextjs 单发 PUT 实测 ~28s（远端 PG RTT），30s 余量不足（2026-09-12）
   }
 
   it("normalize 后所有目标的成功响应字段一致（除 volatile）", async () => {
-    const probes = await Promise.all(
-      targets.map((t) =>
-        probeRequest(t, {
+    // 串行而非 Promise.all：四方共享 PG 同一行 seed role，各后端加锁顺序不同，
+    // 并发 PUT 会互锁出 500（2026-09-12 实测）；比对本身不需要并发。
+    const probes = [];
+    for (const t of targets) {
+      probes.push(
+        await probeRequest(t, {
           method: "PUT",
           path: BASE_PATH,
           body: { menuIds: TARGET_MENU_IDS },
         }),
-      ),
-    );
+      );
+    }
     for (const p of probes) {
       expect(p.status, `normalize 比对期望 200 实得 ${p.status}`).toBe(200);
     }
@@ -117,8 +120,10 @@ describe.skipIf(!live)("M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比�
     const drop = ["roleId", "tenantId", "menuIds", "updatedAt"];
     const result = compareBodies(probes, targets, drop);
     expect(result, `\n${formatDivergences(result)}\n`).toEqual([]);
-    // normalize 比对也跑过 PUT 污染 → 还原
-    await Promise.all(targets.map(restoreGrant));
+    // normalize 比对也跑过 PUT 污染 → 还原（串行，理由同上）
+    for (const t of targets) {
+      await restoreGrant(t);
+    }
   }, 60_000);
 });
 

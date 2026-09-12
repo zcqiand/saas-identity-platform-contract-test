@@ -40,6 +40,13 @@ describe.skipIf(!live)("M96.F02.I04 GET /api/v1/me 四方比对", () => {
         expect(body[key], `${p.target} 缺 ${key}`).toBeDefined();
       }
       expect(Array.isArray(body.memberships), `${p.target} memberships 不是数组`).toBe(true);
+      // memberships 行 = TenantMembership（ADR-0032 扁平：id/userId/tenantId/roleIds/status/joinedAt）
+      const memberships = body.memberships as Array<Record<string, unknown>>;
+      for (const row of memberships) {
+        for (const key of ["id", "userId", "tenantId", "roleIds", "status", "joinedAt"]) {
+          expect(row[key], `${p.target} membership 行缺 ${key}`).toBeDefined();
+        }
+      }
     }
   });
 
@@ -76,7 +83,10 @@ describe.skipIf(!live)("M96.F02.I05 GET /api/v1/me/menus 四方比对", () => {
   });
 
   it("菜单数组里必填字段齐全（EffectiveMenuNode.required: id/appId/code/name/type/sortOrder/children）", () => {
-    const REQUIRED = ["id", "appId", "code", "name", "type", "sortOrder", "children"];
+    // 标题按 fnReporter 约束冻结；断言键集对齐 9/7 SSOT EffectiveMenuNode:
+    // id/clientId/parentId/title/type/sortOrder/children（appId/code/name 已废）。
+    // parentId 是 required 但顶级节点为 null / Spring 可能省略 → 不进 required 断言。
+    const REQUIRED = ["id", "clientId", "title", "type", "sortOrder", "children"];
     for (const p of probes) {
       const body = p.body as Record<string, unknown>;
       for (const value of Object.values(body)) {

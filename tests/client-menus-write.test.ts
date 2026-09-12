@@ -41,7 +41,8 @@ async function createMenu(target: Target): Promise<string> {
   const r = await probeRequest(target, {
     method: "POST",
     path: BASE_PATH,
-    body: { title: `contract-test ${code}`, type: "page" },  // 9/7 SSOT: CreateSysMenuRequest {title,type,...}
+    // SSOT SysMenuType = directory|menu|button（ADR-0032 D3：page 已废）
+    body: { title: `contract-test ${code}`, type: "menu" },
   });
   if (r.status !== 200 && r.status !== 201) {
     throw new Error(`${target.name} 建menu失败 status=${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`);
@@ -58,7 +59,10 @@ describe.skipIf(!live)("M96.F02.I50 GET /clients/{clientId}/menus 四方比对",
       expect(Array.isArray(items), `${t.name} 响应必须是数组（扁平 Menu[]）`).toBe(true);
       // seed lab-mgmt 下菜单不少（V016 数十条）
       expect(items.length, `${t.name} seed 菜单不应为空`).toBeGreaterThanOrEqual(5);
-      for (const key of ["id", "appId", "code", "name", "sortOrder", "status"]) {
+      // SSOT SysMenu required: id/clientId/parentId/title/type/sortOrder/status/createdAt
+      // （appId/code/name 是 pre-pivot 字段，已废）。parentId 是 required 但顶级菜单为 null /
+      // Spring NON_ABSENT 可能省略 → toBeDefined 会误红，不进 required 断言。
+      for (const key of ["id", "clientId", "title", "type", "sortOrder", "status", "createdAt"]) {
         expect(items[0]![key], `${t.name} menu 行缺 ${key}`).toBeDefined();
       }
     }
@@ -95,7 +99,8 @@ describe.skipIf(!live)("M96.F02.I51 POST /clients/{clientId}/menus 四方比对"
       const g = await probeRequest(target, { method: "GET", path: `${BASE_PATH}/${a}` });
       expect(g.status, `${target.name} get 新menu 期望 200 实得 ${g.status}`).toBe(200);
       const body = g.body as Record<string, unknown>;
-      for (const key of ["id", "appId", "code", "name", "sortOrder", "status"]) {
+      // SSOT SysMenu required（parentId 同上：null/省略分叉，不进 required 断言）
+      for (const key of ["id", "clientId", "title", "type", "sortOrder", "status", "createdAt"]) {
         expect(body[key], `${target.name} menu 行缺 ${key}`).toBeDefined();
       }
     }, 30_000);
@@ -216,7 +221,7 @@ describe.skipIf(!live)("M96.F02.I54 DELETE /clients/{clientId}/menus/{menuId} �
       ctx.menuA.delete(target.name);
       ctx.menuB.delete(target.name);
     }
-  }, 60_000);
+  }, 120_000); // 四方串行 × (删+重复删)，远端 PG RTT 高，60s 余量不足（2026-09-12 实测）
 
   afterAll(async () => {
     await runCleanups();

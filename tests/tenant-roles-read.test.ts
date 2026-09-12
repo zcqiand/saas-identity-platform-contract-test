@@ -18,7 +18,19 @@ import { type Target, selectedTargets } from "../src/targets.js";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-const ROLE_REQUIRED = ["id", "tenantId", "code", "name", "permissionIds", "createdAt", "updatedAt"];
+// 9/7 SSOT SysRole required: id/tenantId/clientId/roleCode/roleName/isPreset/status/createdAt/updatedAt
+// （code/name/permissionIds 是 pre-pivot Role 字段，pivot 后 msw oracle 与真后端都不返回）。
+const ROLE_REQUIRED = [
+  "id",
+  "tenantId",
+  "clientId",
+  "roleCode",
+  "roleName",
+  "isPreset",
+  "status",
+  "createdAt",
+  "updatedAt",
+];
 const ROLE_MENU_GRANT_REQUIRED = ["roleId", "tenantId", "menuIds", "updatedAt"];
 
 describe.skipIf(!live)("M96.F02.I07 GET /tenants/{t}/roles 四方比对", () => {
@@ -51,7 +63,6 @@ describe.skipIf(!live)("M96.F02.I07 GET /tenants/{t}/roles 四方比对", () => 
         for (const key of ROLE_REQUIRED) {
           expect(role[key], `${p.target} role 缺 ${key}`).toBeDefined();
         }
-        expect(Array.isArray(role.permissionIds), `${p.target} permissionIds 不是数组`).toBe(true);
       }
     }
   });

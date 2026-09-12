@@ -29,6 +29,9 @@ const live = targets.length >= 2;
 /** I75 各 target 创的 application id。 */
 const ctx: { clientIds: Map<string, string> } = { clientIds: new Map() };
 
+/** I75 前置注册的 oauth_client（订阅的 FK 目标；teardown 兜底删，key=target 名）。 */
+const precreatedClients: Map<string, string> = new Map();
+
 describe.skipIf(!live)("M96.F02.I74 GET /tenants/{tenantId}/applications 四方比对", () => {
   it("列表 → 200 + 分页包装 shape", async () => {
     const probes = [];
@@ -63,6 +66,28 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
   for (const target of targets) {
     it(`M96.F02.I75 ${target.name} 订阅 application 返回 200/201 + 字段齐全`, async () => {
       const clientId = uniqueName("ct-app"); // 唯一化 clientId
+
+      // 前置：先 POST /admin/clients 注册该 client（payload 形态同 admin-clients-write I45，
+      // CreateOAuthClientRequest：grantTypes/redirectUris 是逗号串不是数组）。
+      // oauth_client.client_id 是订阅的 FK 目标，未注册的 clientId 三真后端全炸
+      // （springboot 500 / aspnetcore+nextjs 404），msw 不校验 FK 才让旧写法侥幸过。
+      const createClient = await probeRequest(target, {
+        method: "POST",
+        path: "/api/v1/admin/clients",
+        body: {
+          clientId,
+          clientName: `contract-test ${clientId}`,
+          clientSecret: "ct-secret",
+          grantTypes: "authorization_code",
+          redirectUris: "http://localhost:5201/callback",
+        },
+      });
+      expect(
+        [200, 201],
+        `${target.name} 前置建 client 期望 200/201 实得 ${createClient.status} body=${JSON.stringify(createClient.body).slice(0, 300)}`,
+      ).toContain(createClient.status);
+      precreatedClients.set(target.name, clientId);
+
       const r = await probeRequest(target, {
         method: "POST",
         path: BASE_PATH,
@@ -79,6 +104,7 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
       // 寻址契约：/applications/{clientId} 用字符串 clientId 列（非 UUID id）
       ctx.clientIds.set(target.name, clientId);
 
+      // teardown 顺序：application（child, tenant_application）先删，client（parent, oauth_client）后删
       registerCleanup(
         `delete-app:${target.name}`,
         async () => {
@@ -89,7 +115,22 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
           if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
             console.warn(`[teardown] delete-app ${target.name} 异常 status=${tr.status}`);
           }
-      });
+        },
+        { kind: "child" },
+      );
+      registerCleanup(
+        `delete-client:${target.name}:${clientId.slice(-8)}`,
+        async () => {
+          const tr = await probeRequest(target, {
+            method: "DELETE",
+            path: `/api/v1/admin/clients/${clientId}`,
+          });
+          if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
+            console.warn(`[teardown] delete-client ${target.name} 异常 status=${tr.status}`);
+          }
+        },
+        { kind: "parent" },
+      );
     }, 30_000);
   }
 });
@@ -102,7 +143,8 @@ describe.skipIf(!live)("M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clie
       const r = await probeRequest(target, {
         method: "PATCH",
         path: `${BASE_PATH}/${clientId}`,
-        body: { status: "disabled" },
+        // SSOT TenantApplication.status = int32（同 I49 admin/clients 风格：0=disabled 1=active）
+        body: { status: 0 },
       });
       expect(
         r.status,
@@ -148,6 +190,19 @@ describe.skipIf(!live)("M96.F02.I77 DELETE /tenants/{tenantId}/applications/{cli
       });
       if (r.status !== 200 && r.status !== 204 && r.status !== 404) {
         console.warn(`[teardown] final delete-app ${tname} 异常 status=${r.status}`);
+      }
+    }
+    // 防御性兜底：I75 前置建的 client 若因断言失败没走 registerCleanup，这里再删一轮
+    // （已删过 → 404，容差内；顺序在 application 之后，不会撞 FK）
+    for (const [tname, clientId] of precreatedClients) {
+      const t = TARGETS[tname];
+      if (!t) continue;
+      const r = await probeRequest(t, {
+        method: "DELETE",
+        path: `/api/v1/admin/clients/${clientId}`,
+      });
+      if (r.status !== 200 && r.status !== 204 && r.status !== 404) {
+        console.warn(`[teardown] final delete-client ${tname} 异常 status=${r.status}`);
       }
     }
   }, 60_000);

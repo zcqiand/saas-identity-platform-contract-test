@@ -145,7 +145,8 @@ describe.skipIf(!live)("M96.F02.I45 POST /admin/clients 四方比对", () => {
       );
       probes.push(r);
     }
-    const drop = ["id", "code", "name", "clientId", "clientSecret", "createdAt", "updatedAt"];
+    // clientName 是各 target 独立 uniqueName（同 username 的 volatile 语义），比对时剔除
+    const drop = ["id", "code", "name", "clientId", "clientName", "clientSecret", "createdAt", "updatedAt"];
     const divergences = compareBodies(probes, targets, drop);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   }, 60_000);

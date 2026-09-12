@@ -31,7 +31,7 @@ describe.skipIf(!live)(`M96.F02.I28 POST /me/tenants/{t}/switch 四方比对`, (
         `${t.name} switch 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`,
       ).toBe(200);
       const body = r.body as Record<string, unknown>;
-      // SSOT SwitchTenantResponse: accessToken/refreshToken?/expiresAt/tenantId
+      // SSOT SwitchTenantResponse: accessToken/refreshToken/expiresAt/tenantId（ADR-0032：无 clientId）
       expect(body.accessToken, `${t.name} switch 响应缺 accessToken`).toBeDefined();
       expect(body.expiresAt, `${t.name} switch 响应缺 expiresAt`).toBeDefined();
       expect(body.tenantId, `${t.name} switch tenantId 应回显`).toBe(ALICE_PARAMS.tenantId);

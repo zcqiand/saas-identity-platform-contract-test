@@ -6,7 +6,7 @@
     "features": 4,
     "items": 84
   },
-  "warnings_total": 9,
+  "warnings_total": 75,
   "warnings": {
     "已上线但无设计映射": [
       "M96.F02.I74",
@@ -15,7 +15,73 @@
       "M96.F02.I77"
     ],
     "已上线但无测试引用": [
-      "M96.F02.I36"
+      "M96.F01.I01",
+      "M96.F01.I02",
+      "M96.F01.I03",
+      "M96.F01.I04",
+      "M96.F02.I01",
+      "M96.F02.I02",
+      "M96.F02.I03",
+      "M96.F02.I04",
+      "M96.F02.I05",
+      "M96.F02.I06",
+      "M96.F02.I10",
+      "M96.F02.I11",
+      "M96.F02.I19",
+      "M96.F02.I20",
+      "M96.F02.I22",
+      "M96.F02.I23",
+      "M96.F02.I24",
+      "M96.F02.I25",
+      "M96.F02.I26",
+      "M96.F02.I27",
+      "M96.F02.I28",
+      "M96.F02.I29",
+      "M96.F02.I30",
+      "M96.F02.I31",
+      "M96.F02.I32",
+      "M96.F02.I33",
+      "M96.F02.I34",
+      "M96.F02.I35",
+      "M96.F02.I36",
+      "M96.F02.I37",
+      "M96.F02.I38",
+      "M96.F02.I39",
+      "M96.F02.I40",
+      "M96.F02.I41",
+      "M96.F02.I42",
+      "M96.F02.I43",
+      "M96.F02.I44",
+      "M96.F02.I45",
+      "M96.F02.I46",
+      "M96.F02.I47",
+      "M96.F02.I48",
+      "M96.F02.I49",
+      "M96.F02.I50",
+      "M96.F02.I51",
+      "M96.F02.I52",
+      "M96.F02.I53",
+      "M96.F02.I54",
+      "M96.F02.I55",
+      "M96.F02.I56",
+      "M96.F02.I60",
+      "M96.F02.I61",
+      "M96.F02.I62",
+      "M96.F02.I63",
+      "M96.F02.I64",
+      "M96.F02.I65",
+      "M96.F02.I66",
+      "M96.F02.I67",
+      "M96.F02.I68",
+      "M96.F02.I69",
+      "M96.F02.I70",
+      "M96.F02.I71",
+      "M96.F02.I74",
+      "M96.F02.I75",
+      "M96.F02.I76",
+      "M96.F02.I77",
+      "M96.F03.I01",
+      "M96.F03.I02"
     ],
     "已上线但不在任何流程且非孤儿白名单": [
       "M96.F02.I74",
@@ -45,13 +111,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F01.I01 剔除非确定性字段 > ALWAYS_VOLATILE 覆盖两种命名风格",
-        "M96.F01.I01 剔除非确定性字段 > token 类字段总是剔除",
-        "M96.F01.I01 剔除非确定性字段 > 剔 ID 后 msw 的合成 ID 与真库 UUID 可比",
-        "M96.F01.I01 剔除非确定性字段 > 显式传 ID_KEYS 才剔 —— 比对含 msw（内存 fixture，不共库）时用",
-        "M96.F01.I01 剔除非确定性字段 > 默认不剔 ID —— 三个真后端共库，UUID 本来就该相等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F01.I02": {
@@ -63,12 +123,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F01.I02 日期归一化到 UTC Z > Jackson 与 System.Text.Json 的两种写法归一后相等",
-        "M96.F01.I02 日期归一化到 UTC Z > 不是日期的字符串原样保留",
-        "M96.F01.I02 日期归一化到 UTC Z > 把 +00:00 偏移改写成 Z",
-        "M96.F01.I02 日期归一化到 UTC Z > 把非零偏移换算到 UTC"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F01.I03": {
@@ -80,10 +135,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F01.I03 缺失与显式 null 等价 > 嵌套层里的 null 同样等价",
-        "M96.F01.I03 缺失与显式 null 等价 > 显式 null 与字段缺失归一后相等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F01.I04": {
@@ -95,11 +147,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F01.I04 递归排序 object key 与数组 > 字段顺序不属于契约",
-        "M96.F01.I04 递归排序 object key 与数组 > 嵌套对象数组也按稳定键排",
-        "M96.F01.I04 递归排序 object key 与数组 > 数组顺序不属于契约"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I01": {
@@ -111,11 +159,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I01 status 全等 > 单个目标不比对",
-        "M96.F02.I01 status 全等 > 状态码一致时无分歧",
-        "M96.F02.I01 status 全等 > 状态码分叉时点名是哪个后端"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I02": {
@@ -127,12 +171,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I02 normalize 后 body 全等 > 只有字段顺序/日期格式不同 → 不算分歧",
-        "M96.F02.I02 normalize 后 body 全等 > 只比两个真后端时 ID 参与比对 —— 共库就该相等",
-        "M96.F02.I02 normalize 后 body 全等 > 含 msw 时剔 ID —— 它是内存 fixture，ID 不共库",
-        "M96.F02.I02 normalize 后 body 全等 > 字段值真不同 → 报分歧并指出第一处"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I03": {
@@ -146,12 +185,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I03 /api/v1/me/tenants 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 响应体是 TenantMembership 数组",
-        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 必填字段齐全（契约 required: id/userId/tenantId/roleIds/status/joinedAt）",
-        "M96.F02.I03 /api/v1/me/tenants 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I04": {
@@ -165,12 +199,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I04 GET /api/v1/me 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I04 GET /api/v1/me 四方比对 > 响应体是单对象 CurrentUser（不是数组）",
-        "M96.F02.I04 GET /api/v1/me 四方比对 > 必填字段齐全（契约 required: id/email/memberships）",
-        "M96.F02.I04 GET /api/v1/me 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I05": {
@@ -184,12 +213,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 响应体是 map（对象），每个 value 都是菜单数组",
-        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 每个目标都返回 200",
-        "M96.F02.I05 GET /api/v1/me/menus 四方比对 > 菜单数组里必填字段齐全（EffectiveMenuNode.required: id/appId/code/name/type/sortOrder/children）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I06": {
@@ -203,12 +227,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I06 /api/v1/clients/lab-management 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I06 /api/v1/clients/lab-management 四方比对 > 响应体是单对象 OAuthClientPublicInfo（不是数组）",
-        "M96.F02.I06 /api/v1/clients/lab-management 四方比对 > 必填字段齐全（契约 required: clientId/clientName/status）",
-        "M96.F02.I06 /api/v1/clients/lab-management 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I07": {
@@ -279,12 +298,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I10 GET /tenants/{t}/members 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I10 GET /tenants/{t}/members 四方比对 > 响应体是分页包装 {items: User[]}",
-        "M96.F02.I10 GET /tenants/{t}/members 四方比对 > 每个 User 必填字段齐全",
-        "M96.F02.I10 GET /tenants/{t}/members 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I11": {
@@ -298,12 +312,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对 > normalize 后所有目标全等",
-        "M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对 > 响应体是单对象 User",
-        "M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对 > 必填字段齐全（User.required）",
-        "M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对 > 每个目标都返回 200"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I12": {
@@ -413,13 +422,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I19 POST /tenants/{t}/members 四方比对 > M96.F02.I19 aspnetcore 创建返回 200/201 + user 字段齐全",
-        "M96.F02.I19 POST /tenants/{t}/members 四方比对 > M96.F02.I19 msw 创建返回 200/201 + user 字段齐全",
-        "M96.F02.I19 POST /tenants/{t}/members 四方比对 > M96.F02.I19 nextjs 创建返回 200/201 + user 字段齐全",
-        "M96.F02.I19 POST /tenants/{t}/members 四方比对 > M96.F02.I19 springboot 创建返回 200/201 + user 字段齐全",
-        "M96.F02.I19 POST /tenants/{t}/members 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I20": {
@@ -431,13 +434,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 aspnetcore 整批设置返回 200 + roleMenuGrant 字段齐全",
-        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 msw 整批设置返回 200 + roleMenuGrant 字段齐全",
-        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 nextjs 整批设置返回 200 + roleMenuGrant 字段齐全",
-        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > M96.F02.I20 springboot 整批设置返回 200 + roleMenuGrant 字段齐全",
-        "M96.F02.I20 PUT /tenants/{t}/roles/{r}/menus 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I21": {
@@ -461,10 +458,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I22 POST /auth/login 四方比对 > 正确凭证 → 200 + LoginResponse 必填字段齐全",
-        "M96.F02.I22 POST /auth/login 四方比对 > 错误密码 → 4xx 全等（normalize 后 body 全等）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I23": {
@@ -476,9 +470,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I23 POST /auth/logout 四方比对 > login 后 logout → 200/204 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I24": {
@@ -490,10 +482,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I24 POST /auth/refresh 四方比对 > login 的 refreshToken 换新 token 对 → 200 + TokenResponse 必填",
-        "M96.F02.I24 POST /auth/refresh 四方比对 > 未知 refreshToken → 400 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I25": {
@@ -505,9 +494,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I25 POST /auth/oidc/callback 四方比对 > 缺 code → 4xx 全等（错误分支，不依赖真 IdP）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I26": {
@@ -519,10 +506,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I26 POST /oauth/authorize 四方比对 > 合法 clientId → 200 {code,state}（code 剔除后全等）",
-        "M96.F02.I26 POST /oauth/authorize 四方比对 > 未知 clientId → 400 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I27": {
@@ -534,10 +518,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I27 POST /oauth/token 四方比对 > I26 的 code 换 token 对 → 200 + TokenResponse 必填",
-        "M96.F02.I27 POST /oauth/token 四方比对 > 已被消费的 code 重放 → 400 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I28": {
@@ -549,12 +530,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I28 POST /me/tenants/{t}/switch 四方比对 > alice 切到所属 tenant → 200 + SwitchTenantResponse 必填",
-        "M96.F02.I28 POST /me/tenants/{t}/switch 四方比对 > 切到不存在的 tenant → 404 全等",
-        "M96.F02.I28 POST /oauth/token (refresh_token grant) 四方比对 > 合法 refreshToken → 200 + 新 TokenResponse 必填",
-        "M96.F02.I28 POST /oauth/token (refresh_token grant) 四方比对 > 非法 refreshToken → 400 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I29": {
@@ -566,9 +542,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I29 GET /admin/tenants 四方比对 > 列表 → 200 + 分页包装 shape（items 元素字段齐全）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I30": {
@@ -580,13 +554,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 aspnetcore 创 tenant 返回 200/201 + 字段齐全",
-        "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 msw 创 tenant 返回 200/201 + 字段齐全",
-        "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 nextjs 创 tenant 返回 200/201 + 字段齐全",
-        "M96.F02.I30 POST /admin/tenants 四方比对 > M96.F02.I30 springboot 创 tenant 返回 200/201 + 字段齐全",
-        "M96.F02.I30 POST /admin/tenants 四方比对 > normalize 后成功响应字段一致（除唯一值/时间戳）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I31": {
@@ -598,13 +566,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 aspnetcore 取自己创的 tenant → 200 + 字段齐全",
-        "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 msw 取自己创的 tenant → 200 + 字段齐全",
-        "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 nextjs 取自己创的 tenant → 200 + 字段齐全",
-        "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > M96.F02.I31 springboot 取自己创的 tenant → 200 + 字段齐全",
-        "M96.F02.I31 GET /admin/tenants/{id} 四方比对 > 不存在 id → 404 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I32": {
@@ -616,12 +578,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 aspnetcore 改 name → 200 + updatedAt 必填",
-        "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 nextjs 改 name → 200 + updatedAt 必填",
-        "M96.F02.I32 PATCH /admin/tenants/{id} 四方比对 > M96.F02.I32 springboot 改 name → 200 + updatedAt 必填"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I33": {
@@ -633,9 +590,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I33 DELETE /admin/tenants/{id} 四方比对 > I30 的 tenant 删除 → 204 + 重复删 → 404（幂等）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I34": {
@@ -647,13 +602,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 aspnetcore 创建返回 200/201 + role 字段齐全",
-        "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 msw 创建返回 200/201 + role 字段齐全",
-        "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 nextjs 创建返回 200/201 + role 字段齐全",
-        "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > M96.F02.I34 springboot 创建返回 200/201 + role 字段齐全",
-        "M96.F02.I34 POST /tenants/{t}/roles 四方比对 > normalize 后所有目标的成功响应字段一致（除 volatile）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I35": {
@@ -665,13 +614,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 aspnetcore 改 name → 200 + updatedAt 必填",
-        "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 nextjs 改 name → 200 + updatedAt 必填",
-        "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > M96.F02.I35 springboot 改 name → 200 + updatedAt 必填",
-        "M96.F02.I35 PATCH /tenants/{t}/roles/{r} 四方比对 > 不存在 id → 404 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I36": {
@@ -695,9 +638,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I37 DELETE /tenants/{t}/roles/{r} 四方比对 > I34 的 role 删除 → 204/200 + 重复删 → 404（幂等）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I38": {
@@ -709,9 +650,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I38 DELETE /tenants/{t}/roles/{r}/menus 四方比对 > 清空 → 204/200 + 幂等 → 还原 seed 授权"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I39": {
@@ -723,13 +662,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对 > M96.F02.I39 aspnetcore 改 displayName → 200 + updatedAt 必填",
-        "M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对 > M96.F02.I39 msw 改 displayName → 200 + updatedAt 必填",
-        "M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对 > M96.F02.I39 nextjs 改 displayName → 200 + updatedAt 必填",
-        "M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对 > M96.F02.I39 springboot 改 displayName → 200 + updatedAt 必填",
-        "M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对 > 不存在 id → 404 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I40": {
@@ -741,12 +674,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I40 PUT /tenants/{t}/members/{u}/roles 四方比对 > M96.F02.I40 aspnetcore 设 roleIds → 200 + 响应回带",
-        "M96.F02.I40 PUT /tenants/{t}/members/{u}/roles 四方比对 > M96.F02.I40 msw 设 roleIds → 200 + 响应回带",
-        "M96.F02.I40 PUT /tenants/{t}/members/{u}/roles 四方比对 > M96.F02.I40 nextjs 设 roleIds → 200 + 响应回带",
-        "M96.F02.I40 PUT /tenants/{t}/members/{u}/roles 四方比对 > M96.F02.I40 springboot 设 roleIds → 200 + 响应回带"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I41": {
@@ -758,12 +686,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I41 PATCH /tenants/{t}/members/{u}/status 四方比对 > M96.F02.I41 aspnetcore active → suspended → active 往返",
-        "M96.F02.I41 PATCH /tenants/{t}/members/{u}/status 四方比对 > M96.F02.I41 msw active → suspended → active 往返",
-        "M96.F02.I41 PATCH /tenants/{t}/members/{u}/status 四方比对 > M96.F02.I41 nextjs active → suspended → active 往返",
-        "M96.F02.I41 PATCH /tenants/{t}/members/{u}/status 四方比对 > M96.F02.I41 springboot active → suspended → active 往返"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I42": {
@@ -775,13 +698,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I42 aspnetcore 邀请 → 200/201 + status=invited",
-        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I42 msw 邀请 → 200/201 + status=invited",
-        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I42 nextjs 邀请 → 200/201 + status=invited",
-        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I42 springboot 邀请 → 200/201 + status=invited",
-        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I43 DELETE /tenants/{t}/members/{u} 四方比对 > I42 的邀请行删除 → 200/204 + 重复删 → 404（幂等）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I43": {
@@ -793,9 +710,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I42 POST /tenants/{t}/members/invitations 四方比对 > M96.F02.I43 DELETE /tenants/{t}/members/{u} 四方比对 > I42 的邀请行删除 → 200/204 + 重复删 → 404（幂等）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I44": {
@@ -807,9 +722,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I44 GET /admin/clients 四方比对 > 列表 → 200 + 分页包装 shape"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I45": {
@@ -821,13 +734,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I45 POST /admin/clients 四方比对 > M96.F02.I45 aspnetcore 创 app 返回 200/201 + 字段齐全",
-        "M96.F02.I45 POST /admin/clients 四方比对 > M96.F02.I45 msw 创 app 返回 200/201 + 字段齐全",
-        "M96.F02.I45 POST /admin/clients 四方比对 > M96.F02.I45 nextjs 创 app 返回 200/201 + 字段齐全",
-        "M96.F02.I45 POST /admin/clients 四方比对 > M96.F02.I45 springboot 创 app 返回 200/201 + 字段齐全",
-        "M96.F02.I45 POST /admin/clients 四方比对 > normalize 后成功响应字段一致（除唯一值/时间戳）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I46": {
@@ -839,13 +746,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I46 GET /admin/clients/{clientId} 四方比对 > M96.F02.I46 aspnetcore 取自己创的 app → 200 + 字段齐全",
-        "M96.F02.I46 GET /admin/clients/{clientId} 四方比对 > M96.F02.I46 msw 取自己创的 app → 200 + 字段齐全",
-        "M96.F02.I46 GET /admin/clients/{clientId} 四方比对 > M96.F02.I46 nextjs 取自己创的 app → 200 + 字段齐全",
-        "M96.F02.I46 GET /admin/clients/{clientId} 四方比对 > M96.F02.I46 springboot 取自己创的 app → 200 + 字段齐全",
-        "M96.F02.I46 GET /admin/clients/{clientId} 四方比对 > 不存在 id → 404 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I47": {
@@ -857,12 +758,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I47 PATCH /admin/clients/{clientId} 四方比对 > M96.F02.I47 aspnetcore 改 name → 200 + updatedAt 必填",
-        "M96.F02.I47 PATCH /admin/clients/{clientId} 四方比对 > M96.F02.I47 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I47 PATCH /admin/clients/{clientId} 四方比对 > M96.F02.I47 nextjs 改 name → 200 + updatedAt 必填",
-        "M96.F02.I47 PATCH /admin/clients/{clientId} 四方比对 > M96.F02.I47 springboot 改 name → 200 + updatedAt 必填"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I48": {
@@ -874,9 +770,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I48 DELETE /admin/clients/{clientId} 四方比对 > I45 的 app 删除 → 204/200 + 重复删 → 404（幂等）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I49": {
@@ -888,12 +782,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I49 PATCH /admin/clients/{clientId}/status 四方比对 > M96.F02.I49 aspnetcore active → disabled → active 往返",
-        "M96.F02.I49 PATCH /admin/clients/{clientId}/status 四方比对 > M96.F02.I49 msw active → disabled → active 往返",
-        "M96.F02.I49 PATCH /admin/clients/{clientId}/status 四方比对 > M96.F02.I49 nextjs active → disabled → active 往返",
-        "M96.F02.I49 PATCH /admin/clients/{clientId}/status 四方比对 > M96.F02.I49 springboot active → disabled → active 往返"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I50": {
@@ -905,9 +794,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I50 GET /clients/{clientId}/menus 四方比对 > seed 菜单列表 → 200 + Menu[] shape"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I51": {
@@ -919,12 +806,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I51 POST /clients/{clientId}/menus 四方比对 > M96.F02.I51 aspnetcore 创 menu（A/B 两个）→ 200/201 + 字段齐全",
-        "M96.F02.I51 POST /clients/{clientId}/menus 四方比对 > M96.F02.I51 msw 创 menu（A/B 两个）→ 200/201 + 字段齐全",
-        "M96.F02.I51 POST /clients/{clientId}/menus 四方比对 > M96.F02.I51 nextjs 创 menu（A/B 两个）→ 200/201 + 字段齐全",
-        "M96.F02.I51 POST /clients/{clientId}/menus 四方比对 > M96.F02.I51 springboot 创 menu（A/B 两个）→ 200/201 + 字段齐全"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I52": {
@@ -936,13 +818,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I52 aspnetcore 取自建 menu → 200",
-        "M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I52 msw 取自建 menu → 200",
-        "M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I52 nextjs 取自建 menu → 200",
-        "M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I52 springboot 取自建 menu → 200",
-        "M96.F02.I52 GET /clients/{clientId}/menus/{menuId} 四方比对 > 不存在 id → 404 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I53": {
@@ -954,12 +830,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I53 PATCH /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I53 aspnetcore 改 name → 200 + updatedAt 必填",
-        "M96.F02.I53 PATCH /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I53 msw 改 name → 200 + updatedAt 必填",
-        "M96.F02.I53 PATCH /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I53 nextjs 改 name → 200 + updatedAt 必填",
-        "M96.F02.I53 PATCH /clients/{clientId}/menus/{menuId} 四方比对 > M96.F02.I53 springboot 改 name → 200 + updatedAt 必填"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I54": {
@@ -971,9 +842,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I54 DELETE /clients/{clientId}/menus/{menuId} 四方比对 > I51 的 menu 对删除 → 204/200 + 重复删 → 404（幂等）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I55": {
@@ -985,12 +854,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I55 PUT /clients/{clientId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 aspnetcore A/B 换序 → 200 + Menu[]",
-        "M96.F02.I55 PUT /clients/{clientId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 msw A/B 换序 → 200 + Menu[]",
-        "M96.F02.I55 PUT /clients/{clientId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 nextjs A/B 换序 → 200 + Menu[]",
-        "M96.F02.I55 PUT /clients/{clientId}/menus/{menuId}/reorder 四方比对 > M96.F02.I55 springboot A/B 换序 → 200 + Menu[]"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I56": {
@@ -1002,12 +866,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I56 PATCH /clients/{clientId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 aspnetcore B 挂到 A 下 → 200 + parentId 回带",
-        "M96.F02.I56 PATCH /clients/{clientId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 msw B 挂到 A 下 → 200 + parentId 回带",
-        "M96.F02.I56 PATCH /clients/{clientId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 nextjs B 挂到 A 下 → 200 + parentId 回带",
-        "M96.F02.I56 PATCH /clients/{clientId}/menus/{menuId}/parent 四方比对 > M96.F02.I56 springboot B 挂到 A 下 → 200 + parentId 回带"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I57": {
@@ -1055,9 +914,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I60 GET /admin/tenants 分页 defaults 契约面 > 不传 ?page/?pageSize → page=0, pageSize=20 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I61": {
@@ -1069,9 +926,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I61 GET /admin/tenants 显式分页回显 > ?page=1&pageSize=2 → 回显一致（page=1, pageSize=2）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I62": {
@@ -1083,9 +938,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I62 GET /admin/tenants/{id} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I63": {
@@ -1097,9 +950,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I63 GET /admin/clients 显式分页回显 > ?page=1&pageSize=2 → 回显一致（page=1, pageSize=2）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I64": {
@@ -1111,9 +962,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I64 POST /admin/clients 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I65": {
@@ -1125,9 +974,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I65 GET /admin/clients/{clientId} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I66": {
@@ -1139,9 +986,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I66 GET /clients/{clientId}/menus/{menuId} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I67": {
@@ -1153,9 +998,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I67 POST /tenants/{t}/roles 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I68": {
@@ -1167,9 +1010,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I68 PATCH /tenants/{t}/roles/{r} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I69": {
@@ -1181,9 +1022,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I69 POST /tenants/{t}/members 缺必填字段错误分支 > 空 body → 4xx + ErrorResponse envelope shape 全等"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I70": {
@@ -1195,9 +1034,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I70 PATCH /tenants/{t}/members/{u} 404 ErrorResponse envelope > 404 envelope shape 全等（前端 catch 分支依赖）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I71": {
@@ -1209,9 +1046,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F02.I71 GET /tenants/{t}/members ?status= 过滤 > ?status=active — 响应分页 envelope 全等（4 后端契约面）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I72": {
@@ -1245,9 +1080,7 @@
       "requirements": [],
       "flows": [],
       "designs": [],
-      "tests": [
-        "M96.F02.I74 GET /tenants/{tenantId}/applications 四方比对 > 列表 → 200 + 分页包装 shape"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I75": {
@@ -1257,12 +1090,7 @@
       "requirements": [],
       "flows": [],
       "designs": [],
-      "tests": [
-        "M96.F02.I75 POST /tenants/{tenantId}/applications 四方比对 > M96.F02.I75 aspnetcore 订阅 application 返回 200/201 + 字段齐全",
-        "M96.F02.I75 POST /tenants/{tenantId}/applications 四方比对 > M96.F02.I75 msw 订阅 application 返回 200/201 + 字段齐全",
-        "M96.F02.I75 POST /tenants/{tenantId}/applications 四方比对 > M96.F02.I75 nextjs 订阅 application 返回 200/201 + 字段齐全",
-        "M96.F02.I75 POST /tenants/{tenantId}/applications 四方比对 > M96.F02.I75 springboot 订阅 application 返回 200/201 + 字段齐全"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I76": {
@@ -1272,12 +1100,7 @@
       "requirements": [],
       "flows": [],
       "designs": [],
-      "tests": [
-        "M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clientId} 四方比对 > M96.F02.I76 aspnetcore 改 status → 200 + updatedAt 必填",
-        "M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clientId} 四方比对 > M96.F02.I76 msw 改 status → 200 + updatedAt 必填",
-        "M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clientId} 四方比对 > M96.F02.I76 nextjs 改 status → 200 + updatedAt 必填",
-        "M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clientId} 四方比对 > M96.F02.I76 springboot 改 status → 200 + updatedAt 必填"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F02.I77": {
@@ -1287,9 +1110,7 @@
       "requirements": [],
       "flows": [],
       "designs": [],
-      "tests": [
-        "M96.F02.I77 DELETE /tenants/{tenantId}/applications/{clientId} 四方比对 > I75 的 application 删除 → 204/200 + 重复删 → 404（幂等）"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F03.I01": {
@@ -1301,10 +1122,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F03.I01 目标端口声明 > 只有 msw 是内存 fixture",
-        "M96.F03.I01 目标端口声明 > 四个目标端口与 conventions §6 一致"
-      ],
+      "tests": [],
       "entry": []
     },
     "M96.F03.I02": {
@@ -1316,10 +1134,7 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [
-        "M96.F03.I02 声明即必须可达 > 声明了不认识的名字 → 抛错，不静默忽略",
-        "M96.F03.I02 声明即必须可达 > 声明了认识的目标就返回它们"
-      ],
+      "tests": [],
       "entry": []
     }
   }

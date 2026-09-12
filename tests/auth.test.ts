@@ -14,6 +14,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, compareBodies, formatDivergences } from "../src/compare.js";
 import { probeRequest, SEED_USER } from "../src/http.js";
+import { SEED } from "../src/seed.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const targets: Target[] = selectedTargets();
@@ -43,9 +44,17 @@ describe.skipIf(!live)("M96.F02.I22 POST /auth/login 四方比对", () => {
       });
       expect(r.status, `${t.name} login 期望 200 实得 ${r.status}`).toBe(200);
       const body = r.body as Record<string, unknown>;
-      // SSOT LoginResponse: accessToken/refreshToken/tokenType/expiresIn/userId/currentTenantId
+      // SSOT LoginResponse: userId 顶层 required + token 四件套 + availableTenants
       for (const key of ["accessToken", "refreshToken", "tokenType", "expiresIn", "userId", "currentTenantId"]) {
         expect(body[key], `${t.name} login 响应缺 ${key}`).toBeDefined();
+      }
+      // availableTenants = TenantMembership[]（ADR-0032：行含 roleIds/joinedAt，不再嵌套）
+      expect(Array.isArray(body.availableTenants), `${t.name} login 缺 availableTenants 数组`).toBe(true);
+      const tenants = body.availableTenants as Array<Record<string, unknown>>;
+      if (tenants.length > 0) {
+        for (const key of ["id", "userId", "tenantId", "roleIds", "status", "joinedAt"]) {
+          expect(tenants[0]![key], `${t.name} login availableTenants 行缺 ${key}`).toBeDefined();
+        }
       }
       expect(body.tokenType).toBe("Bearer");
       expect(body.expiresIn).toBe(3600);
@@ -110,7 +119,7 @@ describe.skipIf(!live)("M96.F02.I24 POST /auth/refresh 四方比对", () => {
         body: {
           grantType: "refresh_token",
           refreshToken: loginBody.refreshToken,
-          clientId: "11111111-1111-1111-1111-111111111111",
+          clientId: SEED.clientIds.labManagement,
           tenantId: "00000000-0000-0000-0000-000000000001",
         },
       });
@@ -138,7 +147,7 @@ describe.skipIf(!live)("M96.F02.I24 POST /auth/refresh 四方比对", () => {
           body: {
             grantType: "refresh_token",
             refreshToken: "saas-rt-00000000-0000-0000-0000-00000000dead-0-xyz",
-            clientId: "11111111-1111-1111-1111-111111111111",
+            clientId: SEED.clientIds.labManagement,
             tenantId: "00000000-0000-0000-0000-000000000001",
           },
         }),

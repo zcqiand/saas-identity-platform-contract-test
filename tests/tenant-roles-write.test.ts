@@ -209,7 +209,7 @@ describe.skipIf(!live)("M96.F02.I38 DELETE /tenants/{t}/roles/{r}/menus 四方�
       });
       expect(back.status, `${target.name} 还原 PUT 期望 200 实得 ${back.status}`).toBe(200);
     }
-  }, 60_000);
+  }, 120_000); // 四方串行（msw→aspnetcore→springboot→nextjs 各自 清空+幂等+还原）>60s，余量翻倍
 });
 
 describe.skipIf(!live)("写端点 teardown — runCleanups + 防御性 delete-role", () => {
