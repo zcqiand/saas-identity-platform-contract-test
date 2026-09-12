@@ -137,11 +137,13 @@ jobs:
           (cd ../saas-identity-platform-msw && nohup npm run dev > "$LOGDIR/msw.log" 2>&1) & PIDS+=($!)
           # aspnetcore：NpgsqlConnectionStringBuilder 只吃关键字形态，不吃 postgresql://
           # URI（run 34724342804 "Format of the initialization string ... index 0"）
-          (cd ../saas-identity-platform-aspnetcore && DATABASE_URL="Host=localhost;Port=5432;Username=saas;Password=saas;Database=saas" nohup dotnet run --project src/Saas.Identity.AspNetCore.csproj > "$LOGDIR/aspnetcore.log" 2>&1) & PIDS+=($!)
+          # SERVER_PORT 是家族统一监听 key（conventions §6）；裸机 dotnet run 无
+          # Dockerfile ENV / launchSettings，不设 → 监听默认 :5000（run 34724593191）
+          (cd ../saas-identity-platform-aspnetcore && DATABASE_URL="Host=localhost;Port=5432;Username=saas;Password=saas;Database=saas" SERVER_PORT=5104 nohup dotnet run --project src/Saas.Identity.AspNetCore.csproj > "$LOGDIR/aspnetcore.log" 2>&1) & PIDS+=($!)
           # springboot 的 datasource.url 是 jdbc 形态（application.yml 直灌 hikari，
           # PG 驱动要求 jdbc: 前缀），凭据走 DATABASE_USER/DATABASE_PASSWORD 独立 key
           # ——与 job 级 postgresql:// 形态（aspnetcore/nextjs 消费）不同源，故子壳覆盖
-          (cd ../saas-identity-platform-springboot && DATABASE_URL="jdbc:postgresql://localhost:5432/saas" DATABASE_USER=saas DATABASE_PASSWORD=saas nohup mvn -q spring-boot:run > "$LOGDIR/springboot.log" 2>&1) & PIDS+=($!)
+          (cd ../saas-identity-platform-springboot && DATABASE_URL="jdbc:postgresql://localhost:5432/saas" DATABASE_USER=saas DATABASE_PASSWORD=saas SERVER_PORT=5105 nohup mvn -q spring-boot:run > "$LOGDIR/springboot.log" 2>&1) & PIDS+=($!)
           (cd ../saas-identity-platform-nextjs && nohup npm run dev > "$LOGDIR/nextjs.log" 2>&1) & PIDS+=($!)
 
           cleanup() {
