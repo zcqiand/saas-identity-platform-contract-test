@@ -1,27 +1,27 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-contract-test",
-  "current_task": "2026-09-10 收口：起 4 后端（5100 段）live 复跑恢复 trace.json mode=live，gate 全绿；live 真实 96 failed 是已知欠账",
-  "last_session_at": "2026-09-10",
-  "last_session_summary": "收口会话顺带修复：本仓 L5 因 trace.json 被 unit 模式覆盖而红（suite 侧 gate L5 refresh 触发 trace_cmd 重跑，无 4 后端 → unit）。起 saas 4 后端（msw:5100/nextjs:5101/aspnetcore:5104 新起 + springboot:5105 残留）跑 live 全量 1224s：96 failed / 127 passed，trace.json 落 mode=live 4/4，gate 全绿。96 failed ≈ 上会话 93（FK 23503 + unique 测试间数据残留）的既有欠账。suite 侧同日落 ADR-0031（L5 命名空间路由，lab 家族触发，本仓同规则受益）。",
+  "current_task": "2026-09-12/13 cleanup-pg 三处 pre-pivot 死桩修复提交（d29ddca）+ ADR-0032 断言迁移 + run-4way-final.sh 入库；live 96 failed → 222/240（唯一失败=nextjs 30s 瞬时超时）",
+  "last_session_at": "2026-09-13",
+  "last_session_summary": "根因链：roles 列表分叉 = cleanupRoles 读 pre-pivot code 恒 undefined 静默空转，shape-role-* 残留落 PG；menus（路径+字段双漂）、users（/users→/members）同族死桩一并修",
   "done": [
-    "live 复跑 trace.json → mode=live, contract_targets 4/4",
-    "gate.py -p saas-identity-platform-contract-test → L0-L5 全绿",
-    "本仓代码零改动"
+    "cleanupRoles code→roleCode（残留分叉根因）",
+    "cleanupMenus /admin/apps/{id}/menus→/clients/{clientId}/menus + code→title",
+    "cleanupUsers /users→/members；cleanupApiKeys 删除（M05 域已移除）",
+    "11 测试文件 ADR-0032 断言迁移；门禁全绿"
   ],
   "next": [
-    "修 live 96 failed（FK 23503 + unique 测试间数据残留为主力，见上会话记录）——开新批次",
-    "M06.F03.I02 audit ?action= 过滤四方比对补充（2026-09-06 遗留）"
+    "contract-test 仓 bash run-4way-final.sh（需先起 4 后端，见 docs/conventions/contract-test-run-live.md；springboot gate 另需 libpq 格式 DATABASE_URL）",
+    "30s 瞬时超时类（本轮 1 个，上轮 7 个）：nextjs 冷编译 + springboot 慢登录，可考虑 per-target probe 预热或放宽该类 timeout",
+    "M06.F03.I02 audit ?action= 过滤四方比对补充（遗留）"
   ],
   "open_questions": [
-    "springboot:5105 / nextjs:5101 / msw:5100 是本会话前就在跑的残留进程（旧密码时代起的，DB 已换密码）——它们的 DB 连接是否还活着需确认；收工时未杀（非本会话所起），5104 aspnetcore 是本会话新起"
+    "vitest-4way-*.{json,log} / failure-details-after.txt 等 scratch 是否加进 .gitignore（现留未跟踪）"
   ],
   "dont": [
     "不要在 suite 根裸跑 npx vitest run 不带 CONTRACT_TARGETS —— 覆盖 trace.json 成 unit 模式 L5 必红",
-    "不要手写 .state/trace.json（CLAUDE.md 硬规则）",
-    "不要让 tests/*.test.ts 写 M0x BASE 命名空间（注释标注除外）",
-    "saas aspnetcore 的 DATABASE_URL 要 Npgsql key=value 格式；URI 格式在 NpgsqlDataSourceBuilder index 0 崩（本会话实测）",
-    "springboot 的 DATABASE_URL 要 jdbc: 前缀；URL userinfo 语法（user:pass@host）JDBC 不认"
+    "normalize 会给数组排序（集合顺序不属于契约）——列表类分叉先查数据残留，别急着改后端排序",
+    "contract-test gate 必须单独跑，与其它门禁并行会 _alignment.py >900s 超时"
   ],
   "last_gate_passed_at": "2026-09-10T23:30+08:00 (全绿; trace live 4/4)",
   "active_branch": "master",
