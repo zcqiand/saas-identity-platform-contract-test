@@ -135,7 +135,9 @@ jobs:
           PIDS=()
 
           (cd ../saas-identity-platform-msw && nohup npm run dev > "$LOGDIR/msw.log" 2>&1) & PIDS+=($!)
-          (cd ../saas-identity-platform-aspnetcore && nohup dotnet run --project src/Saas.Identity.AspNetCore.csproj > "$LOGDIR/aspnetcore.log" 2>&1) & PIDS+=($!)
+          # aspnetcore：NpgsqlConnectionStringBuilder 只吃关键字形态，不吃 postgresql://
+          # URI（run 34724342804 "Format of the initialization string ... index 0"）
+          (cd ../saas-identity-platform-aspnetcore && DATABASE_URL="Host=localhost;Port=5432;Username=saas;Password=saas;Database=saas" nohup dotnet run --project src/Saas.Identity.AspNetCore.csproj > "$LOGDIR/aspnetcore.log" 2>&1) & PIDS+=($!)
           # springboot 的 datasource.url 是 jdbc 形态（application.yml 直灌 hikari，
           # PG 驱动要求 jdbc: 前缀），凭据走 DATABASE_USER/DATABASE_PASSWORD 独立 key
           # ——与 job 级 postgresql:// 形态（aspnetcore/nextjs 消费）不同源，故子壳覆盖
