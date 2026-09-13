@@ -67,11 +67,42 @@ export async function login(target: Target): Promise<string> {
   return token;
 }
 
+/**
+ * 瞬态超时类消解（2026-09-13 积压清偿）：axios 30s 超时（ECONNABORTED 且无响应）
+ * 在 live run 里是已知的瞬态尖峰（后端 GC pause / JIT warmup / nextjs dev 首访
+ * 路由编译），不是真挂——真挂是连接层快速失败（ECONNREFUSED）或重试同样超时。
+ * 只对 **GET** 单发重试一次：幂等，双发无害；POST/PATCH 绝不重试（重复建行）。
+ * 重试仍超时 → 照旧 UnreachableError（守门不静默吞）。
+ */
+function isTimeout(err: unknown): boolean {
+  return (
+    axios.isAxiosError(err) && err.code === "ECONNABORTED" && err.response === undefined
+  );
+}
+
+async function getWithTimeoutRetry(
+  http: AxiosInstance,
+  path: string,
+  config: Record<string, unknown>,
+) {
+  const attempt = () => http.get(path, config);
+  try {
+    return await attempt();
+  } catch (cause) {
+    if (isTimeout(cause)) {
+      return await attempt();
+    }
+    throw cause;
+  }
+}
+
 /** 带 Bearer 打一个 GET，返回可比对的探针。 */
 export async function probeGet(target: Target, path: string, token: string): Promise<Probe> {
   const http = client(target);
   try {
-    const res = await http.get(path, { headers: { authorization: `Bearer ${token}` } });
+    const res = await getWithTimeoutRetry(http, path, {
+      headers: { authorization: `Bearer ${token}` },
+    });
     return { target: target.name, status: res.status, body: res.data };
   } catch (cause) {
     throw new UnreachableError(target.name, cause);
@@ -115,7 +146,7 @@ async function probeWithToken(
     let res;
     switch (method) {
       case "GET":
-        res = await http.get(path, { headers });
+        res = await getWithTimeoutRetry(http, path, { headers });
         break;
       case "DELETE":
         res = await http.delete(path, { headers });
