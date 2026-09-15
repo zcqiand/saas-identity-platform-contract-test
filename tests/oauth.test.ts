@@ -14,7 +14,7 @@
 import { describe, expect, it } from "vitest";
 
 import { compareAll, compareBodies, formatDivergences } from "../src/compare.js";
-import { probeRequest } from "../src/http.js";
+import { client, probeRequest } from "../src/http.js";
 import { ALICE_PARAMS, SEED } from "../src/seed.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
@@ -78,6 +78,73 @@ describe.skipIf(!live)("M96.F02.I26 POST /oauth/authorize 四方比对", () => {
       expect(p.status, `${p.target} 未知 clientId 期望 400 实得 ${p.status}`).toBe(400);
     }
   }, 60_000);
+
+  // 2026-09-15 收敛回归：登录页跳板分支的真实请求形状（shared tsp
+  // AuthorizeCodeRequest 无 tenantId，三前端 login 页都不传）。nextjs 曾 zod
+  // 必填 tenantId → authorize 必 400，lab SSO 全链路阻断（当日修复）。
+  it("登录页形状（无 body tenantId）→ 200 全等，code 绑认证身份", async () => {
+    const probes = [];
+    for (const t of targets) {
+      const r = await probeRequest(t, {
+        method: "POST",
+        path: "/api/v1/oauth/authorize",
+        body: {
+          clientId: SEED.clientIds.labManagement,
+          redirectUri: "http://localhost:5201/callback",
+          responseType: "code",
+          scope: "lab.read",
+          state: "contract-test-notenant",
+          // 刻意不带 tenantId
+        },
+      });
+      expect(
+        r.status,
+        `${t.name} 无 tenantId authorize 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`,
+      ).toBe(200);
+      expect((r.body as { state?: string }).state).toBe("contract-test-notenant");
+      probes.push(r);
+    }
+    const divergences = compareAll(probes, targets, ["code"]);
+    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+  }, 60_000);
+
+  // 2026-09-15 收敛回归：认证前置。四家共同语义 = 无 session/Bearer 拒签 code
+  // （msw 401 UNAUTHORIZED / springboot 401 INVALID_CREDENTIALS / aspnetcore 401 /
+  // nextjs 401 UNAUTHORIZED）。fresh client（无 cookie jar 登录态、无 Bearer）。
+  // 错误 body 形状各家不同，只比状态码（对齐「未知 clientId」用例的比对粒度）。
+  it("无认证 → 401 全等（禁匿名签 code）", async () => {
+    for (const t of targets) {
+      const http = client(t);
+      const res = await http.post("/api/v1/oauth/authorize", {
+        clientId: SEED.clientIds.labManagement,
+        redirectUri: "http://localhost:5201/callback",
+        responseType: "code",
+        scope: "lab.read",
+        state: "contract-test-noauth",
+      });
+      expect(
+        res.status,
+        `${t.name} 无认证 authorize 期望 401 实得 ${res.status} body=${JSON.stringify(res.data).slice(0, 200)}`,
+      ).toBe(401);
+    }
+  }, 60_000);
+
+  // 2026-09-15 第二轮收敛：redirect 白名单四家全查（springboot 此前单侧缺失）。
+  // msw 400 INVALID_REDIRECT_URI / nextjs 400 / aspnetcore 400 ArgumentException /
+  // springboot 400 IAE——错误 body 形状各家不同，只比状态码。
+  it("非白名单 redirectUri → 400 全等", async () => {
+    for (const t of targets) {
+      const r = await probeRequest(t, {
+        method: "POST",
+        path: "/api/v1/oauth/authorize",
+        body: { ...OAUTH_BODY, redirectUri: "https://evil.example.com/cb", state: "contract-test-evil" },
+      });
+      expect(
+        r.status,
+        `${t.name} 非白名单 redirectUri 期望 400 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`,
+      ).toBe(400);
+    }
+  }, 60_000);
 });
 
 describe.skipIf(!live)("M96.F02.I27 POST /oauth/token 四方比对", () => {
@@ -136,6 +203,80 @@ describe.skipIf(!live)("M96.F02.I27 POST /oauth/token 四方比对", () => {
     }
     for (const p of probes) {
       expect(p.status, `${p.target} code 重放期望 400 实得 ${p.status}`).toBe(400);
+    }
+  }, 60_000);
+
+  // 2026-09-15 第二轮收敛：TokenRequest 无 tenantId 字段（shared tsp）——
+  // msw+nextjs 此前 zod/handlers 必填 + 比对是单侧漂移；现四家统一忽略 body
+  // tenantId，user/tenant 取 code 行绑定值。lab 消费端（ISaasAuthClient）不发该字段。
+  it("无 body tenantId 换 token → 200 + TokenResponse 必填", async () => {
+    for (const t of targets) {
+      const auth = await probeRequest(t, {
+        method: "POST",
+        path: "/api/v1/oauth/authorize",
+        body: {
+          clientId: SEED.clientIds.labManagement,
+          redirectUri: "http://localhost:5201/callback",
+          responseType: "code",
+          scope: "lab.read",
+          state: "contract-test-tok-notenant",
+        },
+      });
+      expect(auth.status, `${t.name} 前置 authorize 期望 200 实得 ${auth.status}`).toBe(200);
+      const r = await probeRequest(t, {
+        method: "POST",
+        path: "/api/v1/oauth/token",
+        body: {
+          grantType: "authorization_code",
+          code: (auth.body as { code: string }).code,
+          clientId: SEED.clientIds.labManagement,
+          redirectUri: "http://localhost:5201/callback",
+          // 刻意不带 tenantId
+        },
+      });
+      expect(
+        r.status,
+        `${t.name} 无 tenantId token 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`,
+      ).toBe(200);
+      const body = r.body as Record<string, unknown>;
+      for (const key of ["accessToken", "tokenType", "expiresIn", "scope"]) {
+        expect(body[key], `${t.name} 无 tenantId token 响应缺 ${key}`).toBeDefined();
+      }
+    }
+  }, 60_000);
+
+  // 2026-09-15 第二轮收敛：RFC 6749 §4.1.3——token 交换的 redirectUri 必须与
+  // authorize 时一致（springboot 此前单侧缺失；msw/nextjs/aspnetcore 已有）。
+  // authorize 用白名单内的 /login，交换时故意换成 /callback → 400 全等。
+  it("redirectUri 与 authorize 时不一致 → 400 全等", async () => {
+    for (const t of targets) {
+      const auth = await probeRequest(t, {
+        method: "POST",
+        path: "/api/v1/oauth/authorize",
+        body: {
+          clientId: SEED.clientIds.labManagement,
+          redirectUri: "http://localhost:5201/login",
+          responseType: "code",
+          scope: "lab.read",
+          state: "contract-test-uri-mismatch",
+        },
+      });
+      expect(auth.status, `${t.name} 前置 authorize 期望 200 实得 ${auth.status}`).toBe(200);
+      const r = await probeRequest(t, {
+        method: "POST",
+        path: "/api/v1/oauth/token",
+        body: {
+          grantType: "authorization_code",
+          code: (auth.body as { code: string }).code,
+          clientId: SEED.clientIds.labManagement,
+          redirectUri: "http://localhost:5201/callback",
+          tenantId: ALICE_PARAMS.tenantId,
+        },
+      });
+      expect(
+        r.status,
+        `${t.name} redirectUri 不一致期望 400 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`,
+      ).toBe(400);
     }
   }, 60_000);
 });
