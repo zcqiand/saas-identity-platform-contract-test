@@ -187,10 +187,10 @@ SPRINGBOOT_PORT=$(grep -E '^SERVER_PORT' "$SPRINGBOOT_DIR/.env.local" 2>/dev/nul
 NEXTJS_PORT=$(grep -E '^SERVER_PORT' "$NEXTJS_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
 : "${NEXTJS_PORT:=5101}"
 
-# aspnetcore DATABASE_URL 兜底: appsettings.json 内嵌 Password=changeme 是占位,
+# aspnetcore DATABASE_URL 兜底: appsettings.json 内嵌 Password=qiand68+++ 是占位,
 # 不一定匹配 PG 真密码。从 springboot .env.local 那里拿真值, 加 single quote 包
 # Password (绕过 ADO.NET 把 + 当 escape 字符的解析 bug)。
-ASPNETCORE_PG_URL='Host=100.79.128.25;Port=5432;Database=saas_dev;Username=postgres;Password='\''changeme'\'''
+ASPNETCORE_PG_URL='Host=100.79.128.25;Port=5432;Database=saas_dev;Username=postgres;Password='\''qiand68+++'\'''
 
 # msw: 2026-09-01 用 `npm start` 而不是 `npm run dev`,避免 tsx watch hot-reload
 # 时 process.env 丢失导致 JWT_SIGNING_KEY 缺失,signAccessToken 抛 500
