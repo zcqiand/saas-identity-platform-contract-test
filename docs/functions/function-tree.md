@@ -120,7 +120,7 @@
 | M96.F02.I47 | `PATCH /admin/apps/{appId}` 四方比对 | 接口 | 前端+后端 | 改 name → 200 + updatedAt；M07.F01.I04 跨后端覆盖 | 已上线 |
 | M96.F02.I48 | `DELETE /admin/apps/{appId}` 四方比对 | 接口 | 前端+后端 | 物理删 200/204 + 幂等（重复 → 404）；M07.F01.I05 跨后端覆盖 | 已上线 |
 | M96.F02.I49 | `PATCH /admin/apps/{appId}/status` 四方比对 | 接口 | 前端+后端 | active → disabled → active 往返（排在 I48 前：status 往返需行还在）；M07.F02.I06 跨后端覆盖 | 已上线 |
-| M96.F02.I50 | `GET /admin/apps/{appId}/menus` 四方比对 | 接口 | 前端+后端 | seed lab-mgmt 菜单扁平数组 Menu[] shape；M08.F01.I01 跨后端覆盖 | 已上线 |
+| M96.F02.I50 | `GET /admin/apps/{appId}/menus` 四方比对 | 接口 | 前端+后端 | seed lab-management 菜单扁平数组 Menu[] shape；M08.F01.I01 跨后端覆盖 | 已上线 |
 | M96.F02.I51 | `POST /admin/apps/{appId}/menus` 四方比对 | 接口 | 前端+后端 | 创 menu A/B 对（reorder/parent 用）→ 200/201 + 字段；不碰 seed 行（role grant 引用）；M08.F01.I02 跨后端覆盖 | 已上线 |
 | M96.F02.I52 | `GET /admin/apps/{appId}/menus/{menuId}` 四方比对 | 接口 | 前端+后端 | 取自建 menu → 200 + id 回带；不存在 id → 404 全等；M08.F01.I03 跨后端覆盖 | 已上线 |
 | M96.F02.I53 | `PATCH /admin/apps/{appId}/menus/{menuId}` 四方比对 | 接口 | 前端+后端 | 改 name → 200；M08.F01.I04 跨后端覆盖 | 已上线 |

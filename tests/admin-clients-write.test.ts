@@ -38,7 +38,7 @@ describe.skipIf(!live)("M96.F02.I44 GET /admin/clients 四方比对", () => {
       for (const key of ["page", "pageSize", "total"]) {
         expect(body[key], `${t.name} list 分页缺 ${key}`).toBeDefined();
       }
-      // seed 至少 3 个 app（lab-mgmt/erp/crm）
+      // seed 至少 3 个 app（lab-management/erp/crm）
       expect(body.items!.length, `${t.name} list items 不应为空`).toBeGreaterThanOrEqual(3);
       for (const key of ["id", "clientId", "clientName", "status", "createdAt", "updatedAt"]) {
         expect(body.items![0]![key], `${t.name} app 行缺 ${key}`).toBeDefined();

@@ -521,7 +521,10 @@
       ],
       "tests": [
         "M96.F02.I26 POST /oauth/authorize 四方比对 > 合法 clientId → 200 {code,state}（code 剔除后全等）",
-        "M96.F02.I26 POST /oauth/authorize 四方比对 > 未知 clientId → 400 全等"
+        "M96.F02.I26 POST /oauth/authorize 四方比对 > 无认证 → 401 全等（禁匿名签 code）",
+        "M96.F02.I26 POST /oauth/authorize 四方比对 > 未知 clientId → 400 全等",
+        "M96.F02.I26 POST /oauth/authorize 四方比对 > 登录页形状（无 body tenantId）→ 200 全等，code 绑认证身份",
+        "M96.F02.I26 POST /oauth/authorize 四方比对 > 非白名单 redirectUri → 400 全等"
       ],
       "entry": []
     },
@@ -536,7 +539,9 @@
       ],
       "tests": [
         "M96.F02.I27 POST /oauth/token 四方比对 > I26 的 code 换 token 对 → 200 + TokenResponse 必填",
-        "M96.F02.I27 POST /oauth/token 四方比对 > 已被消费的 code 重放 → 400 全等"
+        "M96.F02.I27 POST /oauth/token 四方比对 > redirectUri 与 authorize 时不一致 → 400 全等",
+        "M96.F02.I27 POST /oauth/token 四方比对 > 已被消费的 code 重放 → 400 全等",
+        "M96.F02.I27 POST /oauth/token 四方比对 > 无 body tenantId 换 token → 200 + TokenResponse 必填"
       ],
       "entry": []
     },

@@ -57,7 +57,7 @@ describe.skipIf(!live)("M96.F02.I50 GET /clients/{clientId}/menus 四方比对",
       expect(r.status, `${t.name} list 期望 200 实得 ${r.status}`).toBe(200);
       const items = r.body as Array<Record<string, unknown>>;
       expect(Array.isArray(items), `${t.name} 响应必须是数组（扁平 Menu[]）`).toBe(true);
-      // seed lab-mgmt 下菜单不少（V016 数十条）
+      // seed lab-management 下菜单不少（V016 数十条）
       expect(items.length, `${t.name} seed 菜单不应为空`).toBeGreaterThanOrEqual(5);
       // SSOT SysMenu required: id/clientId/parentId/title/type/sortOrder/status/createdAt
       // （appId/code/name 是 pre-pivot 字段，已废）。parentId 是 required 但顶级菜单为 null /
