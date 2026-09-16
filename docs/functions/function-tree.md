@@ -94,8 +94,8 @@
 | M96.F02.I21 | `DELETE /tenants/{t}/api-keys/{k}` 四方比对 | 接口 | 前端+后端 | 物理删：204 + 幂等（重复删 → 404）；M05.F01.I05 跨后端覆盖；msw/springboot NoSuchElementException→404，aspnetcore KeyNotFoundException→404；2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，对应测试已删（commit 3ed021e/3ed8151） | 已废弃 |
 | M96.F02.I22 | `POST /auth/login` 四方比对 | 接口 | 前端+后端 | 正确凭证 200 shape 比对（token 剔除）+ 错误密码 4xx 全等；M03.F01.I01 跨后端覆盖 | 已上线 |
 | M96.F02.I23 | `POST /auth/logout` 四方比对 | 接口 | 前端+后端 | 带有效 session 200/204 全等；M03.F03.I05 跨后端覆盖 | 已上线 |
-| M96.F02.I24 | ~~`POST /auth/refresh` 四方比对~~ | 接口 | 前端+后端 | ~~login 的 refreshToken 各自换新对，token 剔除后 shape 比对~~（端点删除 saas-2026-09-16-003；断言改由 M04.F03.I02 (refresh_token grant) 覆盖） | 已废弃 |
-| M96.F02.I25 | ~~`POST /auth/oidc/callback` 四方比对~~ | 接口 | 前端+后端 | ~~只比错误分支（无 code/错误 4xx），不依赖真 IdP~~（端点删除 saas-2026-09-16-003；断言改由 M04.F03.I02 (authorization_code grant) 覆盖） | 已废弃 |
+| M96.F02.I24 | ~~`POST /auth/refresh` 四方比对~~ | 接口 | 前端+后端 | ~~login 的 refreshToken 各自换新对，token 剔除后 shape 比对~~（端点删除 saas-2026-09-16-003；断言改由 M04.F03.I02 双 grant 覆盖） | 已废弃 |
+| M96.F02.I25 | ~~`POST /auth/oidc/callback` 四方比对~~ | 接口 | 前端+后端 | ~~只比错误分支（无 code/错误 4xx），不依赖真 IdP~~（端点删除 saas-2026-09-16-003；断言改由 M04.F03.I02 双 grant 覆盖） | 已废弃 |
 | M96.F02.I26 | `POST /oauth/authorize` 四方比对 | 接口 | 前端+后端 | 合法 client_id + alice session → {code,state} shape（code 一次性，normalize 剔除）；错 client_id 4xx 全等；M04.F02.I07 跨后端覆盖 | 已上线 |
 | M96.F02.I27 | `POST /oauth/token` 四方比对 | 接口 | 前端+后端 | authorize 的 code 换 token，token 剔除后 shape 比对；M04.F02.I08 跨后端覆盖 | 已上线 |
 | M96.F02.I28 | `POST /me/tenants/{t}/switch` 四方比对 | 接口 | 前端+后端 | alice 切到自己所属 tenant → 200 shape；切不存在 tenant → 4xx 全等；M00.F02.I03 跨后端覆盖；前置 msw 补确定性 handler | 已上线 |
