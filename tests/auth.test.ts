@@ -4,9 +4,6 @@
 // I23 logout：login 后带 Bearer 打 logout，204 全等（msw/springboot noContent）。
 // I24 refresh：用各自 login 返回的 refreshToken 换新对（rotate 语义，一次性），
 //              token 剔除后 shape 比对；未知 token → 400 全等。
-// I25 oidc/callback：只比错误分支（无 code → 4xx），不依赖真 IdP ——
-//              4 后端都没有「假 IdP」基础设施，成功分支不可比是契约面共识。
-//
 // 注意：refresh 的 body 各 target 用自己的 refreshToken（不能共用——rotate 一次性，
 // 且 msw 与真后端 token 格式不同）。响应里的 token 全部在 normalize 剔除清单里。
 
@@ -104,78 +101,6 @@ describe.skipIf(!live)("M96.F02.I23 POST /auth/logout 四方比对", () => {
     }
     const statuses = new Set(probes.map((p) => p.status));
     expect(statuses.size, `logout status 分叉: ${[...statuses].join(", ")}`).toBe(1);
-  }, 60_000);
-});
-
-describe.skipIf(!live)("M96.F02.I24 POST /auth/refresh 四方比对", () => {
-  it("login 的 refreshToken 换新 token 对 → 200 + TokenResponse 必填", async () => {
-    const probes = [];
-    for (const t of targets) {
-      const loginBody = loginBodies.get(t.name);
-      if (!loginBody?.refreshToken) throw new Error(`${t.name} I22 未登录，I24 缺 refreshToken`);
-      const r = await probeRequest(t, {
-        method: "POST",
-        path: "/api/v1/auth/refresh",
-        body: {
-          grantType: "refresh_token",
-          refreshToken: loginBody.refreshToken,
-          clientId: SEED.clientIds.labManagement,
-          tenantId: "00000000-0000-0000-0000-000000000001",
-        },
-      });
-      expect(r.status, `${t.name} refresh 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toBe(200);
-      const body = r.body as Record<string, unknown>;
-      // SSOT TokenResponse: accessToken/refreshToken?/tokenType/expiresIn/scope
-      for (const key of ["accessToken", "tokenType", "expiresIn"]) {
-        expect(body[key], `${t.name} refresh 响应缺 ${key}`).toBeDefined();
-      }
-      expect(body.tokenType).toBe("Bearer");
-      probes.push(r);
-    }
-    // shape 比对：token 在 ALWAYS_VOLATILE；expiresIn 4 后端应同为 3600（在逐家断言里比）
-    const divergences = compareBodies(probes, targets, ["scope", "message"]);
-    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
-  }, 60_000);
-
-  it("未知 refreshToken → 400 全等", async () => {
-    const probes = [];
-    for (const t of targets) {
-      probes.push(
-        await probeRequest(t, {
-          method: "POST",
-          path: "/api/v1/auth/refresh",
-          body: {
-            grantType: "refresh_token",
-            refreshToken: "saas-rt-00000000-0000-0000-0000-00000000dead-0-xyz",
-            clientId: SEED.clientIds.labManagement,
-            tenantId: "00000000-0000-0000-0000-000000000001",
-          },
-        }),
-      );
-    }
-    for (const p of probes) {
-      expect(p.status, `${p.target} 未知 token 期望 400 实得 ${p.status}`).toBe(400);
-    }
-  }, 60_000);
-});
-
-// 标题必须是「…四方比对」结尾（L2 SSOT 覆盖解析器约束）；错误分支限定写进 it 名。
-describe.skipIf(!live)("M96.F02.I25 POST /auth/oidc/callback 四方比对", () => {
-  it("缺 code → 4xx 全等（错误分支，不依赖真 IdP）", async () => {
-    const probes = [];
-    for (const t of targets) {
-      probes.push(
-        await probeRequest(t, {
-          method: "POST",
-          path: "/api/v1/auth/oidc/callback",
-          body: {},
-        }),
-      );
-    }
-    for (const p of probes) {
-      expect(p.status, `${p.target} 缺 code 期望 4xx 实得 ${p.status}`).toBeGreaterThanOrEqual(400);
-      expect(p.status).toBeLessThan(500);
-    }
   }, 60_000);
 });
 

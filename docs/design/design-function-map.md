@@ -35,8 +35,8 @@
 | M96.F02.I21 | — | `DELETE /api/v1/tenants/{t}/api-keys/{k}` | `api_keys` (硬删；幂等返 204 / 404) | — | REQ-2026-008 §2 AC-1 | 已废弃（2026-09-10 标废：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151） |
 | M96.F02.I22 | — | `POST /api/v1/auth/login` | `users` (session 验证) | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I23 | — | `POST /api/v1/auth/logout` | saas session 撤销 | — | REQ-2026-008 §2 AC-1 | 已上线 |
-| M96.F02.I24 | — | `POST /api/v1/auth/refresh` | refresh token rotate 存储 | — | REQ-2026-008 §2 AC-1 | 已上线 |
-| M96.F02.I25 | — | `POST /api/v1/auth/oidc/callback` | `oauth_codes` (错误分支) | — | REQ-2026-008 §2 AC-1 | 已上线 |
+| M96.F02.I24 | — | ~~`POST /api/v1/auth/refresh`~~ | refresh token rotate 存储 | — | REQ-2026-008 §2 AC-1 | 已废弃 |
+| M96.F02.I25 | — | ~~`POST /api/v1/auth/oidc/callback`~~ | `oauth_codes` (错误分支) | — | REQ-2026-008 §2 AC-1 | 已废弃 |
 | M96.F02.I26 | — | `POST /api/v1/oauth/authorize` | `oauth_codes` | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I27 | — | `POST /api/v1/oauth/token` | `oauth_codes` / refresh token | — | REQ-2026-008 §2 AC-1 | 已上线 |
 | M96.F02.I28 | — | `POST /api/v1/me/tenants/{t}/switch` | `tenant_memberships` 校验 + 签发 | — | REQ-2026-008 §2 AC-1 | 已上线 |

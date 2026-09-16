@@ -55,8 +55,8 @@ flowchart TD
 | M96.F02.I21 | 写端点四方比对（DELETE /tenants/{t}/api-keys/{k}，硬删 + 幂等返 204 / 404）。与 I03 revoke 软删并存；幂等语义契约面不可在 OpenAPI 表达，harness 直写断言。【2026-09-10 已废弃：SSOT b749c18 下线 api-keys/audit-events 域，测试已删 3ed021e/3ed8151】 |
 | M96.F02.I22 | auth 端点四方比对（POST /auth/login）。认证面比对无业务流程承载，「同时打 4 端」直写在 `tests/auth.test.ts`，harness 自闭环。 |
 | M96.F02.I23 | auth 端点四方比对（POST /auth/logout）。同上，harness 自闭环。 |
-| M96.F02.I24 | auth 端点四方比对（POST /auth/refresh，rotate 语义）。token 剔除后 shape 比对，harness 自闭环。 |
-| M96.F02.I25 | auth 端点四方比对（POST /auth/oidc/callback 错误分支）。不依赖真 IdP 的错误分支全等，harness 自闭环。 |
+| M96.F02.I24 | ~~auth 端点四方比对（POST /auth/refresh，rotate 语义）~~（端点删除 saas-2026-09-16-003） |
+| M96.F02.I25 | ~~auth 端点四方比对（POST /auth/oidc/callback 错误分支）~~（端点删除 saas-2026-09-16-003） |
 | M96.F02.I26 | OAuth 端点四方比对（POST /oauth/authorize）。code 一次性随机值 drop 后比对，harness 自闭环。 |
 | M96.F02.I27 | OAuth 端点四方比对（POST /oauth/token）。token 剔除 shape 比对 + code 重放 400，harness 自闭环。 |
 | M96.F02.I28 | me 端点四方比对（POST /me/tenants/{t}/switch）。切租户签发新 token，harness 自闭环。 |
