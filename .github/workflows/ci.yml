@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 25
 
     # 4 后端共一个 PG（V016 seed）。本地 CI 起一个 postgres:16,
-    # 3 真后端跑容器化迁移 + seed；msw 内存 fixture 不连 DB。
+    # 3 真后端跑容器化迁移 + seed（msw 仓已删，Phase 4 提前）。
     services:
       postgres:
         image: postgres:16
@@ -39,7 +39,7 @@ jobs:
       # 无 ?schema=public 后缀：那是 prisma 风格参数，Npgsql 不认（run 34724026070
       # aspnetcore 启动即崩 ArgumentException）。node-pg / drizzle 都不需要它。
       DATABASE_URL: postgresql://saas:saas@localhost:5432/saas
-      # msw server.ts 读它挂 CORS（2026-09-13 起 env 驱动 + fail-fast，缺即 exit 1）；
+      # CORS 白名单 env（各真后端同样读它；CI checkout 无 .env，必须由 workflow 注入三前端 dev origin）：
       # CI checkout 无 .env，必须由 workflow 注入三前端 dev origin
       SAAS_CORS_ALLOWED_ORIGINS: http://localhost:5101,http://localhost:5102,http://localhost:5103
       # JWT 全家共享（ADR-0019 各后端缺 key 即 fail-fast；且「前端不可区分」要求
@@ -49,7 +49,7 @@ jobs:
       JWT_AUDIENCE: saas-identity-platform-clients
       JWT_TTL_SECONDS: "3600"
       TRACE_MAP: "1"
-      CONTRACT_TARGETS: msw,aspnetcore,springboot,nextjs
+      CONTRACT_TARGETS: nextjs,aspnetcore,springboot
 
     steps:
       - uses: actions/checkout@v4
@@ -81,15 +81,11 @@ jobs:
       - name: Checkout backend siblings
         run: |
           set -e
-          for repo in msw aspnetcore springboot nextjs; do
+          for repo in aspnetcore springboot nextjs; do
             git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/saas-identity-platform-$repo.git ../saas-identity-platform-$repo
           done
 
       # 各仓依赖安装（前置，避免 healthcheck 阶段再 compile）
-      - name: msw install
-        working-directory: ../saas-identity-platform-msw
-        run: npm ci --registry=https://registry.npmmirror.com
-
       - name: aspnetcore restore
         working-directory: ../saas-identity-platform-aspnetcore
         run: dotnet restore src/Saas.Identity.AspNetCore.csproj
@@ -140,7 +136,6 @@ jobs:
           LOGDIR="$(pwd)/.runtime-logs"
           PIDS=()
 
-          (cd ../saas-identity-platform-msw && nohup npm run dev > "$LOGDIR/msw.log" 2>&1) & PIDS+=($!)
           # aspnetcore：NpgsqlConnectionStringBuilder 只吃关键字形态，不吃 postgresql://
           # URI（run 34724342804 "Format of the initialization string ... index 0"）
           # SERVER_PORT 是家族统一监听 key（conventions §6）；裸机 dotnet run 无
@@ -179,7 +174,6 @@ jobs:
             return 1
           }
 
-          healthcheck msw        http://localhost:5100/healthz
           healthcheck aspnetcore http://localhost:5104/health
           healthcheck springboot http://localhost:5105/actuator/health
           healthcheck nextjs     http://localhost:5101/api/health

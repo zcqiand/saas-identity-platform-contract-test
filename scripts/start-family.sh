@@ -5,11 +5,11 @@
 # 跑通 contract-test 完整 live 验证。
 #
 # 前提 (CI runner 自动满足, 本机要手动确保):
-#   1. 5 sibling 仓已在 ../saas-identity-platform-{shared,msw,aspnetcore,springboot,nextjs}/
+#   1. 4 sibling 仓已在 ../saas-identity-platform-{shared,aspnetcore,springboot,nextjs}/
 #      (suite 作为 multi-repo-family 用 gitlink 挂载, 本仓库目录下 output/ 自带)
 #   2. 各后端 .env.local 指向 PG (本机走 Tailscale 100.79.128.25:5432, 远程节点)
 #   3. dotnet 8 SDK + JDK 21 + Maven + Node 24 已装
-#   4. 4 端口 5100/5104/5105/5101 空闲（2026-09-02 端口分段 §6）
+#   4. 3 端口 5104/5105/5101 空闲（2026-09-02 端口分段 §6；5100 msw 已退役）
 #
 # 与 ci.yml 区别:
 #   - 不 git clone (本机 sibling 已在)
@@ -35,7 +35,6 @@ SUITE_ROOT="$(cd "$CT_ROOT/../.." && pwd)"
 
 # sibling 仓都在 suite 根的 output/ 下, 与 contract-test 平级
 SHARED_DIR="$SUITE_ROOT/output/saas-identity-platform-shared"
-MSW_DIR="$SUITE_ROOT/output/saas-identity-platform-msw"
 ASPNETCORE_DIR="$SUITE_ROOT/output/saas-identity-platform-aspnetcore"
 SPRINGBOOT_DIR="$SUITE_ROOT/output/saas-identity-platform-springboot"
 NEXTJS_DIR="$SUITE_ROOT/output/saas-identity-platform-nextjs"
@@ -56,7 +55,7 @@ if [ ${#missing_tools[@]} -gt 0 ]; then
 fi
 
 missing_repos=()
-for d in "$SHARED_DIR" "$MSW_DIR" "$ASPNETCORE_DIR" "$SPRINGBOOT_DIR" "$NEXTJS_DIR"; do
+for d in "$SHARED_DIR" "$ASPNETCORE_DIR" "$SPRINGBOOT_DIR" "$NEXTJS_DIR"; do
   if [ ! -d "$d" ]; then
     missing_repos+=("$d")
   fi
@@ -78,7 +77,7 @@ echo "  ✓ 5 sibling 仓齐全 + 7 工具齐"
 #   2. 杀匹配已知后端进程名的残留进程 (pre-LISTENING 阶段, 例如 mvn spring-boot:run
 #      在 JPA entity manager fail 时 exit 但 mvn wrapper 还在, 或 nextjs 在 turbopack warmup)
 echo "  [1/2] 检查 4 端口 LISTENING 残留进程..."
-for p in 5100 5104 5105 5101; do
+for p in 5104 5105 5101; do
   pids=$(netstat -ano 2>/dev/null | awk -v port=":$p$" '$2 ~ port"$" && $4 == "LISTENING" {print $5}' | sort -u)
   for pid in $pids; do
     if [ -n "$pid" ] && [ "$pid" != "0" ]; then
@@ -101,7 +100,6 @@ powershell -NoProfile -Command "
     \$_.ProcessName -in @('java', 'node', 'dotnet', 'SaaS.Identity.Host') -and
     ((\$_.CommandLine -like '*spring-boot*') -or
      (\$_.CommandLine -like '*Saas.Identity.AspNetCore*') -or
-     (\$_.CommandLine -like '*msw*server.ts*') -or
      (\$_.CommandLine -like '*next dev*'))
   } | ForEach-Object {
     Write-Host \"    \$(\$_.ProcessName) PID=\$(\$_.Id) \$(\$_.CommandLine.Substring(0, [Math]::Min(80, \$_.CommandLine.Length)))\"
@@ -118,13 +116,12 @@ echo "=== [2/6] 各后端 gen-shared (nextjs + springboot) ==="
 # nextjs: npm run gen:shared — 读 ../saas-identity-platform-shared/generated/openapi/openapi.yaml
 # springboot: bash scripts/gen-shared.sh — TypeSpec codegen + flyway migrations
 # aspnetcore: NSwag 在 csproj build 时自动跑, 不需要单独 step
-# msw: handlers/handlers-array.ts 是 shared emit:handlers 生成, 不需要单独 step
 (cd "$NEXTJS_DIR" && npm run gen:shared 2>&1 | tail -3)
 (cd "$SPRINGBOOT_DIR" && bash scripts/gen-shared.sh 2>&1 | tail -5)
 
-# === 2.5 迁移 + 种子（DB 3 后端共库 saas_dev；msw 内存 fixture 不连 DB） ===
+# === 2.5 迁移 + 种子（DB 3 后端共库 saas_dev） ===
 # live 不依赖库的存量状态：每次跑前 migrate（幂等）+ 重灌种子（TRUNCATE + 灌）。
-# 种子 SSOT 是 msw src/seeds/*.json；装载器是 nextjs scripts/seed-db.mjs（家族约定）。
+# 种子 SSOT 是 saas-shared seeds/*.json（msw 仓已删，Phase 4 提前）；装载器是 nextjs scripts/seed-db.mjs（家族约定）。
 # 密码约定 "plain:dev123456" — 三后端登录侧都识别该前缀（2026-09-10 对齐）。
 # 注意只传 PG_*：springboot .env.local 的 DATABASE_URL 是 jdbc: 格式，
 # migrate-db.mjs / seed-db.mjs 拿到会当 PG 连接串直接炸。
@@ -178,8 +175,6 @@ SPRINGBOOT_ONLY=$(grep -E '^(DATABASE_URL|DATABASE_USER|DATABASE_PASSWORD|DATABA
 # 各后端 SERVER_PORT 优先用各自 .env.local, 缺时 fallback .env.example, 最后硬编码兜底
 # 注意: grep 无匹配返回 1, pipefail 会让 pipeline 整体返回 1, set -e 触发退出。
 # 加 `|| true` 兜底, 缺 SERVER_PORT 时走 :="hardcode" 默认值。
-MSW_PORT=$(grep -E '^SERVER_PORT' "$MSW_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
-: "${MSW_PORT:=5100}"
 ASPNETCORE_PORT=$(grep -E '^SERVER_PORT' "$ASPNETCORE_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
 : "${ASPNETCORE_PORT:=5104}"
 SPRINGBOOT_PORT=$(grep -E '^SERVER_PORT' "$SPRINGBOOT_DIR/.env.local" 2>/dev/null | head -1 | cut -d= -f2 || true)
@@ -192,10 +187,6 @@ NEXTJS_PORT=$(grep -E '^SERVER_PORT' "$NEXTJS_DIR/.env.example" 2>/dev/null | he
 # Password (绕过 ADO.NET 把 + 当 escape 字符的解析 bug)。
 ASPNETCORE_PG_URL='Host=100.79.128.25;Port=5432;Database=saas_dev;Username=postgres;Password='\''qiand68+++'\'''
 
-# msw: 2026-09-01 用 `npm start` 而不是 `npm run dev`,避免 tsx watch hot-reload
-# 时 process.env 丢失导致 JWT_SIGNING_KEY 缺失,signAccessToken 抛 500
-# (CLAUDE.md §5 列了 tsx-watch-丢失-env 的历史债)。
-(cd "$MSW_DIR"        && nohup env $COMMON_ENV SERVER_PORT="$MSW_PORT"         npm start                                >"$CT_ROOT/.runtime-logs/msw.log"        2>&1) & PIDS+=($!)
 # aspnetcore: 同时设 ASPNETCORE_URLS 强制端口 — SERVER_PORT 单独不够 (ServerPortShim 在
 # ASPNETCORE_URLS 已设时 return null, 而 dotnet run 默认 launch profile = Production + ASPNETCORE_URLS=http://+:8080)。
 (cd "$ASPNETCORE_DIR" && nohup env $COMMON_ENV SERVER_PORT="$ASPNETCORE_PORT" ASPNETCORE_URLS="http://+:$ASPNETCORE_PORT" DATABASE_URL="$ASPNETCORE_PG_URL" dotnet run --project src/Saas.Identity.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
@@ -239,7 +230,6 @@ healthcheck() {
   return 1
 }
 
-healthcheck msw        "http://localhost:5100/healthz"
 healthcheck aspnetcore "http://localhost:5104/health"
 healthcheck springboot "http://localhost:5105/actuator/health"
 if [ "$NEXTJS_ACTIVE" = "true" ]; then
@@ -249,9 +239,9 @@ fi
 # === 5. live vitest ===
 echo ""
 echo "=== [5/6] live vitest ==="
-CONTRACT_TARGETS="msw,aspnetcore,springboot"
+CONTRACT_TARGETS="aspnetcore,springboot"
 if [ "$NEXTJS_ACTIVE" = "true" ]; then
-  CONTRACT_TARGETS="msw,aspnetcore,springboot,nextjs"
+  CONTRACT_TARGETS="nextjs,aspnetcore,springboot"
 fi
 echo "  CONTRACT_TARGETS=$CONTRACT_TARGETS"
 # vitest 失败不中断 — contract-test 的目的是发现契约分叉, vitest failed 是结果不是故障。
