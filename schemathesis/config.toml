@@ -1,0 +1,44 @@
+# Schemathesis 4.x 配置 —— TSOT 清理 Phase E1（2026-09-17）。
+#
+# 注意一：文件是 TOML 不是设计稿里写的 YAML。已验证的事实：schemathesis 4.27.3
+# 的 --config-file 只走 tomli.loads（schemathesis/config/__init__.py from_str），
+# YAML 配置不被解析。设计意图（checks 集合 + 逐端点豁免）不变，仅格式落地为 TOML。
+#
+# 注意二：无 [[project]] 命名项目时，顶层键就是「默认项目」配置
+# （ProjectsConfig.from_dict 用整个 dict 构造 default project）。
+#
+# 运行方式见 run.py / 仓库 docs/conventions/schemathesis.md。本文件被 run.py 以
+#   python -m schemathesis.cli --config-file <本文件> run ...
+# 消费。「只跑 GET」由 run.py 传 --include-method GET（CLI 过滤是 4.x 里唯一
+# 可靠的选集通道；[[operations]] 块只承载逐端点覆写，不裁剪选集）。
+
+# 请求超时给足：nextjs dev 首访路由编译 + 共库 PG 偶发 GC pause，login 实测 7.5-8s
+# （家族记忆 nextjs-dev-server-wedge / contract-test-delete-body-dropped）。
+request-timeout = 30.0
+
+[checks]
+# 外层 enabled=false 一刀切关掉全部内置检查，下面只开三个契约一致性检查 ——
+# 禁止无理由整仓降级（设计 E2），要加检查就显式加一行并说明理由。
+enabled = false
+
+# 5xx = 未文档化服务器错误。SSOT 清理要抓的头号猎物，永远开着。
+[checks.not_a_server_error]
+enabled = true
+
+# 响应状态码必须落在 openapi.yaml 该 operation 声明的 responses 集合内。
+# 抓「401/404 没文档化」「实现多吐了一个状态码」这类契约漂移。
+[checks.status_code_conformance]
+enabled = true
+
+# 响应 body 必须符合 openapi.yaml 的 response schema。抓「响应缺字段/多字段/
+# 字段类型漂移」。format 校验关掉：uuid/date-time 字面量由 family seed 保证，
+# format 层误报（如 PG bigint → int64 边界）不属本轮猎物。
+[checks.response_schema_conformance]
+enabled = true
+validate-formats = false
+
+# ---------------------------------------------------------------------------
+# 逐端点豁免（checks-per-operation 覆写）。每条必须带理由注释；
+# 「真后端 bug / 未文档化行为」不进这里 —— 那是报告里的猎物，不是豁免。
+# 豁免只收「已文档化或家族裁定的有意怪癖」。空着开局，pilot 后按证据填。
+# ---------------------------------------------------------------------------

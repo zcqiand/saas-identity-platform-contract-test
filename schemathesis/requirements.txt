@@ -1,0 +1,6 @@
+# Schemathesis 契约模糊测试（TSOT 清理 Phase E1，设计 docs 见仓库级
+# docs/conventions/schemathesis.md）。
+#
+# Python = 本机 anaconda 3.11（家族约定，勿另起 venv）；此处只钉版本，
+# 不在 CI/门禁里 pip install —— pip 只许用已装版本（任务硬约束）。
+schemathesis==4.27.3

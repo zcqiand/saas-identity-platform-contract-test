@@ -16,3 +16,6 @@ generated/
 
 # start-family.sh 跑出来的 4 后端 + vitest runtime log: 本机调试临时产物
 .runtime-logs/
+
+# schemathesis 本地缓存（示例数据库，跑一次生成一次）
+.schemathesis/
