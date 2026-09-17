@@ -100,9 +100,10 @@ def run_target(name: str, base_url: str) -> int:
         f"Authorization: Bearer {token}",
         # ADR-0036 §6：默认全 method 跑（GET/POST/PUT/PATCH/DELETE），
         # 仅 ops 里 // fuzz:skip 标注的 endpoint 走 hooks.py 跳过。
-        # teardown: --stateful=links 自动跟踪 response.id 并 cleanup（v0.1
-        # 起点；v0.2 加 invariant 差集兜底）。
-        "--stateful=links",
+        # teardown: schemathesis 4.x stateful testing 默认模式就是 links
+        # （自动跟踪 response.id 并 cleanup）；通过 config.toml 的
+        # [phases.stateful] enabled=true 控制，不用 CLI 参数。
+        # v0.1 起点；v0.2 加 invariant 差集兜底。
         "--hooks",
         str(Path(__file__).resolve().parent / "hooks.py"),
     ]
