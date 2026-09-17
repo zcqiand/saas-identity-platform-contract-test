@@ -23,3 +23,6 @@ generated/
 # schemathesis Python 运行时产物
 schemathesis/__pycache__/
 schemathesis/**/__pycache__/
+
+# schemathesis 报告目录（运行时产物，不入库）
+schemathesis-report/
