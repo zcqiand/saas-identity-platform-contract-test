@@ -47,7 +47,8 @@ validate-formats = false
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
-# ADR-0036 状态机 / 多步依赖端点：默认走 hooks.py 读 openapi.yaml x-fuzz: skip
-# 跳过。本文件不再维护 [[operations]] 排除清单（避免与 shared .tsp 双源漂移）；
+# ADR-0036 状态机 / 多步依赖端点：run.py 解析 openapi.yaml 的 x-fuzz: skip 扩展，
+# 转 schemathesis 4.x 的 --exclude-path + --exclude-method CLI 对（path+method
+# AND 排除）。本文件不再维护 [[operations]] 排除清单（避免与 shared .tsp 双源漂移）；
 # 唯一修改点是 shared 仓 .tsp 文件加 // fuzz:skip 注释。
 # ---------------------------------------------------------------------------

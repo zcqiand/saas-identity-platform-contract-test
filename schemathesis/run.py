@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Schemathesis 契约模糊测试入口 —— TSOT 清理 Phase E1（2026-09-17）。
+"""Schemathesis 契约模糊测试入口 —— TSOT 清理 Phase E1（2026-09-17）+ ADR-0036 全 method。
 
 语义与现有 vitest 套件（src/targets.ts）对齐：
   - CONTRACT_TARGETS 未设置/为空 -> 打印 skip，退出 0（不跑不算红）
@@ -14,6 +14,16 @@
 用法（仓库根）：
   npm run test:schemathesis
   CONTRACT_TARGETS=springboot python schemathesis/run.py
+
+ADR-0036 §5：默认全 method 跑（GET/POST/PUT/PATCH/DELETE）；复杂端点（状态机 /
+跨 grant 联动 / 多步依赖）在 shared 仓 .tsp 里 // fuzz:skip 标注，emit-openapi.ts
+注入 openapi.yaml 的 x-fuzz: skip 扩展。hooks.py 通过 SCHEMATHESIS_HOOKS 环境
+变量注册到 schemathesis（CLI 没有 --hooks；4.27.3 唯一注册路径就是
+[SCHEMATHESIS_HOOKS] 或 config.toml 的 hooks = "..."），按 case 跳过标过的端点。
+teardown 由 config.toml [phases.stateful] enabled=true 自动跟踪 response.id 并
+cleanup（不是 CLI --stateful=links，4.x stateful testing 默认模式就是 links）。
+
+v0.1 起点；v0.2 加 invariant 差集兜底。
 """
 
 from __future__ import annotations
@@ -25,6 +35,8 @@ import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
+
+import yaml
 
 # Windows 控制台 UTF-8（失败摘要里带后端响应片段）
 if hasattr(sys.stdout, "reconfigure"):
@@ -83,6 +95,64 @@ def login(base_url: str, name: str) -> str:
     return token
 
 
+def fuzz_skip_args() -> list[str]:
+    """读 openapi.yaml 的 x-fuzz: skip 扩展，转 schemathesis 4.x 的 --exclude-path +
+    --exclude-method CLI 参数对（每个 (path, method) 一对）。
+
+    ADR-0036 §5：复杂端点（状态机/多步依赖）走 shared 仓 .tsp // fuzz:skip 标注
+    → emit-openapi.ts 后处理注入 openapi.yaml 的 x-fuzz: "skip" vendor 扩展。
+    本函数是唯一读取点：单源 = openapi.yaml，避免与 shared .tsp 双源漂移。
+
+    x-fuzz 出现位置（OpenAPI 3.x 规范都合法）：
+      - PathItem 级（emit-openapi.ts 当前实现）→ 该 path 下所有 method 跳过
+      - Operation 级（method 子对象）        → 单 method 跳过
+    两者同时存在时：path 级优先（整个 path 跳过），operation 级不重复加。
+
+    schemathesis 4.x 的官方排除机制是 --exclude-path + --exclude-method（path+method
+    组合 AND 排除）；4.x 的 before_call hook 抛异常 = phase ERROR 不是 skip；
+    4.x CLI 无 --hooks / --stateful。
+    """
+    if not SPEC.is_file():
+        return []  # 上游 main() 已 exit 2；这里兜底返回空
+    spec = yaml.safe_load(SPEC.read_text(encoding="utf-8"))
+    args: list[str] = []
+    paths = spec.get("paths", {}) if isinstance(spec, dict) else {}
+    for path, ops in paths.items():
+        if not isinstance(ops, dict):
+            continue
+        # OpenAPI 3.x PathItem 标准字段：summary/description/parameters + 7 个 HTTP method
+        # x-* vendor extension 也可能出现在 PathItem 级（emit-openapi.ts 当前做法）
+        standard_path_keys = {
+            "summary", "description", "parameters",
+            "get", "post", "put", "patch", "delete", "head", "options", "trace",
+        }
+        # PathItem 级 x-fuzz: skip → 该 path 下所有 standard method 全跳过
+        if ops.get("x-fuzz") == "skip":
+            for method_key in ops:
+                if method_key in standard_path_keys:
+                    args.extend(["--exclude-path", path, "--exclude-method", method_key.upper()])
+                    print(
+                        f"[schemathesis] fuzz:skip → --exclude-path {path} "
+                        f"--exclude-method {method_key.upper()} (path-level)",
+                        flush=True,
+                    )
+            continue  # path 级已处理，不再扫 operation 级
+        # Operation 级 x-fuzz: skip → 单 method 跳过
+        for method, op in ops.items():
+            if not isinstance(op, dict):
+                continue
+            if method not in standard_path_keys:
+                continue
+            if op.get("x-fuzz") == "skip":
+                args.extend(["--exclude-path", path, "--exclude-method", method.upper()])
+                print(
+                    f"[schemathesis] fuzz:skip → --exclude-path {path} "
+                    f"--exclude-method {method.upper()}",
+                    flush=True,
+                )
+    return args
+
+
 def run_target(name: str, base_url: str) -> int:
     token = login(base_url, name)
     cmd = [
@@ -98,14 +168,11 @@ def run_target(name: str, base_url: str) -> int:
         base_url,
         "--header",
         f"Authorization: Bearer {token}",
-        # ADR-0036 §6：默认全 method 跑（GET/POST/PUT/PATCH/DELETE），
-        # 仅 ops 里 // fuzz:skip 标注的 endpoint 走 hooks.py 跳过。
-        # teardown: schemathesis 4.x stateful testing 默认模式就是 links
-        # （自动跟踪 response.id 并 cleanup）；通过 config.toml 的
-        # [phases.stateful] enabled=true 控制，不用 CLI 参数。
-        # v0.1 起点；v0.2 加 invariant 差集兜底。
-        "--hooks",
-        str(Path(__file__).resolve().parent / "hooks.py"),
+        # ADR-0036 §5 范围扩：默认全 method 跑（GET/POST/PUT/PATCH/DELETE）。
+        # 复杂端点（状态机/多步依赖）由 fuzz_skip_args() 按 openapi.yaml 的
+        # x-fuzz: skip 扩展生成 --exclude-path + --exclude-method 对跳过。
+        # stateful teardown 走 config.toml [phases.stateful] enabled=true。
+        *fuzz_skip_args(),
     ]
     print(f"\n=== [{name}] {base_url} schemathesis run ===", flush=True)
     env = dict(os.environ)

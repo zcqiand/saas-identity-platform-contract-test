@@ -19,3 +19,7 @@ generated/
 
 # schemathesis 本地缓存（示例数据库，跑一次生成一次）
 .schemathesis/
+
+# schemathesis Python 运行时产物
+schemathesis/__pycache__/
+schemathesis/**/__pycache__/
