@@ -98,10 +98,13 @@ def run_target(name: str, base_url: str) -> int:
         base_url,
         "--header",
         f"Authorization: Bearer {token}",
-        # Phase 1 只跑 GET（设计 E2）：写方法随机体会污染 saas_dev 共库且无法
-        # teardown，留待 Phase 2 专库 + stateful。CLI 过滤是 4.x 唯一可靠选集通道。
-        "--include-method",
-        "GET",
+        # ADR-0036 §6：默认全 method 跑（GET/POST/PUT/PATCH/DELETE），
+        # 仅 ops 里 // fuzz:skip 标注的 endpoint 走 hooks.py 跳过。
+        # teardown: --stateful=links 自动跟踪 response.id 并 cleanup（v0.1
+        # 起点；v0.2 加 invariant 差集兜底）。
+        "--stateful=links",
+        "--hooks",
+        str(Path(__file__).resolve().parent / "hooks.py"),
     ]
     print(f"\n=== [{name}] {base_url} schemathesis run ===", flush=True)
     env = dict(os.environ)

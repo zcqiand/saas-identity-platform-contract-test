@@ -1,4 +1,4 @@
-# Schemathesis 4.x 配置 —— TSOT 清理 Phase E1（2026-09-17）。
+# Schemathesis 4.x 配置 —— TSOT 清理 Phase E1（2026-09-17）+ ADR-0036 全 method 扩。
 #
 # 注意一：文件是 TOML 不是设计稿里写的 YAML。已验证的事实：schemathesis 4.27.3
 # 的 --config-file 只走 tomli.loads（schemathesis/config/__init__.py from_str），
@@ -7,10 +7,13 @@
 # 注意二：无 [[project]] 命名项目时，顶层键就是「默认项目」配置
 # （ProjectsConfig.from_dict 用整个 dict 构造 default project）。
 #
+# ADR-0036 §5 范围扩：默认全 method 跑（GET/POST/PUT/PATCH/DELETE）。
+# method 范围由 run.py 决定（不带 --include-method），hooks.py 读 openapi.yaml
+# 的 x-fuzz: skip 扩展按 case 跳过。
+#
 # 运行方式见 run.py / 仓库 docs/conventions/schemathesis.md。本文件被 run.py 以
 #   python -m schemathesis.cli --config-file <本文件> run ...
-# 消费。「只跑 GET」由 run.py 传 --include-method GET（CLI 过滤是 4.x 里唯一
-# 可靠的选集通道；[[operations]] 块只承载逐端点覆写，不裁剪选集）。
+# 消费。
 
 # 请求超时给足：nextjs dev 首访路由编译 + 共库 PG 偶发 GC pause，login 实测 7.5-8s
 # （家族记忆 nextjs-dev-server-wedge / contract-test-delete-body-dropped）。
@@ -41,4 +44,10 @@ validate-formats = false
 # 逐端点豁免（checks-per-operation 覆写）。每条必须带理由注释；
 # 「真后端 bug / 未文档化行为」不进这里 —— 那是报告里的猎物，不是豁免。
 # 豁免只收「已文档化或家族裁定的有意怪癖」。空着开局，pilot 后按证据填。
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# ADR-0036 状态机 / 多步依赖端点：默认走 hooks.py 读 openapi.yaml x-fuzz: skip
+# 跳过。本文件不再维护 [[operations]] 排除清单（避免与 shared .tsp 双源漂移）；
+# 唯一修改点是 shared 仓 .tsp 文件加 // fuzz:skip 注释。
 # ---------------------------------------------------------------------------
