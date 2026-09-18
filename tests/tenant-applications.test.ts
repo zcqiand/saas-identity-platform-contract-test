@@ -1,6 +1,11 @@
 // M96.F02.I74–I77 — /tenants/{t}/applications CRUD 四方比对（第五期 B 组）。
 //
 // 9/8 schema-first pivot：新增 M00.F05 租户应用订阅（clientId 维度）。
+// shared BASE 对齐（ADR-0023 跨仓覆盖映射，annotation 通道；Task 3.6 转正补锚）：
+//   M00.F05.I01 列出租户应用 → I74
+//   M00.F05.I02 订阅应用     → I75
+//   M00.F05.I03 更新应用订阅 → I76
+//   M00.F05.I04 移除应用订阅 → I77
 // 鉴权同 I30：alice Bearer 即可；dev 模式下 /tenants/{t}/** 走 tenantGuard。
 // 写比对模型同 I30：唯一化 clientId 创订阅，id 入 ctx；teardown DELETE 兜底。
 //
@@ -32,6 +37,7 @@ const ctx: { clientIds: Map<string, string> } = { clientIds: new Map() };
 /** I75 前置注册的 oauth_client（订阅的 FK 目标；teardown 兜底删，key=target 名）。 */
 const precreatedClients: Map<string, string> = new Map();
 
+// M00.F05.I01 列出租户应用：分页 shape 对齐 SSOT Page<TenantApplication>。
 describe.skipIf(!live)("M96.F02.I74 GET /tenants/{tenantId}/applications 四方比对", () => {
   it("列表 → 200 + 分页包装 shape", async () => {
     const probes = [];
@@ -57,6 +63,7 @@ describe.skipIf(!live)("M96.F02.I74 GET /tenants/{tenantId}/applications 四方�
   }, 60_000);
 });
 
+// M00.F05.I02 订阅应用：oauth_client FK 前置（未知 clientId → 404，勿盲插）。
 describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方比对", () => {
   beforeAll(() => {
     clearCleanups();
@@ -135,9 +142,10 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
   }
 });
 
+// M00.F05.I03 更新应用订阅：PATCH 寻址 clientId 字符串列；status int32 回读 + expireTime 字段在位。
 describe.skipIf(!live)("M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clientId} 四方比对", () => {
   for (const target of targets) {
-    it(`M96.F02.I76 ${target.name} 改 status → 200 + updatedAt 必填`, async () => {
+    it(`M96.F02.I76 ${target.name} 改 status → 200 + status/expireTime 回读`, async () => {
       const clientId = ctx.clientIds.get(target.name);
       if (!clientId) throw new Error(`${target.name} I75 未创 application，跳过 I76`);
       const r = await probeRequest(target, {
@@ -150,10 +158,18 @@ describe.skipIf(!live)("M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clie
         r.status,
         `${target.name} patch 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`,
       ).toBe(200);
+      // 回读契约：UpdateTenantApplicationRequest{status, expireTime?} → TenantApplication
+      const body = r.body as Record<string, unknown>;
+      expect(body.status, `${target.name} patch 回读 status 期望 0`).toBe(0);
+      expect(
+        "expireTime" in body,
+        `${target.name} patch 回读缺 expireTime 字段（SSOT TenantApplication.expireTime?）`,
+      ).toBe(true);
     }, 30_000);
   }
 });
 
+// M00.F05.I04 移除应用订阅：DELETE 204/200 + 重复删幂等（404/200/204 容差，家族删语义未收敛）。
 describe.skipIf(!live)("M96.F02.I77 DELETE /tenants/{tenantId}/applications/{clientId} 四方比对", () => {
   it("I75 的 application 删除 → 204/200 + 重复删 → 404（幂等）", async () => {
     for (const target of targets) {
