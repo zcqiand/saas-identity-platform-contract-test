@@ -8,7 +8,8 @@
     "cleanupRoles code→roleCode（残留分叉根因）",
     "cleanupMenus /admin/apps/{id}/menus→/clients/{clientId}/menus + code→title",
     "cleanupUsers /users→/members；cleanupApiKeys 删除（M05 域已移除）",
-    "11 测试文件 ADR-0032 断言迁移；门禁全绿"
+    "11 测试文件 ADR-0032 断言迁移；门禁全绿",
+    "2026-09-19 wave 收尾：saas live 全量（显式 export CONTRACT_TARGETS+TRACE_MAP=1）→ trace mode=live 208 fn；197 passed/6 failed/17 skipped(220)；M00.F05 应用订阅 I74-I77 全绿；6 失败全指向 aspnetcore：PATCH 枚举 Nullable 绑定 400（I32/I53/I39）+不存在 id 400≠404（I39/I70）+错误密码 401≠400（I22）——均为 record-only 池项"
   ],
   "next": [
     "contract-test 仓 bash run-4way-final.sh（需先起 4 后端，见 docs/conventions/contract-test-run-live.md；springboot gate 另需 libpq 格式 DATABASE_URL）",
