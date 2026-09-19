@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-contract-test",
-  "current_task": "2026-09-12/13 cleanup-pg 三处 pre-pivot 死桩修复提交（d29ddca）+ ADR-0032 断言迁移 + run-4way-final.sh 入库；live 96 failed → 222/240（唯一失败=nextjs 30s 瞬时超时）",
-  "last_session_at": "2026-09-13",
-  "last_session_summary": "根因链：roles 列表分叉 = cleanupRoles 读 pre-pivot code 恒 undefined 静默空转，shape-role-* 残留落 PG；menus（路径+字段双漂）、users（/users→/members）同族死桩一并修",
+  "current_task": "wave 收尾 live 验证：trace 再生 mode=live(3 targets,208 fn)，live 197p/6f/17skip(220)",
+  "last_session_at": "2026-09-19",
+  "last_session_summary": "wave 收尾 live 验证：trace 再生 mode=live(3 targets,208 fn)，live 197p/6f/17skip(220)",
   "done": [
     "cleanupRoles code→roleCode（残留分叉根因）",
     "cleanupMenus /admin/apps/{id}/menus→/clients/{clientId}/menus + code→title",
@@ -25,5 +25,8 @@
   ],
   "last_gate_passed_at": "2026-09-10T23:30+08:00 (全绿; trace live 4/4)",
   "active_branch": "master",
-  "ahead_of_origin": "0"
+  "ahead_of_origin": "0",
+  "done_add": [
+    "2026-09-19 wave 收尾：saas live 全量（显式 export CONTRACT_TARGETS+TRACE_MAP=1）→ trace mode=live 208 fn；197 passed/6 failed/17 skipped(220)；M00.F05 应用订阅 I74-I77 全绿；6 失败全指向 aspnetcore：PATCH 枚举 Nullable 绑定 400（I32/I53/I39）+不存在 id 400≠404（I39/I70）+错误密码 401≠400（I22）——均为 record-only 池项"
+  ]
 }
