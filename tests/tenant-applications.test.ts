@@ -148,11 +148,14 @@ describe.skipIf(!live)("M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clie
     it(`M96.F02.I76 ${target.name} 改 status → 200 + status/expireTime 回读`, async () => {
       const clientId = ctx.clientIds.get(target.name);
       if (!clientId) throw new Error(`${target.name} I75 未创 application，跳过 I76`);
+      // 5.18 断言（Task 3.6 审查 minor ② 补账）：先显式带 expireTime 写入已知值，
+      // 再 PATCH 不带 expireTime → 回读值必须不变（partial-update 语义；
+      // nextjs/springboot 早已「不传不改」，aspnetcore 5.18 前会覆写 MinValue 0001-01-01）。
       const r = await probeRequest(target, {
         method: "PATCH",
         path: `${BASE_PATH}/${clientId}`,
         // SSOT TenantApplication.status = int32（同 I49 admin/clients 风格：0=disabled 1=active）
-        body: { status: 0 },
+        body: { status: 0, expireTime: "2030-01-01T00:00:00Z" },
       });
       expect(
         r.status,
@@ -164,6 +167,23 @@ describe.skipIf(!live)("M96.F02.I76 PATCH /tenants/{tenantId}/applications/{clie
       expect(
         "expireTime" in body,
         `${target.name} patch 回读缺 expireTime 字段（SSOT TenantApplication.expireTime?）`,
+      ).toBe(true);
+      expect(
+        String(body.expireTime).startsWith("2030-01-01"),
+        `${target.name} patch 带 expireTime 回读期望 2030-01-01 实得 ${body.expireTime}`,
+      ).toBe(true);
+
+      // 不带 expireTime 再 PATCH：回读值不变（同后端自比对，绕开跨后端时间格式差异）
+      const r2 = await probeRequest(target, {
+        method: "PATCH",
+        path: `${BASE_PATH}/${clientId}`,
+        body: { status: 0 },
+      });
+      expect(r2.status, `${target.name} patch(不带 expireTime) 期望 200 实得 ${r2.status}`).toBe(200);
+      const body2 = r2.body as Record<string, unknown>;
+      expect(
+        String(body2.expireTime).startsWith("2030-01-01"),
+        `${target.name} patch 不带 expireTime 必须不改旧值（partial-update）实得 ${body2.expireTime}`,
       ).toBe(true);
     }, 30_000);
   }
