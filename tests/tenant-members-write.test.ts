@@ -121,7 +121,7 @@ describe.skipIf(!live)("M96.F02.I19 POST /tenants/{t}/members 四方比对", () 
 // 注意：标题不带 Mxx.Fxx.Ixx 字面 —— 这是契约约束回归断言，不是功能树跟踪项，
 // 防 fnReporter 误吸进 trace（regression anchor 泄漏先例）。
 describe.skipIf(!live)("CreateSysUserRequest.password 契约下限 <8 → 400（5.59 D-2）", () => {
-  it("password 7 字符 → springboot/nextjs 400；aspnetcore 见 KNOWN GAP", async () => {
+  it("password 7 字符 → 四后端 400（5.64 aspnetcore ModelState filter 收口）", async () => {
     const probes = [];
     for (const t of targets) {
       const name = uniqueName("pw-short-user");
@@ -152,18 +152,12 @@ describe.skipIf(!live)("CreateSysUserRequest.password 契约下限 <8 → 400（
       }
     }
     for (const p of probes) {
-      if (p.target === "aspnetcore") {
-        // KNOWN GAP（5.59 实测 2026-09-20，短密码真 200 建行）：
-        // 本仓控制器无 [ApiController]，DataAnnotations（StringLength/Required）
-        // 只进 ModelState、无任何 filter 消费 → 不产 400。这是 regen 后的
-        // 契约执行缺口，非断言写错；待人裁「补 ModelState 400 filter」或改契约。
-        // 收敛后此分支应收严为 expect(p.status).toBe(400)。
-        expect([200, 201, 400], `${p.target} KNOWN GAP 容忍 200/201/400 实得 ${p.status}`).toContain(p.status);
-      } else {
-        // springboot：@Valid + @Size(min=8,max=256) → 400（实测
-        // "password: size must be between 8 and 256"）；nextjs：BFF zod min(8) → 400。
-        expect(p.status, `${p.target} 期望 400 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 200)}`).toBe(400);
-      }
+      // 5.64 收口：aspnetcore KNOWN GAP 已闭环（全局 ModelStateValidationFilter 落地，
+      // DataAnnotations 运行时 enforce → 400），四后端统一断言 400。
+      // springboot：@Valid + @Size(min=8,max=256)（实测
+      // "password: size must be between 8 and 256"）；nextjs：BFF zod min(8)；
+      // aspnetcore：ModelStateValidationFilter → 400 INVALID_REQUEST。
+      expect(p.status, `${p.target} 期望 400 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 200)}`).toBe(400);
     }
   }, 60_000);
 });
