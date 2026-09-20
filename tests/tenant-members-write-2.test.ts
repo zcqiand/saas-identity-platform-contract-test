@@ -92,11 +92,38 @@ describe.skipIf(!live)("M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对"
   }, 60_000);
 });
 
+// 5.13-① 契约同步断言（shared：UpdateSysUserRequest 删 status 字段，人裁 2026-09-20）。
+// 成员状态变更唯一通道 = 专职 /status 端点（I41）；PATCH body 里的 status 是契约外字段，
+// 必须被忽略（未知属性丢弃），不得改写任何一层状态（springboot 曾落 sys_user.status、
+// nextjs 曾落 tenant_member.status —— 5.13 前的分叉正是本断言要锁死的面）。
+// 注意：标题不带 Mxx.Fxx.Ixx 字面 —— 契约约束回归断言，防 fnReporter 误吸进 trace
+//（regression anchor 泄漏先例）。
+describe.skipIf(!live)("UpdateSysUserRequest.status 契约移除回归（5.13-①）", () => {
+  it("PATCH body 只含 status → 200 且成员状态不变（字段被忽略）", async () => {
+    for (const t of targets) {
+      const userId = await ensureUser(t);
+      const before = await probeRequest(t, { method: "GET", path: `${USER_BASE}/${userId}` });
+      expect(before.status, `${t.name} GET 前置期望 200 实得 ${before.status}`).toBe(200);
+      const statusBefore = (before.body as Record<string, unknown>).status;
+      const r = await probeRequest(t, {
+        method: "PATCH",
+        path: `${USER_BASE}/${userId}`,
+        body: { status: "disabled" },
+      });
+      expect(r.status, `${t.name} PATCH(body={status}) 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toBe(200);
+      const after = await probeRequest(t, { method: "GET", path: `${USER_BASE}/${userId}` });
+      expect(after.status, `${t.name} GET 后置期望 200 实得 ${after.status}`).toBe(200);
+      expect((after.body as Record<string, unknown>).status,
+        `${t.name} PATCH body.status 必须被忽略（状态唯一通道 /status），状态被改写`).toBe(statusBefore);
+    }
+  }, 180_000);
+});
+
 describe.skipIf(!live)("M96.F02.I70 PATCH /tenants/{t}/members/{u} 404 ErrorResponse envelope", () => {
   it("404 envelope shape 全等（前端 catch 分支依赖）", async () => {
-    // SSOT ErrorResponse: {code, message, details?} —— 4 后端各自命名不同
-    // （msw: {code,message}；springboot/aspnetcore/nextjs: {error,message,...}）。
-    // 契约面是「有错误码字段 + 有人读字段」，drop 之后骨架必须一致。
+    // SSOT ErrorResponse: {code, message, details?}。
+    // 5.13-② 收严（2026-09-20 人裁）：aspnetcore 已迁契约 envelope，双派 drop 兼容撤销 ——
+    // drop 只留契约字段本身，error/error_description 等契约外字段出现即 divergence。
     const probes = [];
     for (const t of targets) {
       probes.push(await probeRequest(t, { method: "PATCH", path: `${USER_BASE}/${DEAD_ID}`, body: { displayName: "noop" } }));
@@ -104,7 +131,7 @@ describe.skipIf(!live)("M96.F02.I70 PATCH /tenants/{t}/members/{u} 404 ErrorResp
     for (const p of probes) {
       expect(p.status, `${p.target} 404 envelope 期望 404 实得 ${p.status}`).toBe(404);
     }
-    const drop = ["code", "message", "error", "error_description", "details", "path", "timestamp", "traceId"];
+    const drop = ["code", "message", "details"];
     const divergences = compareBodies(probes, targets, drop);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   }, 60_000);
@@ -222,7 +249,8 @@ describe.skipIf(!live)("写端点 teardown — runCleanups + 防御性 delete", 
         console.warn(`[teardown] final delete-u2 ${tname} 异常 status=${r.status}`);
       }
     }
-  }, 60_000);
+    // 5.13 实测：dev 后端冷 JIT 下单请求可到 15-20s，60s 不够 —— 放宽到 180s。
+  }, 180_000);
   it("占位 — afterAll 真正干活", () => {
     expect(targets.length).toBeGreaterThanOrEqual(2);
   });

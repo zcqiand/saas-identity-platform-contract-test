@@ -175,8 +175,10 @@ describe.skipIf(!live)("M96.F02.I69 POST /tenants/{t}/members 缺必填字段错
       // 4 后端契约面：400；msw 历史曾返 500，先宽容但要落到 4xx/5xx。
       expect(p.status, `${p.target} 缺必填字段期望 4xx/500 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 200)}`).toBeGreaterThanOrEqual(400);
     }
-    // 错误 envelope 字段名家族两派：{code,message} vs {error,error_description,...}。drop。
-    const drop = ["code", "message", "error", "error_description", "details", "path", "timestamp", "traceId"];
+    // 5.13-② 收严（2026-09-20 人裁）：aspnetcore 已迁契约 envelope {code,message,details?}，
+    // 双派 drop 兼容撤销 —— drop 只留契约字段本身，body 里出现 error/error_description 等
+    // 契约外字段即 divergence（compareBodies 骨架比对天然拒绝未知字段）。
+    const drop = ["code", "message", "details"];
     const divergences = compareBodies(probes, targets, drop);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   }, 60_000);
@@ -194,7 +196,9 @@ describe.skipIf(!live)("写端点 teardown — runCleanups + 防御性 delete-us
         console.warn(`[teardown] final delete-user ${tname} 异常 status=${r.status}`);
       }
     }
-  }, 60_000);
+    // 5.13 实测：dev 后端冷 JIT 下单请求可到 15-20s，3 目标多轮 DELETE 60s 不够
+    //（hook 超时把全绿跑染红）——放宽到 180s。
+  }, 180_000);
   it("占位 — afterAll 真正干活", () => {
     expect(targets.length).toBeGreaterThanOrEqual(2);
   });
