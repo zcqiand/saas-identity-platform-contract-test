@@ -4,7 +4,7 @@
 // 判定标准是「前端不可区分」：前端会因为什么走进不同分支，就比什么。
 
 import { ID_KEYS, normalize, stable, assertTimestampShape, type TimestampShapeError } from "./normalize.js";
-import { ORACLE, type Target, needsIdDrop } from "./targets.js";
+import { type Target, needsIdDrop } from "./targets.js";
 
 export interface Probe {
   readonly target: string;
@@ -25,13 +25,14 @@ function dropKeys(targets: readonly Target[]): readonly string[] {
 /** M96.F02.I01 —— 前端的 catch 分支由状态码决定，状态码必须全等。 */
 export function compareStatuses(probes: readonly Probe[]): Divergence[] {
   if (probes.length < 2) return [];
-  const oracle = probes.find((p) => p.target === ORACLE) ?? probes[0];
+  // 基准 = 第一个 probe（5.81：msw oracle 退役，三方真后端共库互为对照，谁先谁基准）。
+  const baseline = probes[0];
   return probes
-    .filter((p) => p.target !== oracle.target && p.status !== oracle.status)
+    .filter((p) => p.target !== baseline.target && p.status !== baseline.status)
     .map((p) => ({
       kind: "status" as const,
       target: p.target,
-      detail: `status ${p.status} ≠ ${oracle.target} 的 ${oracle.status}`,
+      detail: `status ${p.status} ≠ ${baseline.target} 的 ${baseline.status}`,
     }));
 }
 
@@ -43,11 +44,11 @@ export function compareBodies(
 ): Divergence[] {
   if (probes.length < 2) return [];
   const drop = [...dropKeys(targets), ...extraDrop];
-  const oracle = probes.find((p) => p.target === ORACLE) ?? probes[0];
-  const want = stable(oracle.body, { drop });
+  const baseline = probes[0];
+  const want = stable(baseline.body, { drop });
 
   const divergences: Divergence[] = probes
-    .filter((p) => p.target !== oracle.target)
+    .filter((p) => p.target !== baseline.target)
     .flatMap((p) => {
       const got = stable(p.body, { drop });
       if (got === want) return [];
@@ -55,7 +56,7 @@ export function compareBodies(
         {
           kind: "body" as const,
           target: p.target,
-          detail: firstDiff(want, got, oracle.target, p.target),
+          detail: firstDiff(want, got, baseline.target, p.target),
         },
       ];
     });

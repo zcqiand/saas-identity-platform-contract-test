@@ -236,7 +236,7 @@ describe.skipIf(!live)("M96.F02.I33 DELETE /admin/tenants/{id} 四方比对", ()
       const first = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${tenantId}` });
       expect(first.status, `${target.name} delete 期望 204 实得 ${first.status}`).toBe(204);
       const second = await probeRequest(target, { method: "DELETE", path: `${BASE_PATH}/${tenantId}` });
-      expect([404, 204], `${target.name} 重复删期望 404（msw/springboot）实得 ${second.status}`).toContain(second.status);
+      expect([404, 204], `${target.name} 重复删期望 404（springboot）实得 ${second.status}`).toContain(second.status);
       ctx.tenantIds.delete(target.name); // 已删，teardown 不再兜底这行
     }
   }, 60_000);
@@ -260,8 +260,8 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
     expect(targets.length).toBeLessThan(2);
     console.info(
       "[contract-test] 四方比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run tests/admin-tenants.test.ts\n" +
-        "  前置：4 个后端分别跑在 5100 / 5104 / 5105 / 5101",
+        "  CONTRACT_TARGETS=aspnetcore,springboot,nextjs npx vitest run tests/admin-tenants.test.ts\n" +
+        "  前置：3 个后端分别跑在 5104 / 5105 / 5101",
     );
   });
 });

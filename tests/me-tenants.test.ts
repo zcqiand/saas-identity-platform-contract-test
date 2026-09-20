@@ -2,7 +2,7 @@
 //
 // 选它的理由：只读、无写（不碰共库的唯一约束）、4 个后端都实现。
 // 跑法：
-//   CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run
+//   CONTRACT_TARGETS=aspnetcore,springboot,nextjs npx vitest run
 // 未声明 CONTRACT_TARGETS → 整组跳过（fnReporter 会把它记成 inert，不计入 trace）。
 // **声明了却连不上 = 红，不是跳过。**
 import { beforeAll, describe, expect, it } from "vitest";
@@ -57,8 +57,8 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
     expect(targets.length).toBeLessThan(2);
     console.info(
       "[contract-test] 四方比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run\n" +
-        "  前置：4 个后端分别跑在 5100 / 5104 / 5105 / 5101",
+        "  CONTRACT_TARGETS=aspnetcore,springboot,nextjs npx vitest run\n" +
+        "  前置：3 个后端分别跑在 5104 / 5105 / 5101",
     );
   });
 });

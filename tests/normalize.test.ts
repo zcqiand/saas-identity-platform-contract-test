@@ -79,15 +79,15 @@ describe("M96.F01.I01 剔除非确定性字段", () => {
     expect(kept.userId).toBe("u1");
   });
 
-  it("显式传 ID_KEYS 才剔 —— 比对含 msw（内存 fixture，不共库）时用", () => {
+  it("显式传 ID_KEYS 才剔 —— 比对含内存 fixture（不共库）时用", () => {
     const dropped = normalize({ id: "t1", status: "active" }, { drop: ID_KEYS });
     expect(dropped).toEqual({ status: "active" });
   });
 
-  it("剔 ID 后 msw 的合成 ID 与真库 UUID 可比", () => {
-    const fromMsw = { id: "00000000-0000-0000-0000-000000000001-user-alice", status: "active" };
+  it("剔 ID 后 fixture 的合成 ID 与真库 UUID 可比", () => {
+    const fromFixture = { id: "00000000-0000-0000-0000-000000000001-user-alice", status: "active" };
     const fromPg = { id: "3f8a1c22-0f1e-4b7a-9c31-1d2e3f4a5b6c", status: "active" };
-    expect(stable(fromMsw, { drop: ID_KEYS })).toBe(stable(fromPg, { drop: ID_KEYS }));
+    expect(stable(fromFixture, { drop: ID_KEYS })).toBe(stable(fromPg, { drop: ID_KEYS }));
   });
 });
 

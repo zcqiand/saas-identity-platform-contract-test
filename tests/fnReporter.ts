@@ -58,12 +58,10 @@ let EFFECTIVE_TARGETS: string[] = [...DECLARED_TARGETS];
 // 与 .github/workflows/ci.yml 的 healthcheck 路径对齐 —— 真源是 ci.yml,
 // 这里镜像,改一处必须同步另一处 (后端自己改 healthz 路径会同时断两边)。
 // 注意: 各后端 health endpoint 是后端自己定的, 不是 contract-test 仓能改的:
-//   msw        express MapGet("/healthz", ...)
 //   aspnetcore ASP.NET Core Minimal API MapGet("/health", ...) (标准约定)
 //   springboot Spring Boot Actuator /actuator/health
 //   nextjs     App Router src/app/api/health/route.ts → /api/health (Next.js 14+ 标准约定)
 const HEALTH_PATHS: Record<string, string> = {
-  msw: "/healthz",
   aspnetcore: "/health",
   springboot: "/actuator/health",
   nextjs: "/api/health",
