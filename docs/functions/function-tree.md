@@ -109,7 +109,7 @@
 | M96.F02.I36 | `PUT /tenants/{t}/roles/{r}/permissions` 四方比对 | 接口 | 前端+后端 | 设 permissionIds → 200 + 响应回带（集合语义，顺序不比）；M02.F02.I01 跨后端覆盖 | 已上线 |
 | M96.F02.I37 | `DELETE /tenants/{t}/roles/{r}` 四方比对 | 接口 | 前端+后端 | 物理删 200/204 + 幂等（重复删 → 404）；M02.F01.I05 跨后端覆盖 | 已上线 |
 | M96.F02.I38 | `DELETE /tenants/{t}/roles/{r}/menus` 四方比对 | 接口 | 前端+后端 | 清空 seed 共享 role（acme admin）授权：先 GET 记原状、断言后 PUT 还原（I20 同模式）；M09.F02.I03 跨后端覆盖 | 已上线 |
-| M96.F02.I39 | `PATCH /tenants/{t}/users/{u}` 四方比对 | 接口 | 前端+后端 | 改 displayName → 200 + updatedAt；不存在 id → 404 全等；M01.F01.I04 跨后端覆盖 | 已上线 |
+| M96.F02.I39 | `PATCH /tenants/{t}/users/{u}` 四方比对 | 接口 | 前端+后端 | 改 email（契约 UpdateSysUserRequest={email?,mobile?}；5.80 测试债清理：displayName 系契约外字段且三前端无真消费）→ 200 + updatedAt；不存在 id → 404 全等；M01.F01.I04 跨后端覆盖 | 已上线 |
 | M96.F02.I40 | `PUT /tenants/{t}/users/{u}/roles` 四方比对 | 接口 | 前端+后端 | 设 roleIds（seed acmeMember）→ 200 + GET 复核（authoritative 在 memberships）；M01.F02.I01 跨后端覆盖 | 已上线 |
 | M96.F02.I41 | `PATCH /tenants/{t}/users/{u}/status` 四方比对 | 接口 | 前端+后端 | active → suspended → active 往返，终态还原 active；M01.F02.I03 跨后端覆盖 | 已上线 |
 | M96.F02.I42 | `POST /tenants/{t}/users/invitations` 四方比对 | 接口 | 前端+后端 | 邀请 email → 200/201 + 嵌套 TenantMemberView，user.status=invited；id 供 I43 删除；M01.F02.I02 跨后端覆盖 | 已上线 |

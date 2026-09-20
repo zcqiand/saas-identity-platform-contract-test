@@ -4,7 +4,9 @@
 // msw 内存 fixture；唯一化 username/email 防撞 UNIQUE。本文件各 it 自创自删，
 // 不依赖 I19 的 ctx（vitest 并行文件间没有顺序保证）。
 //
-// I39 PATCH /users/{u}：改 displayName → 200 + updatedAt 必填；不存在 id → 404。
+// I39 PATCH /users/{u}：改 email（契约内字段；5.80 测试债清理——displayName 不在
+// UpdateSysUserRequest={email?,mobile?} 里，无任何前端真消费）→ 200 + updatedAt 必填；
+// 不存在 id → 404。
 // I40 PUT /users/{u}/roles：设 roleIds（seed acmeMember）→ 200 + 响应回带；
 //      断言后还原为 [acmeAdmin]（alice 是 seed 行，不留给后续读测试脏数据）。
 // I41 PATCH /users/{u}/status：active → suspended → active 往返，终态还原 active。
@@ -68,12 +70,12 @@ describe.skipIf(!live)("M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对"
   }, 30_000);
 
   for (const target of targets) {
-    it(`M96.F02.I39 ${target.name} 改 displayName → 200 + updatedAt 必填`, async () => {
+    it(`M96.F02.I39 ${target.name} 改 email → 200 + updatedAt 必填`, async () => {
       const userId = await ensureUser(target);
       const r = await probeRequest(target, {
         method: "PATCH",
         path: `${USER_BASE}/${userId}`,
-        body: { displayName: `dn-${uniqueName("ct")}` },
+        body: { email: `${uniqueName("ct-dn")}@contract-test.io` },
       });
       expect(r.status, `${target.name} patch 期望 200 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toBe(200);
       const body = r.body as Record<string, unknown>;
@@ -84,7 +86,7 @@ describe.skipIf(!live)("M96.F02.I39 PATCH /tenants/{t}/members/{u} 四方比对"
   it("不存在 id → 404 全等", async () => {
     const probes = [];
     for (const t of targets) {
-      probes.push(await probeRequest(t, { method: "PATCH", path: `${USER_BASE}/${DEAD_ID}`, body: { displayName: "noop" } }));
+      probes.push(await probeRequest(t, { method: "PATCH", path: `${USER_BASE}/${DEAD_ID}`, body: { mobile: "noop" } }));
     }
     for (const p of probes) {
       expect(p.status, `${p.target} 不存在 id 期望 404 实得 ${p.status}`).toBe(404);
@@ -126,7 +128,7 @@ describe.skipIf(!live)("M96.F02.I70 PATCH /tenants/{t}/members/{u} 404 ErrorResp
     // drop 只留契约字段本身，error/error_description 等契约外字段出现即 divergence。
     const probes = [];
     for (const t of targets) {
-      probes.push(await probeRequest(t, { method: "PATCH", path: `${USER_BASE}/${DEAD_ID}`, body: { displayName: "noop" } }));
+      probes.push(await probeRequest(t, { method: "PATCH", path: `${USER_BASE}/${DEAD_ID}`, body: { mobile: "noop" } }));
     }
     for (const p of probes) {
       expect(p.status, `${p.target} 404 envelope 期望 404 实得 ${p.status}`).toBe(404);
