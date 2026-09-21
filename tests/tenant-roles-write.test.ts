@@ -228,14 +228,3 @@ describe.skipIf(!live)("写端点 teardown — runCleanups + 防御性 delete-ro
     expect(targets.length).toBeGreaterThanOrEqual(2);
   });
 });
-
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-    console.info(
-      "[contract-test] roles 写端点比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=aspnetcore,springboot,nextjs npx vitest run tests/tenant-roles-write.test.ts\n" +
-        "  前置：3 个后端分别跑在 5104 / 5105 / 5101",
-    );
-  });
-});

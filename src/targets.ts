@@ -22,10 +22,19 @@ export class TargetError extends Error {}
 /**
  * M96.F03.I02 —— 从 CONTRACT_TARGETS 读要打的目标。
  * 未设置返回空数组（只跑单元测试）；设置了但名字不认识 → 抛错，不静默忽略。
+ *
+ * readEnv 注入（Task 5.85 可测性重构）：默认参读 process.env.CONTRACT_TARGETS 的
+ * 路径在 live 档结构性不可测（env 恒已声明），原实现只能 it.skipIf 隔离 → 撞
+ * require_live 的 skip=0 硬门。现在测试可注入替身 env 读取函数，该用例 live 照跑；
+ * 生产调用方不传 readEnv，行为与旧签名逐字节一致（`selectedTargets()` 照旧读 env）。
  */
-export function selectedTargets(raw = process.env.CONTRACT_TARGETS): Target[] {
-  if (!raw || raw.trim() === "") return [];
-  const names = raw
+export function selectedTargets(
+  raw?: string,
+  readEnv: () => string | undefined = () => process.env.CONTRACT_TARGETS,
+): Target[] {
+  const value = raw ?? readEnv();
+  if (!value || value.trim() === "") return [];
+  const names = value
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);

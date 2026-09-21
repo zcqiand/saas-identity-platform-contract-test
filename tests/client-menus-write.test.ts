@@ -237,14 +237,3 @@ describe.skipIf(!live)("M96.F02.I54 DELETE /clients/{clientId}/menus/{menuId} �
     }
   }, 60_000);
 });
-
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-    console.info(
-      "[contract-test] client-menus 比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=aspnetcore,springboot,nextjs npx vitest run tests/client-menus-write.test.ts\n" +
-        "  前置：3 个后端分别跑在 5104 / 5105 / 5101",
-    );
-  });
-});

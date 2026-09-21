@@ -273,14 +273,3 @@ describe.skipIf(!live)("M96.F02.I48 DELETE /admin/clients/{clientId} 四方比�
     }
   }, 60_000);
 });
-
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-    console.info(
-      "[contract-test] admin-clients 比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=aspnetcore,springboot,nextjs npx vitest run tests/admin-clients-write.test.ts\n" +
-        "  前置：3 个后端分别跑在 5104 / 5105 / 5101",
-    );
-  });
-});

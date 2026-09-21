@@ -137,14 +137,3 @@ describe.skipIf(!live)("M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对", 
     expect(compareAll(probes, targets), `\n${formatDivergences(compareAll(probes, targets))}\n`).toEqual([]);
   });
 });
-
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-    console.info(
-      "[contract-test] 四方比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=aspnetcore,springboot,nextjs npx vitest run\n" +
-        "  前置：3 个后端分别跑在 5104 / 5105 / 5101",
-    );
-  });
-});

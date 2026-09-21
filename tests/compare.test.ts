@@ -83,11 +83,14 @@ describe("M96.F03.I01 目标端口声明", () => {
 });
 
 describe("M96.F03.I02 声明即必须可达", () => {
-  // 「未声明目标时返回空」只在没设 CONTRACT_TARGETS 的单测模式才有意义；
-  // live 模式下 CONTRACT_TARGETS 已设，这条断言的前提不成立。skipIf 隔离两条上下文。
-  it.skipIf(!!process.env.CONTRACT_TARGETS)("未声明目标时返回空 —— 只跑单元测试", () => {
-    expect(selectedTargets("")).toEqual([]);
-    expect(selectedTargets(undefined)).toEqual([]);
+  // 「未声明目标时返回空」原本 it.skipIf(!!CONTRACT_TARGETS) 隔离 —— live 档恒 skip，
+  // 撞 require_live 的 skip=0 硬门（5.54 EXIT=2 根因之一）。Task 5.85 可测性重构：
+  // selectedTargets 增加注入点，用替身 env 读取函数显式模拟「未声明」，live 照跑；
+  // 真实 env 默认参路径（selectedTargets(undefined) 读 process.env）的 unit 档覆盖
+  // 在 tests/unit/compare-env.unit.test.ts。
+  it("未声明目标时返回空 —— 注入空 env 读取，live 也能跑", () => {
+    expect(selectedTargets("", () => undefined)).toEqual([]);
+    expect(selectedTargets(undefined, () => undefined)).toEqual([]);
   });
 
   it("声明了认识的目标就返回它们", () => {
