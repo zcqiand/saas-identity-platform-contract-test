@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-contract-test",
-  "current_task": "wave 收尾 live 验证：trace 再生 mode=live(3 targets,208 fn)，live 197p/6f/17skip(220)",
-  "last_session_at": "2026-09-19",
-  "last_session_summary": "wave 收尾 live 验证：trace 再生 mode=live(3 targets,208 fn)，live 197p/6f/17skip(220)",
+  "current_task": "5.82 闭账：I69/I64/I67 空 body 400 + I22 错密码 401（clientId 补全）收严（cefc75d，live 实跑验真值）；批尾 unit gate r1 EXIT=0",
+  "last_session_at": "2026-09-21",
+  "last_session_summary": "终审批后收账：定向 full 裁定为「5.85 full 基线 + 5.82 改动断言 targeted live 三份日志」背书，无未验证缝隙",
   "done": [
     "cleanupRoles code→roleCode（残留分叉根因）",
     "cleanupMenus /admin/apps/{id}/menus→/clients/{clientId}/menus + code→title",
