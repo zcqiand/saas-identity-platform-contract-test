@@ -27,8 +27,8 @@ describe("pathWithParams 替换", () => {
   });
 
   it("对值做 URI encode —— 防止 appCode 之类含连字符的字符串拼坏 URL", () => {
-    expect(pathWithParams("/apps/{code}", { code: "lab management/v1" })).toBe(
-      "/apps/lab%20management%2Fv1",
+    expect(pathWithParams("/clients/{code}", { code: "lab management/v1" })).toBe(
+      "/clients/lab%20management%2Fv1",
     );
   });
 
