@@ -2,7 +2,7 @@ name: ci
 
 # saas-identity-platform-contract-test
 # 推送链:
-# - branch push(master/main) → 跑 contract-test（4 后端 live 比对 + L3 typecheck）
+# - branch push(master/main) → 跑 contract-test（3 后端 live 比对 + L3 typecheck）
 # - tag push → 同一套验证（本仓是验证层，不部署；2026-09-13 起补 tags 触发器，
 #   旧版漏了它 —— v0.3.1-20260913 推 tag 时 CI 根本没跑）
 # 镜像名/路径用 ${{ github.event.repository.name }} 避免跨仓劫持。
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
-    # 4 后端共一个 PG（V016 seed）。本地 CI 起一个 postgres:16,
+    # 3 后端共一个 PG（V016 seed）。本地 CI 起一个 postgres:16,
     # 3 真后端跑容器化迁移 + seed（msw 仓已删，Phase 4 提前）。
     services:
       postgres:
@@ -77,7 +77,7 @@ jobs:
       - name: Checkout shared sibling
         run: git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/saas-identity-platform-shared.git ../saas-identity-platform-shared
 
-      # 4 后端作为 sibling 被 checkout
+      # 3 后端作为 sibling 被 checkout
       - name: Checkout backend siblings
         run: |
           set -e
@@ -118,14 +118,14 @@ jobs:
           npx --no drizzle-kit migrate --config drizzle.runtime.config.ts
           node scripts/seed-db.mjs
 
-      # 起 4 后端 + healthcheck + vitest（核心步骤）
-      # - 后台 nohup ... & 启 4 进程，PID 入 PIDS 数组
+      # 起 3 后端 + healthcheck + vitest（核心步骤）
+      # - 后台 nohup ... & 启 3 进程，PID 入 PIDS 数组
       # - trap cleanup EXIT 确保 step exit 时清理所有子进程 + 兜底 pkill 孙子
       # - healthcheck 串行 90s，任一 return 1 → set -e → step fail → trap 触发
-      # - npx --no vitest run 必须在所有 4 后端 healthcheck 通过后才跑
+      # - npx --no vitest run 必须在所有 3 后端 healthcheck 通过后才跑（msw 下线后，5.81② 文案勘误）
       # 注：路径 `src/Saas.Identity.AspNetCore.csproj` 与 nextjs `gen:shared` 命令名
       # 按实际仓当前 PR 微调——子仓改动时这里同步改，不要盲目照搬。
-      - name: Run 4 backends + healthcheck + vitest
+      - name: Run 3 backends + healthcheck + vitest  # 5.81②：msw 下线后 4→3 文案勘误
         working-directory: .
         run: |
           set -e
@@ -180,7 +180,7 @@ jobs:
 
           npx --no vitest run
 
-      # 上传 .runtime-logs/ 供失败时排查（4 后端的 log 各 tail 100 已能定位）
+      # 上传 .runtime-logs/ 供失败时排查（3 后端的 log 各 tail 100 已能定位）
       - name: Upload backend logs on failure
         if: failure()
         uses: actions/upload-artifact@v4

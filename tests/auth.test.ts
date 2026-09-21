@@ -58,23 +58,25 @@ describe.skipIf(!live)("M96.F02.I22 POST /auth/login 四方比对", () => {
     }
   }, 60_000);
 
-  it("错误密码 → 4xx 全等（normalize 后 body 全等）", async () => {
+  it("错误密码 → 401 全等（normalize 后 body 全等）", async () => {
     const probes = [];
     for (const t of targets) {
       probes.push(
         await probeRequest(t, {
           method: "POST",
           path: "/api/v1/auth/login",
-          body: { username: SEED_USER.username, password: "wrong-password" },
+          // 5.82 收严：body 补全 clientId（= SEED_USER 形状）——原用例漏发 clientId，
+          // aspnetcore ModelState 校验先拦 400，测的不是「错密码」分支。
+          body: { ...SEED_USER, password: "wrong-password" },
         }),
       );
     }
     for (const p of probes) {
+      // 5.82 收严：错密码契约面 = 401（家族约定，3 真后端 live 实跑验真值）
       expect(
         p.status,
-        `${p.target} 错密码期望 4xx 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 120)}`,
-      ).toBeGreaterThanOrEqual(400);
-      expect(p.status).toBeLessThan(500);
+        `${p.target} 错密码期望 401 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 120)}`,
+      ).toBe(401);
     }
     // 错误 body 的字段名家族两派（msw {code} vs 真后端 {error,...}，SSOT ErrorResponse
     // 两种都合法）—— drop 掉 code/error/error_description/details，比 status 与骨架。

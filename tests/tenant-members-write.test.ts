@@ -172,8 +172,10 @@ describe.skipIf(!live)("M96.F02.I69 POST /tenants/{t}/members 缺必填字段错
       probes.push(await probeRequest(t, { method: "POST", path: BASE_PATH, body: {} }));
     }
     for (const p of probes) {
-      // 4 后端契约面：400；msw 历史曾返 500，先宽容但要落到 4xx/5xx。
-      expect(p.status, `${p.target} 缺必填字段期望 4xx/500 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 200)}`).toBeGreaterThanOrEqual(400);
+      // 5.82 收严（2026-09-21）：3 真后端契约面统一 400（aspnetcore ModelStateValidationFilter
+      // 5.64 / springboot @Valid / nextjs BFF zod）——msw 500 兜底随 msw 下线（决策 1.1）出局，
+      // 宽容区间撤销；真值以 2026-09-21 live 实跑为准。
+      expect(p.status, `${p.target} 缺必填字段期望 400 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 200)}`).toBe(400);
     }
     // 5.13-② 收严（2026-09-20 人裁）：aspnetcore 已迁契约 envelope {code,message,details?}，
     // 双派 drop 兼容撤销 —— drop 只留契约字段本身，body 里出现 error/error_description 等

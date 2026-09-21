@@ -114,7 +114,8 @@ describe.skipIf(!live)("M96.F02.I67 POST /tenants/{t}/roles 缺必填字段错�
       probes.push(await probeRequest(t, { method: "POST", path: ROLE_BASE, body: {} }));
     }
     for (const p of probes) {
-      expect(p.status, `${p.target} 缺必填字段期望 4xx/500 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 200)}`).toBeGreaterThanOrEqual(400);
+      // 5.82 顺带收严：msw 500 兜底随下线出局，3 真后端契约面统一 400（live 实跑验真值）
+      expect(p.status, `${p.target} 缺必填字段期望 400 实得 ${p.status} body=${JSON.stringify(p.body).slice(0, 200)}`).toBe(400);
     }
     const drop = ["code", "message", "error", "error_description", "details", "path", "timestamp", "traceId"];
     const divergences = compareBodies(probes, targets, drop);
