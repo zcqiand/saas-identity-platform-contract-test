@@ -28,6 +28,7 @@ import type { Reporter } from "vitest/reporters";
 import type { File } from "@vitest/runner";
 import { readFileSync } from "node:fs";
 
+import { deleteLiveExecLog, readLiveExecGroups } from "../src/live-floor.js";
 import { probeWithRetry } from "../src/probe.js";
 import { TARGETS } from "../src/targets.js";
 
@@ -41,6 +42,7 @@ interface TraceFile {
   schema: 1;
   mode: "live" | "unit";
   contract_targets: string[];
+  live_floor: LiveFloor;
   tests: TraceEntry[];
 }
 
@@ -110,6 +112,29 @@ function collectTests(
     else if (t.type === "suite" && t.tasks) collectTests(t.tasks, fullName, out);
   }
   return out;
+}
+
+// v8（ADR-0040 / REQ-2026-010）：trace 顶层新增 live_floor，schema 只增不改（schema:1 不 bump）。
+// executed 三态分立（spec §3）：live+文件缺失=null（side channel 故障，门侧只警不红）；
+// live+零记录=0（全塌缩）；unit+缺失=0（常态）。v7 现有行为零改动——塌缩时 contract_targets 仍清空。
+export interface LiveFloor {
+  declared: number;
+  effective: number;
+  executed_per_describe_min: number | null;
+}
+
+/** 导出仅为单测可达（同 probeLive 先例，tests/fnReporter-live-floor.test.ts）。 */
+export function computeLiveFloor(mode: "live" | "unit", declared: number, effective: number): LiveFloor {
+  const groups = readLiveExecGroups();
+  let executed: number | null;
+  if (groups === null) {
+    executed = mode === "live" ? null : 0;
+  } else if (groups.size === 0) {
+    executed = 0;
+  } else {
+    executed = Math.min(...[...groups.values()].map((s) => s.size));
+  }
+  return { declared, effective, executed_per_describe_min: executed };
 }
 
 export interface LiveProbeDecision {
@@ -197,6 +222,12 @@ export default class FnReporter implements Partial<Reporter> {
     // A1.5: 先探活再写 — DECLARED vs EFFECTIVE 分离就是为了这一步。
     // 4 后端都连得上 → mode="live";否则 mode="unit" + 清空 contract_targets。
     await probeLive();
+    const liveFloor = computeLiveFloor(
+      EFFECTIVE_MODE,
+      DECLARED_TARGETS.length,
+      EFFECTIVE_TARGETS.length,
+    );
+    deleteLiveExecLog();
 
     const fs = await import("node:fs");
     const path = await import("node:path");
@@ -205,6 +236,7 @@ export default class FnReporter implements Partial<Reporter> {
       schema: 1,
       mode: EFFECTIVE_MODE,
       contract_targets: EFFECTIVE_TARGETS,
+      live_floor: liveFloor,
       tests: this.entries,
     };
     fs.writeFileSync(

@@ -155,6 +155,7 @@
 |---|---|---|---|---|---|
 | M96.F03.I01 | 目标端口声明 | 接口 | 前端+后端 | msw:5174 / nextjs:3000 / aspnetcore:5000 / springboot:8080，显式字面量，非 env 兜底 | 已上线 |
 | M96.F03.I02 | 声明即必须可达 | 接口 | 前端+后端 | `CONTRACT_TARGETS` 列了却连不上 = 红；名字不认识 = 抛错，不静默忽略 | 已上线 |
+| M96.F03.I03 | live 执行面下限登记 | 接口 | 前端+后端 | 探针层 live-exec.jsonl side channel + trace.live_floor 三值（REQ-2026-010 / ADR-0040，与 lab 批镜像） | 已上线 |
 
 ---
 
