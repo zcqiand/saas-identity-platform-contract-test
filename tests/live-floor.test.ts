@@ -2,8 +2,25 @@
 // ADR-0040 live 执行面 side channel 单测（spec §2/§3，unit 层，无真后端）。
 // 直接读写真实 .state/live-exec.jsonl（gitignore 内），afterEach 必清。
 import { appendFileSync, readFileSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { deleteLiveExecLog, readLiveExecGroups, recordProbe, resetLiveExecLog, withLiveExecSuite } from "../src/live-floor.js";
+
+// W4 端到端实锤（2026-09-23）：live 全量轮按 size 序执行，本文件（13ms 级小文件）排
+// 队尾时，afterEach 删掉真实 side channel → fnReporter flush 读缺文件 →
+// executed_per_describe_min=null（side channel 故障假信号，trace {3,3,null}）。
+// beforeAll 快照 + afterAll 恢复：unit 轮本就无真实数据，快照 miss → 恢复=删，行为不变。
+let stash: string | null = null;
+beforeAll(() => {
+  try {
+    stash = readFileSync(".state/live-exec.jsonl", "utf-8");
+  } catch {
+    stash = null;
+  }
+});
+afterAll(() => {
+  if (stash === null) rmSync(".state/live-exec.jsonl", { force: true });
+  else writeFileSync(".state/live-exec.jsonl", stash, "utf-8");
+});
 
 afterEach(() => {
   resetLiveExecLog();
