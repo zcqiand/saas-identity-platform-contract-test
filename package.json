@@ -5,8 +5,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "gen:shared": "tsx scripts/gen-shared.ts",
-    "build": "npm run gen:shared",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "contract": "vitest run tests/me-tenants.test.ts",

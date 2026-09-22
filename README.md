@@ -7,11 +7,9 @@ SaaS身份平台契约一致性验证仓（`saas-identity-platform-contract-test
 ## 快速开始
 
 ```bash
-# 按 generic 栈替换为实际命令
 npm install        # 安装依赖
-npm test           # 全量测试（无 Key / 无 Docker / 无网可跑）
-npm run dev        # 本地开发
-npm run build      # 生产构建
+npm test           # 全量测试（live 比对需 CONTRACT_TARGETS + 对应后端在跑）
+npm run typecheck  # tsc --noEmit
 ```
 
 ## 功能特性

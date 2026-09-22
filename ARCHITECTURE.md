@@ -91,8 +91,8 @@ flowchart LR
 | 模糊测试 | schemathesis 4.x 全 method 模糊；`hooks.py` 按契约 `x-fuzz: skip` 扩展跳过；`config.toml` 关内置检查只留三个一致性检查（not_a_server_error 常开） | `schemathesis/{run.py,hooks.py,config.toml}` |
 | 本机编排 | 一键起 3 后端 + healthcheck + live vitest + gate，模拟 ci.yml 核心步骤；终验脚本 `run-4way-final.sh` | `scripts/start-family.sh`、`run-4way-final.sh` |
 
-注：`package.json` 的 `gen:shared` 脚本指向 `scripts/gen-shared.ts`，但该文件当前不存在于
-`scripts/`（仓内仅 `check_ssot_coverage.mjs` 与 `start-family.sh`）——待补充（疑为遗留死入口）。
+注：原 `package.json` 的 `gen:shared`/`build` 脚本指向不存在的 `scripts/gen-shared.ts`（遗留死入口），
+已于 2026-09-22 移除——本仓黑盒直读 shared `openapi.yaml`，不经 codegen。
 
 ## 4. 数据流 / 请求生命周期
 

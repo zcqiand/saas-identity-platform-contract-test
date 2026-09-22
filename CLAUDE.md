@@ -29,7 +29,7 @@ springboot 测 Service）；不是 E2E（不开浏览器）。它回答「哪里
 ## 3. 技术栈
 
 TypeScript + vitest + axios + tough-cookie jar（工作在 HTTP 层，不受 fetch 屏蔽 HttpOnly 的限制）。
-契约从 `../saas-identity-platform-shared/generated/openapi/openapi.yaml` 消费，走 `scripts/gen-shared.ts`。
+契约从 `../saas-identity-platform-shared/generated/openapi/openapi.yaml` **直读**（黑盒比对，不经 codegen；`gen:shared`/`build` 死入口已于 2026-09-22 移除）。
 
 门禁命令见 `.harness/stack.json`。**不要改它来让门变松。**
 
@@ -47,7 +47,7 @@ TypeScript + vitest + axios + tough-cookie jar（工作在 HTTP 层，不受 fet
 
 ## 6. 工作循环
 
-1. **改端点**：先改 shared `tsp/routes/*.tsp` → `npm run build` 重生 openapi → 在 `tests/` 写测试
+1. **改端点**：先改 shared `tsp/routes/*.tsp` → shared 仓 `npm run build` 重生 openapi → 在 `tests/` 写测试
 2. 改 `src/` 或 `tests/` → `npx vitest run`
 3. gate exit 1 修；exit 2 停下问人
 4. `/handoff` 更新 `.state/session.json`
