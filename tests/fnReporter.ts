@@ -28,6 +28,7 @@ import type { Reporter } from "vitest/reporters";
 import type { File } from "@vitest/runner";
 import { readFileSync } from "node:fs";
 
+import { probeWithRetry } from "../src/probe.js";
 import { TARGETS } from "../src/targets.js";
 
 interface TraceEntry {
@@ -66,7 +67,7 @@ const HEALTH_PATHS: Record<string, string> = {
   springboot: "/actuator/health",
   nextjs: "/api/health",
 };
-const DEFAULT_HEALTH = "/healthz";
+const DEFAULT_HEALTH = "/health";
 
 const TRACE_FILE = ".state/trace.json";
 const FUNCTION_ID_RE = /\bM\d{2}(?:\.F\d{2}(?:\.I\d{2})?)?\b/g;
@@ -111,46 +112,55 @@ function collectTests(
   return out;
 }
 
-/** A1.5 探活：并行 fetch 4 后端 healthcheck;任一挂 → mode=unit + 清空 contract_targets。 */
-async function probeLive(): Promise<void> {
+export interface LiveProbeDecision {
+  mode: "live" | "unit";
+  targets: string[];
+}
+
+/**
+ * A1.5 + 5.12 探活：并行探测声明后端 healthcheck；任一目标**全部尝试失败**才判死
+ * （mode=unit + 清空 contract_targets）。mode 判定规则与 A1.5 完全一致——5.12 语义
+ * 镜像收债（2026-09-22，从 lab-management-system-contract-test 同名实现移植）：
+ * 探活健壮性（N=3 次尝试 + 退避 1s/2s + 单次 10s 封顶，池项 5.12 用户裁定），
+ * 判死时逐次留痕耗时与失败原因。导出仅为单测注入假 fetch 可达（tests/fnReporter-probe.test.ts）。
+ */
+export async function probeLive(): Promise<LiveProbeDecision> {
   if (DECLARED_TARGETS.length < 2) {
     EFFECTIVE_MODE = "unit";
     EFFECTIVE_TARGETS = [];
-    return;
+    return { mode: EFFECTIVE_MODE, targets: EFFECTIVE_TARGETS };
   }
   const checks = await Promise.all(
     DECLARED_TARGETS.map(async (name) => {
       const target = TARGETS[name];
-      if (!target) return { name, ok: false, reason: "unknown target" };
+      if (!target) {
+        return { name, ok: false, reason: "unknown target" };
+      }
       const path = HEALTH_PATHS[name] ?? DEFAULT_HEALTH;
       const url = `${target.baseUrl}${path}`;
-      try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
-        return { name, ok: res.ok, reason: res.ok ? "" : `HTTP ${res.status}` };
-      } catch (cause) {
-        return {
-          name,
-          ok: false,
-          reason: cause instanceof Error ? cause.message.split("\n")[0] : String(cause),
-        };
-      }
+      // 5.12：单发 3s 即死 → 3 次尝试 + 退避 1s/2s + 单次 10s 封顶；全部失败才判死。
+      const result = await probeWithRetry({ url });
+      return { name, ok: result.ok, reason: result.reason };
     }),
   );
   const failed = checks.filter((c) => !c.ok);
   if (failed.length === 0) {
     EFFECTIVE_MODE = "live";
     EFFECTIVE_TARGETS = [...DECLARED_TARGETS];
-  } else {
-    EFFECTIVE_MODE = "unit";
-    EFFECTIVE_TARGETS = [];
-    // stderr 提示哪个后端挂;harness.load_trace 仍会 raise,但开发者立刻看到原因。
-    console.warn(
-      `[contract-test] live mode 失效: ${failed.length}/${checks.length} 个 backend healthcheck 失败`,
-    );
-    for (const f of failed) {
-      console.warn(`  - ${f.name}: ${f.reason}`);
-    }
+    return { mode: EFFECTIVE_MODE, targets: EFFECTIVE_TARGETS };
   }
+  EFFECTIVE_MODE = "unit";
+  EFFECTIVE_TARGETS = [];
+  // stderr 提示哪个后端挂；harness.load_trace 仍会 raise，但开发者立刻看到原因。
+  // 判死证据链（裁定的一半）：逐次尝试的耗时与失败原因随 warn 落 stderr。
+  console.warn(
+    `[contract-test] live mode 失效: ${failed.length}/${checks.length} 个 backend ` +
+      `healthcheck 全部尝试失败（3 次/次 10s 封顶/退避 1s+2s）`,
+  );
+  for (const f of failed) {
+    console.warn(`  - ${f.name}: ${f.reason}`);
+  }
+  return { mode: EFFECTIVE_MODE, targets: EFFECTIVE_TARGETS };
 }
 
 export default class FnReporter implements Partial<Reporter> {
