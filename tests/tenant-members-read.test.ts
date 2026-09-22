@@ -9,6 +9,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, compareBodies, formatDivergences } from "../src/compare.js";
 import { probeAll, probeRequest } from "../src/http.js";
+import { withLiveExecSuite } from "../src/live-floor.js";
 import { pathWithParams } from "../src/path.js";
 import { ALICE_PARAMS } from "../src/seed.js";
 import { type Target, selectedTargets } from "../src/targets.js";
@@ -34,8 +35,8 @@ describe.skipIf(!live)("M96.F02.I10 GET /tenants/{t}/members 四方比对", () =
 
   let probes: Awaited<ReturnType<typeof probeAll>>;
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -105,8 +106,8 @@ describe.skipIf(!live)("M96.F02.I11 GET /tenants/{t}/members/{u} 四方比对", 
 
   let probes: Awaited<ReturnType<typeof probeAll>>;
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH));
   }, 60_000);
 
   it("每个目标都返回 200", () => {

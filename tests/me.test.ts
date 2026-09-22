@@ -8,6 +8,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, formatDivergences } from "../src/compare.js";
 import { probeAll } from "../src/http.js";
+import { withLiveExecSuite } from "../src/live-floor.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const targets: Target[] = selectedTargets();
@@ -16,8 +17,8 @@ const live = targets.length >= 2;
 describe.skipIf(!live)("M96.F02.I04 GET /api/v1/me 四方比对", () => {
   let probes: Awaited<ReturnType<typeof probeAll>>;
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, "/api/v1/me");
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, "/api/v1/me"));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -59,9 +60,9 @@ describe.skipIf(!live)("M96.F02.I04 GET /api/v1/me 四方比对", () => {
 describe.skipIf(!live)("M96.F02.I05 GET /api/v1/me/menus 四方比对", () => {
   let probes: Awaited<ReturnType<typeof probeAll>>;
 
-  beforeAll(async () => {
+  beforeAll(async (ctx) => {
     // OpenAPI: getMyMenus(): Record<appCode, EffectiveMenuNode[]> — 全部 app map
-    probes = await probeAll(targets, "/api/v1/me/menus");
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, "/api/v1/me/menus"));
   }, 60_000);
 
   it("每个目标都返回 200", () => {

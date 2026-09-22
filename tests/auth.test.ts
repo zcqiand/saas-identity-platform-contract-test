@@ -11,6 +11,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, compareBodies, formatDivergences } from "../src/compare.js";
 import { probeRequest, SEED_USER } from "../src/http.js";
+import { withLiveExecSuite } from "../src/live-floor.js";
 import { SEED } from "../src/seed.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
@@ -21,15 +22,17 @@ const live = targets.length >= 2;
 const loginBodies = new Map<string, Record<string, unknown>>();
 
 describe.skipIf(!live)("M96.F02.I22 POST /auth/login 四方比对", () => {
-  beforeAll(async () => {
-    for (const t of targets) {
-      const r = await probeRequest(t, {
-        method: "POST",
-        path: "/api/v1/auth/login",
-        body: { ...SEED_USER },
-      });
-      loginBodies.set(t.name, r.body as Record<string, unknown>);
-    }
+  beforeAll(async (ctx) => {
+    await withLiveExecSuite(ctx.name, async () => {
+      for (const t of targets) {
+        const r = await probeRequest(t, {
+          method: "POST",
+          path: "/api/v1/auth/login",
+          body: { ...SEED_USER },
+        });
+        loginBodies.set(t.name, r.body as Record<string, unknown>);
+      }
+    });
   }, 60_000);
 
   it("正确凭证 → 200 + LoginResponse 必填字段齐全", async () => {

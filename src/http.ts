@@ -8,6 +8,8 @@ import axios, { type AxiosInstance } from "axios";
 import { CookieJar } from "tough-cookie";
 import { wrapper } from "axios-cookiejar-support";
 
+import { recordProbe } from "./live-floor.js";
+
 import type { Probe } from "./compare.js";
 import type { Target } from "./targets.js";
 
@@ -103,6 +105,7 @@ export async function probeGet(target: Target, path: string, token: string): Pro
     const res = await getWithTimeoutRetry(http, path, {
       headers: { authorization: `Bearer ${token}` },
     });
+    recordProbe(target.name, res.status);
     return { target: target.name, status: res.status, body: res.data };
   } catch (cause) {
     throw new UnreachableError(target.name, cause);
@@ -161,6 +164,7 @@ async function probeWithToken(
         res = await http.put(path, body, { headers });
         break;
     }
+    recordProbe(target.name, res.status);
     return { target: target.name, status: res.status, body: res.data };
   } catch (cause) {
     throw new UnreachableError(target.name, cause);

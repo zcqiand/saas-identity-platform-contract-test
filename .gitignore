@@ -3,6 +3,7 @@
 .state/gate.partial.json
 .state/alignment.json
 .state/session.json
+.state/live-exec.jsonl
 
 # Claude 临时文件
 .claude/
