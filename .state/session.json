@@ -1,33 +1,42 @@
 {
-  "schema": 1,
-  "project": "saas-identity-platform-contract-test",
-  "current_task": "5.82 闭账：I69/I64/I67 空 body 400 + I22 错密码 401（clientId 补全）收严（cefc75d，live 实跑验真值）；批尾 unit gate r1 EXIT=0",
-  "last_session_at": "2026-09-21",
-  "last_session_summary": "终审批后收账：定向 full 裁定为「5.85 full 基线 + 5.82 改动断言 targeted live 三份日志」背书，无未验证缝隙",
-  "done": [
-    "cleanupRoles code→roleCode（残留分叉根因）",
-    "cleanupMenus /admin/apps/{id}/menus→/clients/{clientId}/menus + code→title",
-    "cleanupUsers /users→/members；cleanupApiKeys 删除（M05 域已移除）",
-    "11 测试文件 ADR-0032 断言迁移；门禁全绿",
-    "2026-09-19 wave 收尾：saas live 全量（显式 export CONTRACT_TARGETS+TRACE_MAP=1）→ trace mode=live 208 fn；197 passed/6 failed/17 skipped(220)；M00.F05 应用订阅 I74-I77 全绿；6 失败全指向 aspnetcore：PATCH 枚举 Nullable 绑定 400（I32/I53/I39）+不存在 id 400≠404（I39/I70）+错误密码 401≠400（I22）——均为 record-only 池项"
-  ],
-  "next": [
-    "contract-test 仓 bash run-4way-final.sh（需先起 4 后端，见 docs/conventions/contract-test-run-live.md；springboot gate 另需 libpq 格式 DATABASE_URL）",
-    "30s 瞬时超时类（本轮 1 个，上轮 7 个）：nextjs 冷编译 + springboot 慢登录，可考虑 per-target probe 预热或放宽该类 timeout",
-    "M06.F03.I02 audit ?action= 过滤四方比对补充（遗留）"
-  ],
-  "open_questions": [
-    "vitest-4way-*.{json,log} / failure-details-after.txt 等 scratch 是否加进 .gitignore（现留未跟踪）"
-  ],
-  "dont": [
-    "不要在 suite 根裸跑 npx vitest run 不带 CONTRACT_TARGETS —— 覆盖 trace.json 成 unit 模式 L5 必红",
-    "normalize 会给数组排序（集合顺序不属于契约）——列表类分叉先查数据残留，别急着改后端排序",
-    "contract-test gate 必须单独跑，与其它门禁并行会 _alignment.py >900s 超时"
-  ],
-  "last_gate_passed_at": "2026-09-10T23:30+08:00 (全绿; trace live 4/4)",
-  "active_branch": "master",
-  "ahead_of_origin": "0",
-  "done_add": [
-    "2026-09-19 wave 收尾：saas live 全量（显式 export CONTRACT_TARGETS+TRACE_MAP=1）→ trace mode=live 208 fn；197 passed/6 failed/17 skipped(220)；M00.F05 应用订阅 I74-I77 全绿；6 失败全指向 aspnetcore：PATCH 枚举 Nullable 绑定 400（I32/I53/I39）+不存在 id 400≠404（I39/I70）+错误密码 401≠400（I22）——均为 record-only 池项"
-  ]
+ "schema": 1,
+ "project": "saas-identity-platform-contract-test",
+ "current_task": "ADR-0040 T-3 live_floor 镜像批收账：live full EXIT=0 {3,3,3}（commits f0bc012/f09c704/2218eb0，含 REQ-2026-010 立项）",
+ "last_session_at": "2026-09-23",
+ "last_session_summary": "fnReporter 73 行漂移收债（8500edd）触发 L2 marker 连坐，连修 saas 五仓 + lab 五仓 marker、seeds/templates 双写字节漂移、suite L1/L2；r3 终局 ALL_EXIT=2，5 红全归因 exit-2 待人裁",
+ "done": [
+  "5.94 saas-ct 8500edd：src/probe.ts 镜像 lab + probeLive 5.12 语义（3 次尝试+退避+10s 封顶+证据链）+ fnReporter-probe.test.ts 三场景 TDD（red→green 3/3）",
+  "saas-ct live full gate EXIT=0 七门全绿（trace mode=live / 192 fn / inert=0，CONTRACT_TARGETS=aspnetcore,springboot,nextjs TRACE_MAP=1 显式 export）",
+  "5.95 saas 五仓 marker 刷新（faebd5a/60f097d marker-only；ebd9a4a/d93ad9b/e716ce8 + orval no-redeclare）→ saas-ct L2 SSOT PASS",
+  "5.96 lab 五仓 marker 两轮刷新（末轮 7c79ed3/ed3341c/00f6388/3691e8d/springboot 同款）→ lab-ct SSOT PASS",
+  "5.96 lab-shared 2fdc56e seeds+templates 字节收敛（29 模板+4 seeds 机器验证语义全等纯格式差）→ lab-shared L4 测试与 lab-nextjs parity 全绿",
+  "lab-react 123fee5 orval no-redeclare 31 文件；lab-react r3 全档 GREEN（含 flaky dom 套件）",
+  "suite 8ae869a ruff format 修 _suite L1；a24793f 修被中断层遮蔽的 L2 预存红（gate.py E501 + I001）→ _suite r3 GREEN",
+  "记账 5.96 三笔（96fd5b2/追/f6ab60a）+ memory gate-all-preconditions-stop-dev-stack 新建",
+  "ADR-0040 T-3 live_floor 降级信号落地（2026-09-22/23 批）：探针层 live-exec.jsonl side channel + fnReporter v8 写 trace.live_floor{declared,effective,executed} + suite L5 消费（塌缩 full 档红/null 只警）+ gate 注入 GATE_TIER 与 live_floor_degraded 字段；live full gate EXIT=0 实证 live_floor{3,3,3}；AC-1 gate 级故障注入 EXIT=1 + [WARN][live-floor] 塌缩文案；终审 CLEAN。saas-ct commits f0bc012/f09c704/2218eb0：镜像 lab 批 + REQ-2026-010 立项 + fixture 快照恢复（W4 executed=null 实锤修复）"
+ ],
+ "next": [
+  "第一步：清查 5101 占用进程（PID 会变，按端口反查）——若仍被钉在 saas_test（探针 alice 邮箱=alice2@acme.io 即中招），与占用方确认后杀树重启裸 `npm run dev`（回 saas_dev），再起 5104/5105，显式 export CONTRACT_TARGETS=aspnetcore,springboot,nextjs TRACE_MAP=1 重跑 saas-ct live gate 恢复 mode=live trace（r3 的 unit L4 把 trace 盖了，现 L5 必 exit-2）",
+  "若 5101 已干净：live gate EXIT=0 后可再跑 python scripts/gate.py --all 复核——预期仅剩 saas-e2e 与 saas-nextjs 两红",
+  "5101 错库指纹复发两次（09-21 12:51 与 09-22 13:45），建议立项根治：启动脚本前置 DATABASE_URL 目标库断言（fail-fast 到启动期）"
+ ],
+ "open_questions": [
+  "5101 被 09-22 13:45 拉起的进程（PID 40036）钉在 saas_test（alice2@acme.io 与 saas_test 行逐字段吻合）——并行会话在用还是误配？杀掉重启回 saas_dev 需 owner 确认",
+  "saas-nextjs L4.db.drift：pull-schema 产出纯重排（sys_role 段 48/48 行 multiset 全等，无迁移对应）——收法三选一：提交重排 / 重建 saas_dev 对序 / pull-schema 剥序（5.91 opclass 先例）",
+  "saas-e2e L4：globalSetup 打 localhost:5432/saas_e2e，本机 PG 拒 postgres 凭据且仓内无 E2E_DATABASE_URL 配置——补指向 VPS 的 env 还是走 gate-inject 表通道？",
+  "--all 全档结构性矛盾待人裁：contract-test L4 live 需要 5101 起，saas-react L4 按 5.87 人裁需要 5101 停——单命令 --all 无法同时满足，是否给 contract-test 仓加 ALL_EXCLUSIONS（5.30 lab-e2e 先例）或裁 live 编排通道",
+  "patch-generated.py 只补功能不补 5.89 注释——注释应否搬进 patch 脚本（否则每次 gen-shared 后注释丢失需人工还原）"
+ ],
+ "dont": [
+  "不要在 dev 栈活着时跑 --all：5101 活=saas-react L4 fail-fast（5.87）、dotnet dev 活=两仓 aspnetcore L2 exe 锁（MSB3027）——跑前按端口清场，杀树后复核端口 free（子进程会 Survive）",
+  "不要按 ### 项目 段切 --all 日志归因：并行流交错，错误会出现在无关项目段里——用失败文本特征（仓路径/exe 名/测试名）定位",
+  "不要在 shared 侧还有 commit 未落账时刷 marker——2fdc56e 一落地五 marker 立即过期（r2 实证）；marker 刷新永远是最后一步",
+  "不要反向 sync-templates（把 shared 未 prettier 形写回消费位会被 L1 门打回死循环）——规范形=消费位 prettier 形，写回 shared 单源",
+  "不要给 lab 消费仓裸跑 gen-shared 后直接提交：patch-generated.py 会剥 5.89 注释——先核对 Generated 产物 diff 是否只有注释丢失，是则 checkout 还原该文件",
+  "不要在 suite 根 npx vitest run 不带 CONTRACT_TARGETS（覆盖 trace 成 unit，L5 必 exit-2）；门分层中断会遮蔽下层红，修完上层必须让被中断层完整重跑",
+  "注意：2026-09-23 收工跑 gate --all 时 L4 unit 轮已把本仓 trace.json 覆写为 unit 模式（live {3,3,3} 证据在 git+日志）——下次 live 验证按 docs/conventions/contract-test-run-live.md 重开（export CONTRACT_TARGETS+TRACE_MAP=1）"
+ ],
+ "last_gate_passed_at": "2026-09-22 (live full gate EXIT=0 七门全绿; trace mode=live 192 fn inert=0; r3 --all 全档 saas-ct 因 trace 被 unit L4 覆盖 L5 exit-2, 非代码缺陷)",
+ "active_branch": "master",
+ "ahead_of_origin": "0"
 }
