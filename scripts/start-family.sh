@@ -208,7 +208,8 @@ ASPNETCORE_PG_URL='Host=100.79.128.25;Port=5432;Database=saas_dev;Username=postg
 # 保留存在性检测兜底: nextjs 仓若挪走 route.ts 自动跳过。NEXT_SKIP=1 强制跳过。
 NEXTJS_ACTIVE="true"
 if [ "${NEXT_SKIP:-0}" = "1" ]; then NEXTJS_ACTIVE="false"; fi
-if [ ! -f "$NEXTJS_DIR/app/api/health/route.ts" ]; then NEXTJS_ACTIVE="false"; fi
+# Next 15: src/ 目录存在时 route 一律在 src/app/（memory: nextjs-dev-ignores-root-middleware）
+if [ ! -f "$NEXTJS_DIR/app/api/health/route.ts" ] && [ ! -f "$NEXTJS_DIR/src/app/api/health/route.ts" ]; then NEXTJS_ACTIVE="false"; fi
 
 cleanup() {
   echo ""
