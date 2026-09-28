@@ -15,6 +15,7 @@ export const TARGETS: Readonly<Record<string, Target>> = {
   nextjs: { name: "nextjs", baseUrl: "http://localhost:5101", inMemory: false },
   aspnetcore: { name: "aspnetcore", baseUrl: "http://localhost:5104", inMemory: false },
   springboot: { name: "springboot", baseUrl: "http://localhost:5105", inMemory: false },
+  rails: { name: "rails", baseUrl: "http://localhost:5106", inMemory: false },
 };
 
 export class TargetError extends Error {}

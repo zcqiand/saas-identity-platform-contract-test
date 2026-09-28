@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# scripts/start-family.sh — 本机一键起 4 后端 + live vitest + gate
+# scripts/start-family.sh — 本机一键起 5 后端 + live vitest + gate
 #
 # 用途: 在本机 (Git Bash / macOS / Linux) 模拟 .github/workflows/ci.yml 的核心步骤,
 # 跑通 contract-test 完整 live 验证。
 #
 # 前提 (CI runner 自动满足, 本机要手动确保):
-#   1. 4 sibling 仓已在 ../saas-identity-platform-{shared,aspnetcore,springboot,nextjs}/
+#   1. 5 sibling 仓已在 ../saas-identity-platform-{shared,aspnetcore,springboot,nextjs,rails}/
 #      (suite 作为 multi-repo-family 用 gitlink 挂载, 本仓库目录下 output/ 自带)
 #   2. 各后端 .env.local 指向 PG (本机走 Tailscale 100.79.128.25:5432, 远程节点)
 #   3. dotnet 8 SDK + JDK 21 + Maven + Node 24 已装
-#   4. 3 端口 5104/5105/5101 空闲（2026-09-02 端口分段 §6；5100 msw 已退役）
+#   4. 4 端口 5104/5105/5101/5106 空闲（2026-09-02 端口分段 §6；5100 msw 已退役；
+#      5106 rails X06 槽位）
 #
 # 与 ci.yml 区别:
 #   - 不 git clone (本机 sibling 已在)
 #   - 不 docker 起 PG (本机走 Tailscale 远程 PG)
-#   - trap cleanup EXIT 自动 kill 4 后端子进程 (含 Ctrl+C)
+#   - trap cleanup EXIT 自动 kill 5 后端子进程 (含 Ctrl+C)
 #   - 同一份 healthcheck 路径真相源 (改一处必须同步另一处)
 #
 # 用法:
@@ -38,13 +39,14 @@ SHARED_DIR="$SUITE_ROOT/output/saas-identity-platform-shared"
 ASPNETCORE_DIR="$SUITE_ROOT/output/saas-identity-platform-aspnetcore"
 SPRINGBOOT_DIR="$SUITE_ROOT/output/saas-identity-platform-springboot"
 NEXTJS_DIR="$SUITE_ROOT/output/saas-identity-platform-nextjs"
+RAILS_DIR="$SUITE_ROOT/output/saas-identity-platform-rails"
 
 mkdir -p "$CT_ROOT/.runtime-logs"
 
 # === 1. 前置检查 ===
 echo "=== [1/6] 工具链 + sibling 仓 + 端口 ==="
 missing_tools=()
-for t in node npm dotnet mvn java python curl; do
+for t in node npm dotnet mvn java python curl ruby bundle; do
   if ! command -v "$t" >/dev/null 2>&1; then
     missing_tools+=("$t")
   fi
@@ -55,7 +57,7 @@ if [ ${#missing_tools[@]} -gt 0 ]; then
 fi
 
 missing_repos=()
-for d in "$SHARED_DIR" "$ASPNETCORE_DIR" "$SPRINGBOOT_DIR" "$NEXTJS_DIR"; do
+for d in "$SHARED_DIR" "$ASPNETCORE_DIR" "$SPRINGBOOT_DIR" "$NEXTJS_DIR" "$RAILS_DIR"; do
   if [ ! -d "$d" ]; then
     missing_repos+=("$d")
   fi
@@ -65,7 +67,7 @@ if [ ${#missing_repos[@]} -gt 0 ]; then
   echo "  suite 用 gitlink 挂载, 仓应该在 $SUITE_ROOT/output/saas-identity-platform-*/" >&2
   exit 2
 fi
-echo "  ✓ 5 sibling 仓齐全 + 7 工具齐"
+echo "  ✓ 6 sibling 仓齐全 + 9 工具齐"
 
 # 端口 preflight: 被老 node/dotnet 进程占着就 kill (上次跑没清的残留)。
 # 只杀匹配已知后端进程名的进程 (next-server / Saas.Identity.AspNetCore /
@@ -77,13 +79,13 @@ echo "  ✓ 5 sibling 仓齐全 + 7 工具齐"
 #   2. 杀匹配已知后端进程名的残留进程 (pre-LISTENING 阶段, 例如 mvn spring-boot:run
 #      在 JPA entity manager fail 时 exit 但 mvn wrapper 还在, 或 nextjs 在 turbopack warmup)
 echo "  [1/2] 检查 4 端口 LISTENING 残留进程..."
-for p in 5104 5105 5101; do
+for p in 5104 5105 5101 5106; do
   pids=$(netstat -ano 2>/dev/null | awk -v port=":$p$" '$2 ~ port"$" && $4 == "LISTENING" {print $5}' | sort -u)
   for pid in $pids; do
     if [ -n "$pid" ] && [ "$pid" != "0" ]; then
       pname=$(powershell -NoProfile -Command "(Get-Process -Id $pid -ErrorAction SilentlyContinue).ProcessName" 2>/dev/null | tr -d '\r')
       case "$pname" in
-        node|java|SaaS.Identity.Host)
+        node|java|ruby|SaaS.Identity.Host)
               echo "    端口 :$p 被 $pid ($pname) 占用, taskkill /F"
               taskkill //F //PID "$pid" > /dev/null 2>&1 ;;
         *)    echo "    端口 :$p 被 $pid ($pname) 占用 — 不是已知后端, 不杀, 让用户决定";;
@@ -97,10 +99,11 @@ echo "  [2/2] 检查匹配后端进程名的残留进程 (pre-LISTENING 阶段).
 # spring-boot:run 启动时 mvn wrapper 是 java.exe — 杀所有匹配 SaaS.Identity / spring-boot / tsx / next dev 的 java/node 进程
 powershell -NoProfile -Command "
   Get-Process -ErrorAction SilentlyContinue | Where-Object {
-    \$_.ProcessName -in @('java', 'node', 'dotnet', 'SaaS.Identity.Host') -and
+    \$_.ProcessName -in @('java', 'node', 'dotnet', 'ruby', 'SaaS.Identity.Host') -and
     ((\$_.CommandLine -like '*spring-boot*') -or
      (\$_.CommandLine -like '*Saas.Identity.AspNetCore*') -or
-     (\$_.CommandLine -like '*next dev*'))
+     (\$_.CommandLine -like '*next dev*') -or
+     (\$_.CommandLine -like '*rails server*'))
   } | ForEach-Object {
     Write-Host \"    \$(\$_.ProcessName) PID=\$(\$_.Id) \$(\$_.CommandLine.Substring(0, [Math]::Min(80, \$_.CommandLine.Length)))\"
     Stop-Process -Id \$_.Id -Force -ErrorAction SilentlyContinue
@@ -112,12 +115,14 @@ echo "  ✓ 端口 preflight 完成"
 
 # === 2. 各后端 gen-shared (读 shared 仓 OpenAPI 生成自己的客户端代码) ===
 echo ""
-echo "=== [2/6] 各后端 gen-shared (nextjs + springboot) ==="
+echo "=== [2/6] 各后端 gen-shared (nextjs + springboot + rails) ==="
 # nextjs: npm run gen:shared — 读 ../saas-identity-platform-shared/generated/openapi/openapi.yaml
 # springboot: bash scripts/gen-shared.sh — TypeSpec codegen + flyway migrations
+# rails: bash scripts/gen-shared.sh — api_manifest.json 生成（route_parity_test 消费）
 # aspnetcore: NSwag 在 csproj build 时自动跑, 不需要单独 step
 (cd "$NEXTJS_DIR" && npm run gen:shared 2>&1 | tail -3)
 (cd "$SPRINGBOOT_DIR" && bash scripts/gen-shared.sh 2>&1 | tail -5)
+(cd "$RAILS_DIR" && bash scripts/gen-shared.sh 2>&1 | tail -3)
 
 # === 2.5 迁移 + 种子（DB 3 后端共库 saas_dev） ===
 # live 不依赖库的存量状态：每次跑前 migrate（幂等）+ 重灌种子（TRUNCATE + 灌）。
@@ -153,7 +158,7 @@ console.log(r.rows[0].n);await c.end();})().catch(()=>{console.error('PG-UNREACH
 
 # === 3. 后台起 4 后端 ===
 echo ""
-echo "=== [3/6] 后台起 4 后端 ==="
+echo "=== [3/6] 后台起 5 后端 ==="
 PIDS=()
 
 # env 拆分策略:
@@ -181,6 +186,8 @@ SPRINGBOOT_PORT=$(grep -E '^SERVER_PORT' "$SPRINGBOOT_DIR/.env.local" 2>/dev/nul
 : "${SPRINGBOOT_PORT:=5105}"
 NEXTJS_PORT=$(grep -E '^SERVER_PORT' "$NEXTJS_DIR/.env.example" 2>/dev/null | head -1 | cut -d= -f2 || true)
 : "${NEXTJS_PORT:=5101}"
+RAILS_PORT=$(grep -E '^SERVER_PORT' "$RAILS_DIR/.env.local" 2>/dev/null | head -1 | cut -d= -f2 || true)
+: "${RAILS_PORT:=5106}"
 
 # aspnetcore DATABASE_URL 兜底: appsettings.json 内嵌 Password=qiand68+++ 是占位,
 # 不一定匹配 PG 真密码。从 springboot .env.local 那里拿真值, 加 single quote 包
@@ -192,6 +199,10 @@ ASPNETCORE_PG_URL='Host=100.79.128.25;Port=5432;Database=saas_dev;Username=postg
 (cd "$ASPNETCORE_DIR" && nohup env $COMMON_ENV SERVER_PORT="$ASPNETCORE_PORT" ASPNETCORE_URLS="http://+:$ASPNETCORE_PORT" DATABASE_URL="$ASPNETCORE_PG_URL" dotnet run --project src/Saas.Identity.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
 (cd "$SPRINGBOOT_DIR" && nohup env $COMMON_ENV $SPRINGBOOT_ONLY SERVER_PORT="$SPRINGBOOT_PORT" mvn -q spring-boot:run  >"$CT_ROOT/.runtime-logs/springboot.log" 2>&1) & PIDS+=($!)
 (cd "$NEXTJS_DIR"     && nohup env $COMMON_ENV SERVER_PORT="$NEXTJS_PORT"      npm run dev                                >"$CT_ROOT/.runtime-logs/nextjs.log"     2>&1) & PIDS+=($!)
+# rails: dotenv-rails 在 development 自动加载 .env.local（PG 五件套 -> saas_dev），
+# 这里只补 COMMON_ENV（JWT_*/SAAS_* 镜像同值）+ SERVER_PORT 双保险。bin/rails server
+# 默认 RAILS_ENV=development；SECRET_KEY_BASE dev 值在 .env.local 已带。
+(cd "$RAILS_DIR"      && nohup env $COMMON_ENV SERVER_PORT="$RAILS_PORT"       bundle exec rails server                    >"$CT_ROOT/.runtime-logs/rails.log"      2>&1) & PIDS+=($!)
 
 # nextjs 仓已实现 health endpoint (app/api/health/route.ts, 根 app/ 非 src/app/)。
 # 保留存在性检测兜底: nextjs 仓若挪走 route.ts 自动跳过。NEXT_SKIP=1 强制跳过。
@@ -208,6 +219,8 @@ cleanup() {
   pkill -f spring-boot:run          2>/dev/null || true
   pkill -f next-server              2>/dev/null || true
   pkill -f tsx                      2>/dev/null || true
+  pkill -f "rails server"           2>/dev/null || true
+  pkill -f puma                     2>/dev/null || true
   sleep 2
 }
 trap cleanup EXIT INT TERM
@@ -235,13 +248,14 @@ healthcheck springboot "http://localhost:5105/actuator/health"
 if [ "$NEXTJS_ACTIVE" = "true" ]; then
   healthcheck nextjs     "http://localhost:5101/api/health"
 fi
+healthcheck rails      "http://localhost:5106/health"
 
 # === 5. live vitest ===
 echo ""
 echo "=== [5/6] live vitest ==="
-CONTRACT_TARGETS="aspnetcore,springboot"
+CONTRACT_TARGETS="aspnetcore,springboot,rails"
 if [ "$NEXTJS_ACTIVE" = "true" ]; then
-  CONTRACT_TARGETS="nextjs,aspnetcore,springboot"
+  CONTRACT_TARGETS="nextjs,aspnetcore,springboot,rails"
 fi
 echo "  CONTRACT_TARGETS=$CONTRACT_TARGETS"
 # vitest 失败不中断 — contract-test 的目的是发现契约分叉, vitest failed 是结果不是故障。
