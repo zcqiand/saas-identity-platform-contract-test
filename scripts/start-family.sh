@@ -284,7 +284,11 @@ mode = d.get("mode")
 targets = d.get("contract_targets", [])
 non_inert = [t for t in d.get("tests", []) if not t.get("inert")]
 fns = {fid for t in non_inert for fid in t.get("fns", [])}
-expected = {f"M96.F02.I{n:02d}" for n in range(3, 22)}
+# 期望集 = I03..I21 剔除已废弃行：I12-I18/I21 属 api-keys/audit-events 域，
+# 2026-09-10 SSOT b749c18 下线、测试已删（commit 3ed021e）、function-tree 标「已废弃」，
+# 当时漏改此处快照集 → 自那以后每次 live 的 6a 都误报覆盖缺失。
+expected = ({f"M96.F02.I{n:02d}" for n in range(3, 22)}
+            - {f"M96.F02.I{n:02d}" for n in (12, 13, 14, 15, 16, 17, 18, 21)})
 miss = expected - fns
 if mode != "live":
     print(f"FAIL: trace mode={mode!r} 不是 live")
