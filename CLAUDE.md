@@ -4,8 +4,9 @@
 
 ## 1. 项目定位
 
-黑盒 HTTP 打 4 个后端（`msw`:5100 / `nextjs`:5101 / `aspnetcore`:5104 / `springboot`:5105），
-验证它们**对前端不可区分**。保留命名空间 `M96`，不镜像 BASE 业务模块。
+黑盒 HTTP 打 5 个后端（`nextjs`:5101 / `aspnetcore`:5104 / `springboot`:5105 /
+`rails`:5106 / `fastapi`:5107，REQ-2026-011 接入 fastapi；`msw`:5100 已于 2026-09-17
+删仓退役），验证它们**对前端不可区分**。保留命名空间 `M96`，不镜像 BASE 业务模块。
 
 **它不是什么**：不是后端的单元测试搬家（两个后端测的层根本不同——aspnetcore 测 Controller、
 springboot 测 Service）；不是 E2E（不开浏览器）。它回答「哪里不一致」，
@@ -16,9 +17,11 @@ springboot 测 Service）；不是 E2E（不开浏览器）。它回答「哪里
 - **「同输出」= 前端不可区分**，不是逐字节相同。UUID/时间戳/token 天生不同，那个目标不可达。
   判定 = status 全等 + schema 校验 + `normalize()` 后全等
 - **`normalize` 的剔除清单是契约**：它显式声明「前端不许依赖这些字段」。增删走 ADR
-- **默认不剔 ID**：`nextjs`/`aspnetcore`/`springboot` 共用同一个 PG，UUID 本来就该相等，
-  剔掉等于丢信号。**只有比对含 `msw`（内存 fixture，不共库）时才传 `ID_KEYS`**
-- **msw 是 oracle**：打 `:5100` 必须绿。红了先怀疑套件写错，而不是后端错
+- **默认不剔 ID**：真后端共用同一个 PG，UUID 本来就该相等，
+  剔掉等于丢信号。**只有比对含内存 fixture（不共库）时才传 `ID_KEYS`**（当前 TARGETS
+  已无内存后端，`msw` 2026-09-17 退役）
+- **springboot 是参照 oracle**：同一请求两后端不一致，先怀疑被测后端错，再怀疑套件错
+  （`msw` 退役后以 springboot 参照实现为基准）
 - **声明即必须可达**：`CONTRACT_TARGETS` 里列了却连不上 = 红，不是 skip
 - **不给未真正运行的比对挂功能 ID**：四方比对未运行时那条提示测试的描述里不写 `M96.*`
 - **写操作用唯一化前缀 + teardown**：共库上跑写比对会撞唯一约束、顺序决定结果、不可重跑
@@ -36,7 +39,8 @@ TypeScript + vitest + axios + tough-cookie jar（工作在 HTTP 层，不受 fet
 ## 4. 验收
 
 - suite 根目录跑 `python scripts/gate.py -p saas-identity-platform-contract-test`
-- 四方比对：`CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run`
+- live 比对（常态 2-way 人裁档）：`CONTRACT_TARGETS=springboot,<被测> npx vitest run`；
+  全家族收敛是例外动作需显式升档，如 `CONTRACT_TARGETS=aspnetcore,springboot,nextjs,rails,fastapi npx vitest run`
 
 ## 5. 指向别处
 

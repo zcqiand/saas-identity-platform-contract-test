@@ -141,8 +141,8 @@ sequenceDiagram
   - `generated/openapi/openapi.yaml`——schemathesis 的输入 + L5 §2 reverse 基准
   - `sql/migrations/V016__seed_family_fixtures.sql`——`src/seed.ts` 的唯一真源（镜像须逐字一致）
 - **对家族其他仓**：
-  - 被测对象：`saas-identity-platform-{nextjs,aspnetcore,springboot}`（L5 §2 直接扫它们的路由源码，§3 读它们 `.state/last-gen-shared.json` marker）
-  - 端口：5101 / 5104 / 5105（`src/targets.ts` 硬编码字面量；msw :5100 已退役）
+  - 被测对象：`saas-identity-platform-{nextjs,aspnetcore,springboot,rails,fastapi}`（L5 §2 直接扫它们的路由源码，§3 读它们 `.state/last-gen-shared.json` marker）
+  - 端口：5101 / 5104 / 5105 / 5106 / 5107（`src/targets.ts` 硬编码字面量，conventions §6 X01-X07 分段；msw :5100 已退役）
   - token 不互认：每个后端各自 login，accessToken 不跨后端复用
   - 前端仓（react/vue）只被 L5 §4 sdk-warn 扫描（WARN 级），本仓不发请求给它们
 - **外部依赖**：共享 PostgreSQL（三后端共库，本机/CI 走远程节点）；本仓自身**不连 PG**

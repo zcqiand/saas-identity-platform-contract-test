@@ -70,10 +70,12 @@ describe("M96.F02.I02 normalize 后 body 全等", () => {
 });
 
 describe("M96.F03.I01 目标端口声明", () => {
-  it("三个目标端口与 conventions §6 一致", () => {
+  it("目标端口与 conventions §6 一致", () => {
     expect(TARGETS.nextjs.baseUrl).toContain(":5101");
     expect(TARGETS.aspnetcore.baseUrl).toContain(":5104");
     expect(TARGETS.springboot.baseUrl).toContain(":5105");
+    expect(TARGETS.rails.baseUrl).toContain(":5106");
+    expect(TARGETS.fastapi.baseUrl).toContain(":5107");
   });
 
   it("内存 fixture 目标触发剔 ID；三个真后端不剔", () => {

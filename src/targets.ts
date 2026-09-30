@@ -16,6 +16,9 @@ export const TARGETS: Readonly<Record<string, Target>> = {
   aspnetcore: { name: "aspnetcore", baseUrl: "http://localhost:5104", inMemory: false },
   springboot: { name: "springboot", baseUrl: "http://localhost:5105", inMemory: false },
   rails: { name: "rails", baseUrl: "http://localhost:5106", inMemory: false },
+  // fastapi（REQ-2026-011）：saas 家族第 5 后端，conventions §6 X07 槽位；健康探针
+  // GET /health 落 fnReporter DEFAULT_HEALTH（rails 同款，HEALTH_PATHS 不加条目）。
+  fastapi: { name: "fastapi", baseUrl: "http://localhost:5107", inMemory: false },
 };
 
 export class TargetError extends Error {}
