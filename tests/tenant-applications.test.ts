@@ -54,6 +54,13 @@ describe.skipIf(!live)("M96.F02.I74 GET /tenants/{tenantId}/applications 四方�
         for (const key of ["id", "clientId", "tenantId", "status", "createdAt"]) {
           expect(body.items![0]![key], `${t.name} application 行缺 ${key}`).toBeDefined();
         }
+        // 2026-10-02 强化（springboot toDto 漏 set createdAt 修复同批）：createdAt
+        // 契约 REQUIRED，null 会炸严格解码端（swift 生成物非可选 Date）——
+        // toBeDefined 拦不住 null，必须显式 not.toBeNull()。
+        expect(
+          body.items![0]!["createdAt"],
+          `${t.name} application createdAt 契约 REQUIRED 不得为 null`,
+        ).not.toBeNull();
       }
       probes.push(r);
     }
@@ -108,6 +115,11 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
       for (const key of ["id", "clientId", "tenantId", "status", "createdAt"]) {
         expect(body[key], `${target.name} application 行缺 ${key}`).toBeDefined();
       }
+      // 2026-10-02 强化（springboot toDto 漏 set createdAt 修复同批）：REQUIRED 字段 null 拦截。
+      expect(
+        body["createdAt"],
+        `${target.name} application createdAt 契约 REQUIRED 不得为 null`,
+      ).not.toBeNull();
       // 寻址契约：/applications/{clientId} 用字符串 clientId 列（非 UUID id）
       ctx.clientIds.set(target.name, clientId);
 
