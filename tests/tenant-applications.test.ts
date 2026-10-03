@@ -105,7 +105,10 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
       const r = await probeRequest(target, {
         method: "POST",
         path: BASE_PATH,
-        body: { clientId },
+        // 2026-10-03 批：subscribe 带 expireTime——契约 SubscribeTenantApplicationRequest
+        // expireTime? 语义，springboot 01704a2 参照落库；fastapi/rails 曾「镜像」旧
+        // springboot 丢字段行为（镜像源已修），本断言治陈旧镜像。
+        body: { clientId, expireTime: "2030-01-01T00:00:00Z" },
       });
       expect(
         [200, 201],
@@ -120,6 +123,33 @@ describe.skipIf(!live)("M96.F02.I75 POST /tenants/{tenantId}/applications 四方
         body["createdAt"],
         `${target.name} application createdAt 契约 REQUIRED 不得为 null`,
       ).not.toBeNull();
+      // 2026-10-03 批：subscribe 带 expireTime → 响应必须回读（null/缺席即红）。
+      expect(
+        body["expireTime"],
+        `${target.name} subscribe expireTime 应落库回读（镜像源 springboot 01704a2）`,
+      ).toBeTruthy();
+      expect(
+        String(body["expireTime"]).startsWith("2030-01-01"),
+        `${target.name} subscribe expireTime 回读=${String(body["expireTime"])} 期望 2030-01-01`,
+      ).toBe(true);
+
+      // 2026-10-03 批（dup 泄漏治理）：重复订阅同 clientId → 400（nextjs 409 CONFLICT
+      // 先例在案，分叉待家族对齐人裁）；错误 body 禁裸 DB 诊断——springboot/fastapi/
+      // rails 曾把「constraint violation: <PG 驱动消息/约束名>」整段上 wire。
+      const dup = await probeRequest(target, {
+        method: "POST",
+        path: BASE_PATH,
+        body: { clientId },
+      });
+      expect(
+        dup.status,
+        `${target.name} 重复订阅期望 400（nextjs 409 先例）实得 ${dup.status}`,
+      ).toBe(target.name === "nextjs" ? 409 : 400);
+      expect(
+        String((dup.body as Record<string, unknown>).message ?? ""),
+        `${target.name} 重复订阅 message 泄漏 DB 诊断：${JSON.stringify(dup.body)}`,
+      ).not.toMatch(/constraint violation|duplicate key|uk_tenant_client|详细/);
+
       // 寻址契约：/applications/{clientId} 用字符串 clientId 列（非 UUID id）
       ctx.clientIds.set(target.name, clientId);
 
