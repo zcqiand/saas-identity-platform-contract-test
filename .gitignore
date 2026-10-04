@@ -27,3 +27,8 @@ schemathesis/**/__pycache__/
 
 # schemathesis 报告目录（运行时产物，不入库）
 schemathesis-report/
+
+# 2026-10-04 env 泄漏纪律（2026-09-23 事故复盘）：本机密值不入库；.env.example/.env.test 等契约三件套不受影响
+.env
+.env.local
+.env.*.local
