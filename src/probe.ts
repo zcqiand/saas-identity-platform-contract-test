@@ -5,11 +5,10 @@
 // 裁定：**重试 + 自适应超时**——N 次尝试（2-3 次）+ 指数退避 + 单次超时 10s 封顶，
 // **全部尝试失败才判死**；判死时逐次留痕耗时与失败原因（可诊断性是裁定的一半）。
 //
-// 仓内两处同根调用方（DRY 统一走本原语）：
-//   - tests/fnReporter.ts probeLive（mode 判定前的 live 探活）
-//   - src/prewarm.ts waitHealthy（live 冷启动预热轮询）
-// 两者调用形状不同（一个「3 次 + 退避」定长；一个「预算内轮询」变长），故 prewarm
-// 只复用 probeOnce 单针原语，定长重试用 probeWithRetry —— 薄分层，不过度抽象。
+// 仓内调用方（DRY 统一走本原语）：
+//   - tests/fnReporter.ts probeLive（mode 判定前的 live 探活，probeWithRetry 定长重试）
+// （历史注：src/prewarm.ts waitHealthy 已随冷启动预热层删除；「预算内轮询」变长
+//   形态随之消失，probeOnce 单针原语暂无第二调用方，留作重试原语的一部分。）
 //
 // 实现注记：
 //   - 超时用 setTimeout + AbortController 双保险：真 fetch 收 abort 即断；但注入的
