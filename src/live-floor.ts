@@ -48,7 +48,10 @@ function currentSuiteName(override?: string): string | null {
  * 全部 await，单 worker 串行（fileParallelism: false）下动态作用域安全。 */
 let hookSuiteName: string | null = null;
 
-export async function withLiveExecSuite<T>(suiteName: string, fn: () => Promise<T>): Promise<T> {
+export async function withLiveExecSuite<T>(
+  suiteName: string,
+  fn: () => Promise<T>,
+): Promise<T> {
   hookSuiteName = suiteName;
   try {
     return await fn();
@@ -61,7 +64,11 @@ export async function withLiveExecSuite<T>(suiteName: string, fn: () => Promise<
  * 探针出口点调用（probeGet / probeWithToken 成功拿到响应处）。无 suite 上下文则 no-op。
  * suiteOverride：beforeAll 内钩子把首参（suite task）的 name 穿进来的通道；it() 内不必传。
  */
-export function recordProbe(target: string, status: number, suiteOverride?: string): void {
+export function recordProbe(
+  target: string,
+  status: number,
+  suiteOverride?: string,
+): void {
   const suite = currentSuiteName(suiteOverride);
   if (!suite) return;
   mkdirSync(path.dirname(LIVE_EXEC_FILE), { recursive: true });
@@ -91,7 +98,18 @@ export function readLiveExecGroups(): Map<string, Set<string>> | null {
     const t = line.trim();
     if (!t) continue;
     try {
-      const row = JSON.parse(t) as LiveExecRow;
+      const row = JSON.parse(t) as Partial<LiveExecRow>;
+      // 5.97⑤：JSON 合法但形状不对（缺字段/错型，外部手工损坏面）与损坏行同判跳过
+      // ——recordProbe 恒写全字段，此守卫只防手改；放行会产 undefined 键垃圾分组（假红侧）。
+      if (
+        typeof row.suite !== "string" ||
+        !row.suite ||
+        typeof row.target !== "string" ||
+        !row.target ||
+        typeof row.status !== "number" ||
+        !Number.isFinite(row.status)
+      )
+        continue;
       if (!groups.has(row.suite)) groups.set(row.suite, new Set());
       groups.get(row.suite)!.add(row.target);
     } catch {
