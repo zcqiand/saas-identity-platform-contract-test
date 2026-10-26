@@ -7,9 +7,11 @@ SaaS身份平台契约一致性验证仓（`saas-identity-platform-contract-test
 ## 快速开始
 
 ```bash
-npm install        # 安装依赖
-npm test           # 全量测试（live 比对需 CONTRACT_TARGETS + 对应后端在跑）
-npm run typecheck  # tsc --noEmit
+# 前置：node + npm（依赖一律走 npmmirror）
+npm install --registry=https://registry.npmmirror.com                    # 安装依赖
+node scripts/check_ssot_coverage.mjs    # L2 SSOT 覆盖检查
+npx --no tsc --noEmit                   # L3 类型
+npx --no vitest run                     # L4 契约测试
 ```
 
 ## 功能特性
@@ -20,7 +22,7 @@ npm run typecheck  # tsc --noEmit
 
 | 技术 | 版本 |
 | :--- | :--- |
-| __STACK_DESC_LINE__ | |
+| vitest / TypeScript | 版本见 package.json（钉版） |
 
 > 依赖版本与 `version-lock.json` 的 `version_lock` 一致，不引入 lock 外的库。
 
