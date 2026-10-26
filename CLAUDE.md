@@ -4,9 +4,10 @@
 
 ## 1. 项目定位
 
-黑盒 HTTP 打 5 个后端（`nextjs`:5101 / `aspnetcore`:5104 / `springboot`:5105 /
-`rails`:5106 / `fastapi`:5107，REQ-2026-011 接入 fastapi；`msw`:5100 已于 2026-09-17
-删仓退役），验证它们**对前端不可区分**。保留命名空间 `M96`，不镜像 BASE 业务模块。
+黑盒 HTTP 打 6 个后端（`nextjs`:5101 / `aspnetcore`:5104 / `springboot`:5105 /
+`rails`:5106 / `fastapi`:5107（REQ-2026-011 接入）/ `go`:5111（REQ-2026-003 接入）；
+`msw`:5100 已于 2026-09-17 删仓退役），验证它们**对前端不可区分**。保留命名空间
+`M96`，不镜像 BASE 业务模块。
 
 **它不是什么**：不是后端的单元测试搬家（两个后端测的层根本不同——aspnetcore 测 Controller、
 springboot 测 Service）；不是 E2E（不开浏览器）。它回答「哪里不一致」，

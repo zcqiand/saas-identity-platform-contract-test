@@ -19,6 +19,8 @@ export const TARGETS: Readonly<Record<string, Target>> = {
   // fastapi（REQ-2026-011）：saas 家族第 5 后端，conventions §6 X07 槽位；健康探针
   // GET /health 落 fnReporter DEFAULT_HEALTH（rails 同款，HEALTH_PATHS 不加条目）。
   fastapi: { name: "fastapi", baseUrl: "http://localhost:5107", inMemory: false },
+  // go（REQ-2026-003）：saas 家族第 6 后端，conventions §6 X13 扩展槽；探针 GET /health
+  go: { name: "go", baseUrl: "http://localhost:5111", inMemory: false },
 };
 
 export class TargetError extends Error {}
